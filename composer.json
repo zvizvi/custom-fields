@@ -5,8 +5,24 @@
         "manukminasyan",
         "relaticle",
         "laravel",
+        "custom-fields",
         "filament",
-        "custom-fields"
+        "dynamic-fields",
+        "form-fields",
+        "eloquent",
+        "admin-panel",
+        "forms",
+        "multi-tenancy",
+        "conditional-fields",
+        "field-builder",
+        "form-builder",
+        "no-migration",
+        "csv-import",
+        "csv-export",
+        "encrypted-fields",
+        "validation",
+        "filamentphp",
+        "laravel-package"
     ],
     "homepage": "https://github.com/relaticle/custom-fields",
     "support": {
@@ -25,7 +41,7 @@
         "php": "^8.3",
         "filament/filament": "^4.0",
         "spatie/laravel-package-tools": "^1.15.0",
-        "spatie/laravel-data": "^4.12.0",
+        "spatie/laravel-data": "^4.0.0",
         "postare/blade-mdi": "^1.0"
     },
     "require-dev": {
@@ -77,7 +93,6 @@
         "allow-plugins": {
             "pestphp/pest-plugin": true,
             "phpstan/extension-installer": true,
-            "dealerdirect/phpcodesniffer-composer-installer": true
         }
     },
     "extra": {
