@@ -92,4 +92,4 @@ public function form(Schema $schema): Form
 
 ## 🤝 Contributing
 
-Contributions welcome! Please see our [contributing guide](https://custom-fields.relaticle.com/contributing).
+Contributions welcome! Please see our [contributing guide](https://custom-fields.relaticle.com/help-support/contributing).
