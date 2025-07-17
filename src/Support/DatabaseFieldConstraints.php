@@ -7,6 +7,7 @@ namespace Relaticle\CustomFields\Support;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Relaticle\CustomFields\Enums\CustomFieldType;
 
 /**
  * Class for handling database field constraints and converting them to validation rules.
@@ -17,17 +18,17 @@ final class DatabaseFieldConstraints
     /**
      * Cache prefix for database constraints.
      */
-    private const string CACHE_PREFIX = 'custom_fields_db_constraints';
+    private const CACHE_PREFIX = 'custom_fields_db_constraints';
 
     /**
      * Cache TTL in seconds (24 hours by default).
      */
-    private const int CACHE_TTL = 86400;
+    private const CACHE_TTL = 86400;
 
     /**
      * Default safety margin for encrypted fields (reduces max length by this percentage).
      */
-    private const float ENCRYPTION_SAFETY_MARGIN = 0.66;
+    private const ENCRYPTION_SAFETY_MARGIN = 0.66;
 
     /**
      * Default constraints for field types by database type.
@@ -39,90 +40,90 @@ final class DatabaseFieldConstraints
             'text_value' => [
                 'max' => 65535,
                 'validator' => 'max',
-                'field_types' => ['text', 'textarea', 'rich_editor', 'markdown_editor'],
+                'field_types' => [CustomFieldType::TEXT, CustomFieldType::TEXTAREA, CustomFieldType::RICH_EDITOR, CustomFieldType::MARKDOWN_EDITOR],
             ],
             'string_value' => [
                 'max' => 255,
                 'validator' => 'max',
-                'field_types' => ['link', 'color_picker'],
+                'field_types' => [CustomFieldType::LINK, CustomFieldType::COLOR_PICKER],
             ],
             'integer_value' => [
                 'min' => -9223372036854775808,
                 'max' => 9223372036854775807,
                 'validator' => 'between',
-                'field_types' => ['number', 'radio', 'select'],
+                'field_types' => [CustomFieldType::NUMBER, CustomFieldType::RADIO, CustomFieldType::SELECT],
             ],
             'float_value' => [
                 'max_digits' => 30,
                 'max_decimals' => 15,
-                'validator' => ['digits_between:1,30', 'decimal:0,15'],
-                'field_types' => ['currency'],
+                'validator' => ['decimal:0,15'],
+                'field_types' => [CustomFieldType::CURRENCY],
             ],
             'json_value' => [
                 'max_items' => 500, // Reasonable limit for array items
                 'max_item_length' => 255, // Each array item string length
                 'validator' => null, // Custom validation needed
-                'field_types' => ['checkbox_list', 'toggle_buttons', 'tags_input', 'multi_select'],
+                'field_types' => [CustomFieldType::CHECKBOX_LIST, CustomFieldType::TOGGLE_BUTTONS, CustomFieldType::TAGS_INPUT, CustomFieldType::MULTI_SELECT],
             ],
         ],
         'pgsql' => [
             'text_value' => [
                 'max' => 1073741823, // Postgres has much larger text capacity
                 'validator' => 'max',
-                'field_types' => ['text', 'textarea', 'rich_editor', 'markdown_editor'],
+                'field_types' => [CustomFieldType::TEXT, CustomFieldType::TEXTAREA, CustomFieldType::RICH_EDITOR, CustomFieldType::MARKDOWN_EDITOR],
             ],
             'string_value' => [
                 'max' => 255,
                 'validator' => 'max',
-                'field_types' => ['link', 'color_picker'],
+                'field_types' => [CustomFieldType::LINK, CustomFieldType::COLOR_PICKER],
             ],
             'integer_value' => [
                 'min' => -9223372036854775808,
                 'max' => 9223372036854775807,
                 'validator' => 'between',
-                'field_types' => ['number', 'radio', 'select'],
+                'field_types' => [CustomFieldType::NUMBER, CustomFieldType::RADIO, CustomFieldType::SELECT],
             ],
             'float_value' => [
                 'max_digits' => 30,
                 'max_decimals' => 15,
                 'validator' => ['digits_between:1,30', 'decimal:0,15'],
-                'field_types' => ['currency'],
+                'field_types' => [CustomFieldType::CURRENCY],
             ],
             'json_value' => [
                 'max_items' => 500,
                 'max_item_length' => 255,
                 'validator' => null,
-                'field_types' => ['checkbox_list', 'toggle_buttons', 'tags_input', 'multi_select'],
+                'field_types' => [CustomFieldType::CHECKBOX_LIST, CustomFieldType::TOGGLE_BUTTONS, CustomFieldType::TAGS_INPUT, CustomFieldType::MULTI_SELECT],
             ],
         ],
         'sqlite' => [
             'text_value' => [
                 'max' => 1000000000, // SQLite has essentially no limit, but setting a reasonable one
                 'validator' => 'max',
-                'field_types' => ['text', 'textarea', 'rich_editor', 'markdown_editor'],
+                'field_types' => [CustomFieldType::TEXT, CustomFieldType::TEXTAREA, CustomFieldType::RICH_EDITOR, CustomFieldType::MARKDOWN_EDITOR],
             ],
             'string_value' => [
                 'max' => 255,
                 'validator' => 'max',
-                'field_types' => ['link', 'color_picker'],
+                'field_types' => [CustomFieldType::LINK, CustomFieldType::COLOR_PICKER],
             ],
             'integer_value' => [
                 'min' => -9223372036854775808,
                 'max' => 9223372036854775807,
                 'validator' => 'between',
-                'field_types' => ['number', 'radio', 'select'],
+                'field_types' => [CustomFieldType::NUMBER, CustomFieldType::RADIO, CustomFieldType::SELECT],
             ],
             'float_value' => [
                 'max_digits' => 30,
                 'max_decimals' => 15,
                 'validator' => ['digits_between:1,30', 'decimal:0,15'],
-                'field_types' => ['currency'],
+                'field_types' => [CustomFieldType::CURRENCY],
             ],
             'json_value' => [
                 'max_items' => 500,
                 'max_item_length' => 255,
                 'validator' => null,
-                'field_types' => ['checkbox_list', 'toggle_buttons', 'tags_input', 'multi_select'],
+                'field_types' => [CustomFieldType::CHECKBOX_LIST, CustomFieldType::TOGGLE_BUTTONS, CustomFieldType::TAGS_INPUT, CustomFieldType::MULTI_SELECT],
             ],
         ],
     ];
@@ -151,15 +152,15 @@ final class DatabaseFieldConstraints
     /**
      * Get the constraints for a specific field type.
      *
-     * @param  string  $fieldType  The field type
+     * @param  CustomFieldType  $fieldType  The field type
      * @return array<string, mixed>|null The constraints array or null if not found
      */
-    public static function getConstraintsForFieldType(string $fieldType): ?array
+    public static function getConstraintsForFieldType(CustomFieldType $fieldType): ?array
     {
         $driver = self::getDatabaseDriver();
         $columnName = self::getColumnNameForFieldType($fieldType);
 
-        if ($columnName === null || $columnName === '' || $columnName === '0') {
+        if (! $columnName) {
             return null;
         }
 
@@ -169,7 +170,7 @@ final class DatabaseFieldConstraints
     /**
      * Get the column name for a specific field type.
      */
-    private static function getColumnNameForFieldType(string $fieldType): ?string
+    private static function getColumnNameForFieldType(CustomFieldType $fieldType): ?string
     {
         $driver = self::getDatabaseDriver();
 
@@ -237,10 +238,9 @@ final class DatabaseFieldConstraints
             if (preg_match('/^'.preg_quote($ruleType, '/').'($|:)/', $rule)) {
                 $existingRuleIndex = $index;
                 // Extract parameters if any (after the colon)
-                if (str_contains($rule, ':')) {
+                if (strpos($rule, ':') !== false) {
                     $existingRuleValue = substr($rule, strpos($rule, ':') + 1);
                 }
-
                 $hasExistingRule = true;
                 break;
             }
@@ -277,31 +277,27 @@ final class DatabaseFieldConstraints
                 if (isset($dbConstraints['max'])) {
                     $rules[] = $ruleType.':'.$dbConstraints['max'];
                 }
-
                 break;
 
             case 'min':
                 if (isset($dbConstraints['min'])) {
                     $rules[] = $ruleType.':'.$dbConstraints['min'];
                 }
-
                 break;
 
             case 'between':
                 if (isset($dbConstraints['min'], $dbConstraints['max'])) {
                     $rules[] = $ruleType.':'.$dbConstraints['min'].','.$dbConstraints['max'];
                 }
-
                 break;
 
             default:
                 // For pre-formatted rules or rules without parameters
-                if (str_contains($ruleType, ':')) {
+                if (strpos($ruleType, ':') !== false) {
                     $rules[] = $ruleType;
                 } elseif (! in_array($ruleType, $rules)) {
                     $rules[] = $ruleType;
                 }
-
                 break;
         }
 
@@ -344,7 +340,6 @@ final class DatabaseFieldConstraints
                         $rules[$existingRuleIndex] = 'max:'.$dbConstraints['max'];
                     }
                 }
-
                 break;
 
             case 'min':
@@ -359,11 +354,10 @@ final class DatabaseFieldConstraints
                         $rules[$existingRuleIndex] = 'min:'.$dbConstraints['min'];
                     }
                 }
-
                 break;
 
             case 'between':
-                if (isset($dbConstraints['min'], $dbConstraints['max']) && str_contains($existingRuleValue, ',')) {
+                if (isset($dbConstraints['min'], $dbConstraints['max']) && strpos($existingRuleValue, ',') !== false) {
                     // For between, compare parts separately
                     [$existingMin, $existingMax] = explode(',', $existingRuleValue);
                     if (is_numeric($existingMin) && is_numeric($existingMax)) {
@@ -380,77 +374,10 @@ final class DatabaseFieldConstraints
                         $rules[$existingRuleIndex] = 'between:'.$newMin.','.$newMax;
                     }
                 }
-
                 break;
 
                 // Add cases for other rule types that need special handling
         }
-
-        return $rules;
-    }
-
-    /**
-     * Get validation rules for a specific database column that enforce database constraints.
-     * These rules ensure that user input doesn't exceed database column limitations.
-     *
-     * @param  string  $columnName  The database column name
-     * @param  bool  $isEncrypted  Whether the field is encrypted
-     * @return array<int, string> Array of validation rules
-     */
-    public static function getValidationRulesForColumn(string $columnName, bool $isEncrypted = false): array
-    {
-        $driver = self::getDatabaseDriver();
-        $constraints = self::$constraints[$driver][$columnName] ?? null;
-
-        if (! $constraints) {
-            return [];
-        }
-
-        $rules = [];
-        $validator = $constraints['validator'] ?? null;
-
-        if (! $validator) {
-            return $rules;
-        }
-
-        // Handle validators that are arrays (multiple rules)
-        if (is_array($validator)) {
-            $rules = $validator;
-        } else {
-            // Handle single validator with its constraints
-            switch ($validator) {
-                case 'max':
-                    $maxValue = $constraints['max'] ?? 255;
-                    if ($isEncrypted) {
-                        // Encrypted values use more space, reduce max by defined safety margin
-                        $maxValue = (int) ($maxValue * self::ENCRYPTION_SAFETY_MARGIN);
-                    }
-
-                    $rules[] = 'max:'.$maxValue;
-                    break;
-                case 'between':
-                    // Use string representation for min/max values to avoid floating point issues
-                    $minValue = $constraints['min'] ?? PHP_INT_MIN;
-                    $maxValue = $constraints['max'] ?? PHP_INT_MAX;
-
-                    // For integer_value fields, add numeric validation to ensure proper format
-                    if ($columnName === 'integer_value') {
-                        $rules[] = 'numeric';
-                        $rules[] = 'integer';
-                    }
-
-                    // Use separate min/max rules instead of a between rule to allow better merging
-                    $rules[] = 'min:'.$minValue;
-                    $rules[] = 'max:'.$maxValue;
-                    break;
-                default:
-                    // For other validators, just add them as is
-                    $rules[] = $validator;
-            }
-        }
-
-        // Add column-specific validations
-        $rules = array_merge($rules, self::getColumnSpecificRules($columnName));
 
         return $rules;
     }
@@ -461,20 +388,18 @@ final class DatabaseFieldConstraints
      * It will return separate min/max rules instead of a between rule to allow for
      * better merging with user-defined rules.
      *
-     * @param  string  $fieldType  The field type
+     * @param  CustomFieldType  $fieldType  The field type
      * @param  bool  $isEncrypted  Whether the field is encrypted
      * @return array<int, string> Array of validation rules
-     *
-     * @deprecated Use getValidationRulesForColumn() instead
      */
-    public static function getValidationRulesForFieldType(string $fieldType, bool $isEncrypted = false): array
+    public static function getValidationRulesForFieldType(CustomFieldType $fieldType, bool $isEncrypted = false): array
     {
         // Get cached rules if available
-        $cacheKey = self::CACHE_PREFIX.'_rules_'.$fieldType.'_'.($isEncrypted ? '1' : '0');
+        $cacheKey = self::CACHE_PREFIX.'_rules_'.$fieldType->value.'_'.($isEncrypted ? '1' : '0');
 
-        return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($fieldType, $isEncrypted): array {
+        return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($fieldType, $isEncrypted) {
             $constraints = self::getConstraintsForFieldType($fieldType);
-            if ($constraints === null || $constraints === []) {
+            if (! $constraints) {
                 return [];
             }
 
@@ -497,8 +422,7 @@ final class DatabaseFieldConstraints
                             // Encrypted values use more space, reduce max by defined safety margin
                             $maxValue = (int) ($maxValue * self::ENCRYPTION_SAFETY_MARGIN);
                         }
-
-                        $rules[] = 'max:'.$maxValue;
+                        $rules[] = "max:{$maxValue}";
                         break;
                     case 'between':
                         // Use string representation for min/max values to avoid floating point issues
@@ -507,9 +431,9 @@ final class DatabaseFieldConstraints
 
                         // For integer_value fields, add numeric validation to ensure proper format
                         if (isset($constraints['field_types']) &&
-                            (in_array('number', $constraints['field_types']) ||
-                             in_array('radio', $constraints['field_types']) ||
-                             in_array('select', $constraints['field_types']))) {
+                            (in_array(CustomFieldType::NUMBER, $constraints['field_types']) ||
+                             in_array(CustomFieldType::RADIO, $constraints['field_types']) ||
+                             in_array(CustomFieldType::SELECT, $constraints['field_types']))) {
                             $rules[] = 'numeric';
                             // Add integer validation to ensure we're dealing with integer values
                             $rules[] = 'integer';
@@ -517,8 +441,8 @@ final class DatabaseFieldConstraints
 
                         // Use separate min/max rules instead of a between rule to allow better merging
                         // with user-defined validation rules
-                        $rules[] = 'min:'.$minValue;
-                        $rules[] = 'max:'.$maxValue;
+                        $rules[] = "min:{$minValue}";
+                        $rules[] = "max:{$maxValue}";
                         break;
                     default:
                         // For other validators, just add them as is
@@ -534,55 +458,33 @@ final class DatabaseFieldConstraints
     }
 
     /**
-     * Get validation rules specific to database column data validation requirements.
-     *
-     * @param  string  $columnName  The database column name
-     * @return array<int, string> Array of validation rules
-     */
-    private static function getColumnSpecificRules(string $columnName): array
-    {
-        return match ($columnName) {
-            'integer_value' => ['numeric', 'integer'],
-            'float_value' => ['numeric'],
-            'date_value' => ['date'],
-            'datetime_value' => ['datetime'],
-            'text_value', 'string_value' => ['string'],
-            'boolean_value' => ['boolean'],
-            'json_value' => ['array'],
-            default => [],
-        };
-    }
-
-    /**
      * Get validation rules specific to field type data validation requirements.
      *
-     * @param  string  $fieldType  The field type
+     * @param  CustomFieldType  $fieldType  The field type
      * @return array<int, string> Array of validation rules
-     *
-     * @deprecated Use getColumnSpecificRules() instead
      */
-    private static function getTypeSpecificRules(string $fieldType): array
+    private static function getTypeSpecificRules(CustomFieldType $fieldType): array
     {
         $rules = [];
 
         // Add type-specific validation rules
         switch ($fieldType) {
-            case 'currency':
-            case 'number':
+            case CustomFieldType::CURRENCY:
+            case CustomFieldType::NUMBER:
                 $rules[] = 'numeric';
                 break;
-            case 'date':
+            case CustomFieldType::DATE:
                 $rules[] = 'date';
                 break;
-            case 'date_time':
+            case CustomFieldType::DATE_TIME:
                 $rules[] = 'datetime';
                 break;
-            case 'text':
-            case 'textarea':
-            case 'rich_editor':
-            case 'markdown_editor':
-            case 'link':
-            case 'color_picker':
+            case CustomFieldType::TEXT:
+            case CustomFieldType::TEXTAREA:
+            case CustomFieldType::RICH_EDITOR:
+            case CustomFieldType::MARKDOWN_EDITOR:
+            case CustomFieldType::LINK:
+            case CustomFieldType::COLOR_PICKER:
                 $rules[] = 'string';
                 break;
         }
@@ -591,59 +493,50 @@ final class DatabaseFieldConstraints
     }
 
     /**
-     * Get validation rules for JSON database column.
-     * These rules ensure JSON data fits within database constraints.
-     *
-     * @param  bool  $isEncrypted  Whether the field is encrypted
-     * @return array<int, string> Array of validation rules
-     */
-    public static function getJsonValidationRules(bool $isEncrypted = false): array
-    {
-        $driver = self::getDatabaseDriver();
-        $constraints = self::$constraints[$driver]['json_value'] ?? null;
-
-        if (! $constraints) {
-            Log::warning('No JSON constraints defined for database driver: '.$driver);
-
-            return ['array'];
-        }
-
-        $maxItems = $constraints['max_items'] ?? 500;
-        $maxItemLength = $constraints['max_item_length'] ?? 255;
-
-        if ($isEncrypted) {
-            $maxItemLength = (int) ($maxItemLength * self::ENCRYPTION_SAFETY_MARGIN);
-        }
-
-        return [
-            'array',
-            'max:'.$maxItems,
-        ];
-    }
-
-    /**
      * Get validation rules for array/json field types.
      * These rules ensure JSON data fits within database constraints.
      *
-     * @param  string  $fieldType  The field type
+     * @param  CustomFieldType  $fieldType  The field type
      * @param  bool  $isEncrypted  Whether the field is encrypted
      * @return array<int, string> Array of validation rules
-     *
-     * @deprecated Use getJsonValidationRules() instead
      */
-    public static function getJsonValidationRulesForFieldType(string $fieldType, bool $isEncrypted = false): array
+    public static function getJsonValidationRules(CustomFieldType $fieldType, bool $isEncrypted = false): array
     {
         // Cache the rules to avoid repeated processing
-        $cacheKey = self::CACHE_PREFIX.'_json_rules_'.$fieldType.'_'.($isEncrypted ? '1' : '0');
+        $cacheKey = self::CACHE_PREFIX.'_json_rules_'.$fieldType->value.'_'.($isEncrypted ? '1' : '0');
 
-        return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($fieldType, $isEncrypted): array {
+        return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($fieldType, $isEncrypted) {
             // Only apply these rules to array-type fields
-            $multiValueTypes = ['checkbox_list', 'toggle_buttons', 'tags_input', 'multi_select'];
-            if (! in_array($fieldType, $multiValueTypes)) {
+            if (! $fieldType->hasMultipleValues()) {
                 return [];
             }
 
-            return self::getJsonValidationRules($isEncrypted);
+            $driver = self::getDatabaseDriver();
+            $constraints = self::$constraints[$driver]['json_value'] ?? null;
+
+            if (! $constraints) {
+                Log::warning("No JSON constraints defined for database driver: {$driver}");
+
+                return ['array']; // Return basic array validation as fallback
+            }
+
+            $maxItems = $constraints['max_items'] ?? 500;
+            $maxItemLength = $constraints['max_item_length'] ?? 255;
+
+            if ($isEncrypted) {
+                // Reduce limits for encrypted values using the safety margin
+                $maxItemLength = (int) ($maxItemLength * self::ENCRYPTION_SAFETY_MARGIN);
+            }
+
+            $rules = [
+                'array',
+                'max:'.$maxItems, // Max number of items
+            ];
+
+            // Add custom rule for validating individual array items
+            // This could be extended with a more sophisticated approach if needed
+
+            return $rules;
         });
     }
 
@@ -656,21 +549,18 @@ final class DatabaseFieldConstraints
         // Clear driver cache
         Cache::forget(self::CACHE_PREFIX.'_driver');
 
-        // Clear all column-based rule caches - both encrypted and non-encrypted variants
-        $columns = ['text_value', 'string_value', 'integer_value', 'float_value', 'json_value',
-            'boolean_value', 'date_value', 'datetime_value'];
-
-        foreach ($columns as $column) {
+        // Clear all field type rule caches - both encrypted and non-encrypted variants
+        foreach (CustomFieldType::cases() as $fieldType) {
             // Clear non-encrypted rules
-            Cache::forget(self::CACHE_PREFIX.'_column_rules_'.$column.'_0');
+            Cache::forget(self::CACHE_PREFIX.'_rules_'.$fieldType->value.'_0');
 
             // Clear encrypted rules
-            Cache::forget(self::CACHE_PREFIX.'_column_rules_'.$column.'_1');
+            Cache::forget(self::CACHE_PREFIX.'_rules_'.$fieldType->value.'_1');
 
             // Clear JSON rules if applicable
-            if ($column === 'json_value') {
-                Cache::forget(self::CACHE_PREFIX.'_json_rules_'.$column.'_0');
-                Cache::forget(self::CACHE_PREFIX.'_json_rules_'.$column.'_1');
+            if ($fieldType->hasMultipleValues()) {
+                Cache::forget(self::CACHE_PREFIX.'_json_rules_'.$fieldType->value.'_0');
+                Cache::forget(self::CACHE_PREFIX.'_json_rules_'.$fieldType->value.'_1');
             }
         }
 
