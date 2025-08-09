@@ -51,7 +51,7 @@ enum FieldDataType: string
                 Operator::IS_EMPTY,
                 Operator::IS_NOT_EMPTY,
             ],
-            self::NUMERIC, self::DATE, self::DATE_TIME => [
+            self::NUMERIC, self::FLOAT, self::DATE, self::DATE_TIME => [
                 Operator::EQUALS,
                 Operator::NOT_EQUALS,
                 Operator::GREATER_THAN,

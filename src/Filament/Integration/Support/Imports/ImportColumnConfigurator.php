@@ -136,7 +136,7 @@ final class ImportColumnConfigurator
     /**
      * Resolve a single lookup value.
      */
-    private function resolveLookupValue(CustomField $customField, mixed $value): ?int
+    private function resolveLookupValue(CustomField $customField, mixed $value): int
     {
         try {
             $entity = Entities::getEntity($customField->lookup_type);
@@ -188,9 +188,7 @@ final class ImportColumnConfigurator
         foreach ($values as $value) {
             try {
                 $id = $this->resolveLookupValue($customField, $value);
-                if ($id !== null) {
-                    $foundIds[] = $id;
-                }
+                $foundIds[] = $id;
             } catch (RowImportFailedException) {
                 $missingValues[] = $value;
             }
@@ -338,7 +336,7 @@ final class ImportColumnConfigurator
      */
     private function configureText(ImportColumn $column, CustomField $customField): void
     {
-        $dataType = $customField->typeData?->dataType ?? FieldDataType::STRING;
+        $dataType = $customField->typeData->dataType;
 
         $example = match ($dataType) {
             FieldDataType::STRING => 'Sample text',

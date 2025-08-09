@@ -430,7 +430,7 @@ final readonly class FrontendVisibilityService
         array $value,
         CustomField $targetField
     ): mixed {
-        return $targetField->type->hasMultipleValues()
+        return $targetField->isMultiChoiceField()
             ? collect($value)
                 ->map(
                     fn ($v): mixed => $this->convertOptionValue($v, $targetField)

@@ -77,14 +77,19 @@ class TypeField extends Select
         return Cache::remember(
             key: $cacheKey,
             ttl: 60,
-            callback: fn (): string => view('custom-fields::filament.forms.type-field')
-                ->with([
-                    'label' => $data->label,
-                    'value' => $data->key,
-                    'icon' => $data->icon,
-                    'selected' => $this->getState(),
-                ])
-                ->render()
+            callback: function () use ($data): string {
+                /** @var view-string $viewName */
+                $viewName = 'custom-fields::filament.forms.type-field';
+
+                return (string) view($viewName)
+                    ->with([
+                        'label' => $data->label,
+                        'value' => $data->key,
+                        'icon' => $data->icon,
+                        'selected' => $this->getState(),
+                    ])
+                    ->render();
+            }
         );
     }
 }

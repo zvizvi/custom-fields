@@ -140,7 +140,7 @@ final class CustomFieldsServiceProvider extends PackageServiceProvider
         }
     }
 
-    private function getAssetPackageName(): ?string
+    private function getAssetPackageName(): string
     {
         return 'relaticle/custom-fields';
     }

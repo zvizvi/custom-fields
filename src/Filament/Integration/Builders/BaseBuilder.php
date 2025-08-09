@@ -7,17 +7,15 @@ namespace Relaticle\CustomFields\Filament\Integration\Builders;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
 use InvalidArgumentException;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 use Relaticle\CustomFields\Models\CustomFieldSection;
-use Relaticle\CustomFields\QueryBuilders\CustomFieldQueryBuilder;
 
 abstract class BaseBuilder
 {
-    protected Model $model;
+    protected Model&HasCustomFields $model;
 
     protected Builder $sections;
 
@@ -33,6 +31,10 @@ abstract class BaseBuilder
 
         if (! $model instanceof HasCustomFields) {
             throw new InvalidArgumentException('Model must implement HasCustomFields interface.');
+        }
+
+        if (! $model instanceof Model) {
+            throw new InvalidArgumentException('Model must be an Eloquent Model.');
         }
 
         $model->load('customFieldValues.customField');
@@ -60,18 +62,23 @@ abstract class BaseBuilder
         return $this;
     }
 
+    /**
+     * @return Collection<int, CustomFieldSection>
+     */
     protected function getFilteredSections(): Collection
     {
-        return $this->sections
-            ->with(['fields' => function (HasMany $query): void {
+        /** @var Collection<int, CustomFieldSection> $sections */
+        $sections = $this->sections
+            ->with(['fields' => function ($query): void {
                 $query
-                    ->when($this instanceof TableBuilder, fn (CustomFieldQueryBuilder $q): CustomFieldQueryBuilder => $q->visibleInList())
-                    ->when($this instanceof InfolistBuilder, fn (CustomFieldQueryBuilder $q): CustomFieldQueryBuilder => $q->visibleInView())
-                    ->when($this->only !== [], fn (CustomFieldQueryBuilder $q) => $q->whereIn('code', $this->only))
-                    ->when($this->except !== [], fn (CustomFieldQueryBuilder $q) => $q->whereNotIn('code', $this->except))
+                    ->when($this instanceof TableBuilder, fn ($q) => $q->visibleInList())
+                    ->when($this instanceof InfolistBuilder, fn ($q) => $q->visibleInView())
+                    ->when($this->only !== [], fn ($q) => $q->whereIn('code', $this->only))
+                    ->when($this->except !== [], fn ($q) => $q->whereNotIn('code', $this->except))
                     ->orderBy('sort_order');
             }])
-            ->get()
-            ->filter(fn (CustomFieldSection $section) => $section->fields->isNotEmpty());
+            ->get();
+
+        return $sections->filter(fn (CustomFieldSection $section) => $section->fields->isNotEmpty());
     }
 }

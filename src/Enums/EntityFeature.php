@@ -8,14 +8,13 @@ declare(strict_types=1);
 namespace Relaticle\CustomFields\Enums;
 
 use Filament\Support\Contracts\HasLabel;
-use Illuminate\Contracts\Support\Htmlable;
 
 enum EntityFeature: string implements HasLabel
 {
     case CUSTOM_FIELDS = 'custom_fields';
     case LOOKUP_SOURCE = 'lookup_source';
 
-    public function getLabel(): string|Htmlable|null
+    public function getLabel(): string
     {
         return match ($this) {
             self::CUSTOM_FIELDS => 'Custom Fields',

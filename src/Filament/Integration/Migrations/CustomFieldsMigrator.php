@@ -314,9 +314,7 @@ class CustomFieldsMigrator implements CustomsFieldsMigrators
         }
 
         // For new fields, check based on the field type string
-        $fieldType = is_string($this->customFieldData->type)
-            ? $this->customFieldData->type
-            : $this->customFieldData->type->value;
+        $fieldType = $this->customFieldData->type;
 
         return in_array($fieldType, [
             'select',
