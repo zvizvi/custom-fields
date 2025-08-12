@@ -7,8 +7,6 @@ namespace Relaticle\CustomFields\Filament\Integration\Builders;
 use Filament\Actions\Imports\ImportColumn;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
-use Relaticle\CustomFields\Contracts\FieldImportExportInterface;
-use Relaticle\CustomFields\FieldTypes\FieldTypeManager;
 use Relaticle\CustomFields\Filament\Integration\Support\Imports\ImportColumnConfigurator;
 use Relaticle\CustomFields\Filament\Integration\Support\Imports\ImportDataStorage;
 use Relaticle\CustomFields\Models\CustomField;
@@ -43,10 +41,6 @@ final class ImporterBuilder extends BaseBuilder
             return;
         }
 
-        // Transform values based on field types
-        $customFieldsData = $this->transformImportValues($customFieldsData);
-
-        // Save the custom fields
         $this->model->saveCustomFields($customFieldsData, $tenant);
     }
 
@@ -59,30 +53,4 @@ final class ImporterBuilder extends BaseBuilder
         );
     }
 
-    private function transformImportValues(array $customFieldsData): array
-    {
-        $transformed = [];
-        $fieldTypeManager = app(FieldTypeManager::class);
-
-        $fields = $this->getFilteredSections()->flatMap(fn ($section) => $section->fields)->keyBy('code');
-
-        foreach ($customFieldsData as $fieldCode => $value) {
-            $field = $fields->get($fieldCode);
-
-            if ($field === null) {
-                continue;
-            }
-
-            // Check if field type implements custom transformation
-            $fieldTypeInstance = $fieldTypeManager->getFieldTypeInstance($field->type);
-
-            if ($fieldTypeInstance instanceof FieldImportExportInterface) {
-                $transformed[$fieldCode] = $fieldTypeInstance->transformImportValue($value);
-            } else {
-                $transformed[$fieldCode] = $value;
-            }
-        }
-
-        return $transformed;
-    }
 }

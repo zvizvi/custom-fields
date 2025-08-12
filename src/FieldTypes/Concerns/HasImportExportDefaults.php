@@ -33,17 +33,6 @@ trait HasImportExportDefaults
         // Override this method when needed
     }
 
-    /**
-     * Transform a value during import.
-     * Returns the value unchanged by default.
-     *
-     * @param  mixed  $value  The raw import value
-     * @return mixed The transformed value
-     */
-    public function transformImportValue(mixed $value): mixed
-    {
-        return $value;
-    }
 
     /**
      * Transform a value during export.

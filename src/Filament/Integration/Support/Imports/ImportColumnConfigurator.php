@@ -73,14 +73,7 @@ final class ImportColumnConfigurator
             $column->example($example);
         }
 
-        // Apply transformation
-        $column->castStateUsing(function ($state) use ($fieldTypeInstance) {
-            if ($state === null || $state === '') {
-                return null;
-            }
-
-            return $fieldTypeInstance->transformImportValue($state);
-        });
+        // No additional transformation needed - field type handles everything in configureImportColumn
 
         return true;
     }

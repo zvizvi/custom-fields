@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\FieldTypes;
 
+use Filament\Actions\Imports\ImportColumn;
+use Relaticle\CustomFields\Contracts\FieldImportExportInterface;
 use Relaticle\CustomFields\Contracts\FieldTypeDefinitionInterface;
 use Relaticle\CustomFields\Enums\FieldDataType;
 use Relaticle\CustomFields\Enums\ValidationRule;
 use Relaticle\CustomFields\FieldTypes\Concerns\HasCommonFieldProperties;
+use Relaticle\CustomFields\FieldTypes\Concerns\HasImportExportDefaults;
 use Relaticle\CustomFields\Filament\Integration\Components\Forms\TagsInputComponent;
 use Relaticle\CustomFields\Filament\Integration\Components\Infolists\MultiChoiceEntry;
 use Relaticle\CustomFields\Filament\Integration\Components\Tables\Columns\MultiChoiceColumn;
@@ -16,9 +19,10 @@ use Relaticle\CustomFields\Filament\Integration\Components\Tables\Columns\MultiC
  * ABOUTME: Field type definition for Tags Input fields
  * ABOUTME: Provides Tags Input functionality with appropriate validation rules
  */
-class TagsInputFieldType implements FieldTypeDefinitionInterface
+final class TagsInputFieldType implements FieldImportExportInterface, FieldTypeDefinitionInterface
 {
     use HasCommonFieldProperties;
+    use HasImportExportDefaults;
 
     public function getKey(): string
     {
@@ -69,5 +73,45 @@ class TagsInputFieldType implements FieldTypeDefinitionInterface
             ValidationRule::MAX,
             ValidationRule::DISTINCT,
         ];
+    }
+
+    public function acceptsArbitraryValues(): bool
+    {
+        return true;
+    }
+
+    /**
+     * Provide a custom example for tags input fields.
+     */
+    public function getImportExample(): ?string
+    {
+        return 'tag1, tag2, tag3';
+    }
+
+    /**
+     * Configure import column to accept arbitrary values without validation.
+     * Tags input should accept any values, not just predefined options.
+     */
+    public function configureImportColumn(ImportColumn $column): void
+    {
+        $column->array(',')->castStateUsing(function ($state): array {
+            if (blank($state)) {
+                return [];
+            }
+
+            // If it's already an array, clean up each value
+            if (is_array($state)) {
+                return array_values(array_filter(
+                    array_map(fn ($value) => trim((string) $value), $state),
+                    fn ($value) => $value !== ''
+                ));
+            }
+
+            // If it's a string, split by comma and clean up
+            return array_values(array_filter(
+                array_map(fn ($value) => trim($value), explode(',', (string) $state)),
+                fn ($value) => $value !== ''
+            ));
+        });
     }
 }

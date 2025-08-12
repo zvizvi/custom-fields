@@ -73,4 +73,13 @@ trait HasCommonFieldProperties
     {
         return [];
     }
+
+    /**
+     * Check if this field type accepts arbitrary values not limited to predefined options.
+     * Default: false (most fields require predefined options)
+     */
+    public function acceptsArbitraryValues(): bool
+    {
+        return false;
+    }
 }

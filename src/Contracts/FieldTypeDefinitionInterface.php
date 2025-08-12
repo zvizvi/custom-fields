@@ -97,4 +97,10 @@ interface FieldTypeDefinitionInterface
      * @return array<int, ValidationRule>
      */
     public function allowedValidationRules(): array;
+
+    /**
+     * Check if this field type accepts arbitrary values not limited to predefined options.
+     * For example, tags-input allows users to create new tags on the fly.
+     */
+    public function acceptsArbitraryValues(): bool;
 }
