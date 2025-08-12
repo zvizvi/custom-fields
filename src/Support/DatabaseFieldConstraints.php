@@ -41,7 +41,7 @@ final class DatabaseFieldConstraints
                 'pgsql' => 1073741823,
                 'sqlite' => 1000000000,
             ],
-            'rules' => ['string'],
+            'rules' => [],
         ],
         'integer_value' => [
             'min' => -9223372036854775808,

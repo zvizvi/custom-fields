@@ -16,7 +16,7 @@ use Relaticle\CustomFields\Filament\Integration\Components\Tables\Columns\TextCo
  * ABOUTME: Field type definition for Textarea fields
  * ABOUTME: Provides Textarea functionality with appropriate validation rules
  */
-class TextareaFieldType implements FieldTypeDefinitionInterface
+final class TextareaFieldType implements FieldTypeDefinitionInterface
 {
     use HasCommonFieldProperties;
 

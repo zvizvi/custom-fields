@@ -16,7 +16,7 @@ use Relaticle\CustomFields\Filament\Integration\Components\Tables\Columns\TextCo
  * ABOUTME: Field type definition for Rich Editor fields
  * ABOUTME: Provides Rich Editor functionality with appropriate validation rules
  */
-class RichEditorFieldType implements FieldTypeDefinitionInterface
+final class RichEditorFieldType implements FieldTypeDefinitionInterface
 {
     use HasCommonFieldProperties;
 
