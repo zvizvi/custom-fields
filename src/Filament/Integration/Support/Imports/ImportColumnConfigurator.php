@@ -43,8 +43,7 @@ final class ImportColumnConfigurator
             FieldDataType::MULTI_CHOICE => $this->configureMultiChoice($column, $customField),
             FieldDataType::DATE => $this->configureDate($column),
             FieldDataType::DATE_TIME => $this->configureDateTime($column),
-            FieldDataType::NUMERIC => $column->numeric(),
-            FieldDataType::FLOAT => $column->numeric(),
+            FieldDataType::NUMERIC, FieldDataType::FLOAT => $column->numeric(),
             FieldDataType::BOOLEAN => $column->boolean(),
             default => $this->configureText($column, $customField),
         };

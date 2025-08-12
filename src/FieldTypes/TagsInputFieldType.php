@@ -83,7 +83,7 @@ final class TagsInputFieldType implements FieldImportExportInterface, FieldTypeD
     /**
      * Provide a custom example for tags input fields.
      */
-    public function getImportExample(): ?string
+    public function getImportExample(): string
     {
         return 'tag1, tag2, tag3';
     }
@@ -94,24 +94,6 @@ final class TagsInputFieldType implements FieldImportExportInterface, FieldTypeD
      */
     public function configureImportColumn(ImportColumn $column): void
     {
-        $column->array(',')->castStateUsing(function ($state): array {
-            if (blank($state)) {
-                return [];
-            }
-
-            // If it's already an array, clean up each value
-            if (is_array($state)) {
-                return array_values(array_filter(
-                    array_map(fn ($value) => trim((string) $value), $state),
-                    fn ($value) => $value !== ''
-                ));
-            }
-
-            // If it's a string, split by comma and clean up
-            return array_values(array_filter(
-                array_map(fn ($value) => trim($value), explode(',', (string) $state)),
-                fn ($value) => $value !== ''
-            ));
-        });
+        $column->array(separator: ',');
     }
 }

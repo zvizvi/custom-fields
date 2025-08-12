@@ -26,7 +26,6 @@ interface FieldImportExportInterface
      */
     public function configureImportColumn(ImportColumn $column): void;
 
-
     /**
      * Transform a value during export.
      * Return null to use default transformation based on FieldDataType.

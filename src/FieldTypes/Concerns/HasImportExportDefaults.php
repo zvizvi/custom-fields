@@ -33,7 +33,6 @@ trait HasImportExportDefaults
         // Override this method when needed
     }
 
-
     /**
      * Transform a value during export.
      * Returns the value unchanged by default.
