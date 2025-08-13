@@ -162,7 +162,9 @@ final class CustomFieldsServiceProvider extends PackageServiceProvider
      */
     private function getCommands(): array
     {
-        return [];
+        return [
+            Commands\UpgradeCommand::class,
+        ];
     }
 
     /**
