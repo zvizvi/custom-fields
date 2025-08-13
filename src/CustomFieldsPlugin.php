@@ -9,6 +9,8 @@ use Filament\Actions\Action;
 use Filament\Contracts\Plugin;
 use Filament\Panel;
 use Filament\Support\Concerns\EvaluatesClosures;
+use Relaticle\CustomFields\Facades\CustomFieldsType;
+use Relaticle\CustomFields\FieldTypes\FieldTypeManager;
 use Relaticle\CustomFields\Filament\Management\Pages\CustomFieldsManagementPage;
 use Relaticle\CustomFields\Http\Middleware\SetTenantContextMiddleware;
 use Relaticle\CustomFields\Services\TenantContextService;
@@ -18,7 +20,7 @@ class CustomFieldsPlugin implements Plugin
 {
     use EvaluatesClosures;
 
-    protected bool|Closure $authorizeUsing = true;
+    protected bool | Closure $authorizeUsing = true;
 
     public function getId(): string
     {
@@ -62,7 +64,14 @@ class CustomFieldsPlugin implements Plugin
         return $plugin;
     }
 
-    public function authorize(bool|Closure $callback = true): static
+    public function registerFieldTypes(array | Closure $fieldTypes): static
+    {
+        CustomFieldsType::register($fieldTypes);
+
+        return $this;
+    }
+
+    public function authorize(bool | Closure $callback = true): static
     {
         $this->authorizeUsing = $callback;
 

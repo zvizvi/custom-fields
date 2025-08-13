@@ -74,8 +74,8 @@ final class FieldTypeManager
         foreach ($this->fieldTypes as $fieldTypes) {
             $fieldTypes = $this->evaluate($fieldTypes);
 
-            foreach ($fieldTypes as $name => $fieldType) {
-                $this->cachedFieldTypes[$name] = $fieldType;
+            foreach ($fieldTypes as $fieldType) {
+                $this->cachedFieldTypes[] = $fieldType;
             }
         }
 
