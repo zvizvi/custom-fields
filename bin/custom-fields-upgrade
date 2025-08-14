@@ -1,0 +1,192 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * Custom Fields v1 to v2 Upgrade Script
+ *
+ * This standalone script upgrades your codebase from Custom Fields v1 to v2
+ * without requiring Laravel to bootstrap (avoiding autoload issues).
+ *
+ * Usage: vendor/bin/custom-fields-upgrade [--path=/path/to/scan]
+ */
+
+// Parse command line arguments
+$options = getopt('', ['path::', 'help']);
+
+if (isset($options['help'])) {
+    echo "\033[36mCustom Fields v1 to v2 Upgrade Script\033[0m\n";
+    echo "=====================================\n\n";
+    echo "Usage: \033[33mvendor/bin/custom-fields-upgrade\033[0m [options]\n\n";
+    echo "Options:\n";
+    echo "  \033[32m--path=PATH\033[0m    Specific path to upgrade (defaults to app directory)\n";
+    echo "  \033[32m--help\033[0m         Show this help message\n\n";
+    echo "Examples:\n";
+    echo "  vendor/bin/custom-fields-upgrade\n";
+    echo "  vendor/bin/custom-fields-upgrade --path=app/Filament\n\n";
+    exit(0);
+}
+
+// Determine the path to scan
+$basePath = getcwd();
+$scanPath = $options['path'] ?? $basePath . '/app';
+
+if (! is_dir($scanPath)) {
+    echo "❌ Error: Directory not found: $scanPath\n";
+    exit(1);
+}
+
+echo "🚀 Custom Fields Upgrade Tool (V1 → V2)\n";
+echo "=====================================\n\n";
+
+echo "📁 Scanning directory: $scanPath\n\n";
+
+// Upgrade patterns
+$patterns = [
+    // Form component imports
+    [
+        'pattern' => '/use\s+Relaticle\\\\CustomFields\\\\Filament\\\\Forms\\\\Components\\\\CustomFieldsComponent;/',
+        'replacement' => 'use Relaticle\CustomFields\Facades\CustomFields;',
+        'description' => 'Form component import',
+    ],
+    // Infolist component imports
+    [
+        'pattern' => '/use\s+Relaticle\\\\CustomFields\\\\Filament\\\\Infolists\\\\CustomFieldsInfolists;/',
+        'replacement' => 'use Relaticle\CustomFields\Facades\CustomFields;',
+        'description' => 'Infolist component import',
+    ],
+    // Trait namespace update
+    [
+        'pattern' => '/use\s+Relaticle\\\\CustomFields\\\\Filament\\\\Tables\\\\Concerns\\\\InteractsWithCustomFields;/',
+        'replacement' => 'use Relaticle\CustomFields\Concerns\InteractsWithCustomFields;',
+        'description' => 'Table trait namespace',
+    ],
+];
+
+// Component usage patterns
+$componentPatterns = [
+    // Form component usage
+    [
+        'pattern' => '/CustomFieldsComponent::make\(\)/',
+        'replacement' => 'CustomFields::form()
+                ->forModel($form->getRecord())
+                ->build()',
+        'description' => 'Form component usage',
+        'requiresImport' => 'Relaticle\CustomFields\Facades\CustomFields',
+    ],
+    // Infolist component usage
+    [
+        'pattern' => '/CustomFieldsInfolists::make\(\)(\s*->columnSpanFull\(\))?/',
+        'replacement' => 'CustomFields::infolist()
+                ->forModel($infolist->getRecord())
+                ->build()$1',
+        'description' => 'Infolist component usage',
+        'requiresImport' => 'Relaticle\CustomFields\Facades\CustomFields',
+    ],
+];
+
+// Find all PHP files
+$files = [];
+$iterator = new RecursiveIteratorIterator(
+    new RecursiveDirectoryIterator($scanPath, RecursiveDirectoryIterator::SKIP_DOTS)
+);
+
+foreach ($iterator as $file) {
+    if ($file->isFile() && $file->getExtension() === 'php') {
+        $files[] = $file->getPathname();
+    }
+}
+
+echo 'Found ' . count($files) . " PHP files to scan\n\n";
+
+$filesUpdated = [];
+$errors = [];
+
+// Process each file
+foreach ($files as $filePath) {
+    $content = file_get_contents($filePath);
+    $originalContent = $content;
+    $updates = [];
+
+    // Check for import updates
+    foreach ($patterns as $pattern) {
+        if (preg_match($pattern['pattern'], $content)) {
+            $content = preg_replace($pattern['pattern'], $pattern['replacement'], $content);
+            $updates[] = $pattern['description'];
+        }
+    }
+
+    // Check for component usage updates
+    foreach ($componentPatterns as $pattern) {
+        if (preg_match($pattern['pattern'], $content)) {
+            // Check if we need to add import
+            if (isset($pattern['requiresImport']) && ! strpos($content, 'use ' . $pattern['requiresImport'] . ';')) {
+                // Add import after namespace
+                $content = preg_replace(
+                    '/(namespace\s+[^;]+;)/',
+                    "$1\n\nuse {$pattern['requiresImport']};",
+                    $content,
+                    1
+                );
+            }
+
+            $content = preg_replace($pattern['pattern'], $pattern['replacement'], $content);
+            $updates[] = $pattern['description'];
+        }
+    }
+
+    // Save if changed
+    if ($content !== $originalContent) {
+        $relativePath = str_replace($basePath . '/', '', $filePath);
+
+        if (file_put_contents($filePath, $content)) {
+            $filesUpdated[$relativePath] = $updates;
+            echo "✅ Updated: $relativePath\n";
+            foreach ($updates as $update) {
+                echo "   - $update\n";
+            }
+        } else {
+            $errors[] = $relativePath;
+            echo "❌ Failed to update: $relativePath\n";
+        }
+    }
+}
+
+// Show summary
+echo "\n========================================\n";
+echo "🎉 Upgrade Process Complete!\n";
+echo "========================================\n\n";
+
+if (count($filesUpdated) > 0) {
+    echo '✅ Files updated: ' . count($filesUpdated) . "\n\n";
+
+    echo "Updated files:\n";
+    foreach ($filesUpdated as $file => $updates) {
+        echo "  • $file\n";
+    }
+} else {
+    echo "✅ No v1 components found. Your codebase appears to be already using v2!\n";
+}
+
+if (count($errors) > 0) {
+    echo "\n⚠️  Errors encountered:\n";
+    foreach ($errors as $file) {
+        echo "  • $file\n";
+    }
+    echo "\nPlease review and fix these errors manually.\n";
+}
+
+// Clear caches advice
+echo "\n✨ Next Steps:\n";
+echo "1. Clear Laravel caches:\n";
+echo "   php artisan cache:clear\n";
+echo "   php artisan config:clear\n";
+echo "   php artisan view:clear\n";
+echo "   php artisan filament:cache-components\n";
+echo "2. Review the updated files to ensure everything looks correct\n";
+echo "3. Run your test suite to verify functionality\n";
+echo "4. Check your Filament resources in the browser\n";
+
+echo "\nFor more information, visit the upgrade guide:\n";
+echo "https://custom-fields.dev/docs/v2/upgrade\n\n";
+
+exit(count($errors) > 0 ? 1 : 0);
