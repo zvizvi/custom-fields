@@ -1,0 +1,11 @@
+<?php
+
+use Relaticle\CustomFields\Filament\Integration\Migrations\CustomFieldsMigration;
+
+return new class extends CustomFieldsMigration
+{
+    public function up(): void
+    {
+
+    }
+};

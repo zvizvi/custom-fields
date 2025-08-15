@@ -1,0 +1,121 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Relaticle\CustomFields\Console\Commands;
+
+use Illuminate\Console\GeneratorCommand;
+use Illuminate\Filesystem\Filesystem;
+use Illuminate\Support\Str;
+
+/**
+ * ABOUTME: Artisan command to generate custom fields migration files
+ * ABOUTME: Creates migration stubs in database/custom-fields directory for preset custom fields
+ */
+class MakeCustomFieldsMigrationCommand extends GeneratorCommand
+{
+    /**
+     * The name and signature of the console command.
+     */
+    protected $signature = 'make:custom-fields-migration {name : The name of the migration}
+                            {--path= : The location where the migration file should be created}';
+
+    /**
+     * The console command description.
+     */
+    protected $description = 'Create a new custom fields migration';
+
+    /**
+     * The type of class being generated.
+     */
+    protected $type = 'CustomFieldsMigration';
+
+    public function __construct(Filesystem $files)
+    {
+        parent::__construct($files);
+    }
+
+    /**
+     * Get the destination class path.
+     */
+    protected function getPath($name): string
+    {
+        $path = $this->option('path') ?? config('custom-fields.migrations_paths.0', database_path('custom-fields'));
+
+        if (! $this->files->isDirectory($path)) {
+            $this->files->makeDirectory($path, 0755, true);
+        }
+
+        $filename = $this->getDatePrefix() . '_' . Str::snake(trim($name)) . '.php';
+
+        return $path . '/' . $filename;
+    }
+
+    /**
+     * Get the date prefix for the migration.
+     */
+    protected function getDatePrefix(): string
+    {
+        return date('Y_m_d_His');
+    }
+
+    /**
+     * Get the stub file for the generator.
+     */
+    protected function getStub(): string
+    {
+        return __DIR__ . '/../../stubs/custom-fields-migration.stub';
+    }
+
+    /**
+     * Get the default namespace for the class.
+     */
+    protected function getDefaultNamespace($rootNamespace): string
+    {
+        return '';
+    }
+
+    /**
+     * Build the class with the given name.
+     */
+    protected function buildClass($name): string
+    {
+        $stub = $this->files->get($this->getStub());
+        
+        return $this->replaceClass($stub, $name);
+    }
+
+    /**
+     * Replace the class name for the given stub.
+     */
+    protected function replaceClass($stub, $name): string
+    {
+        return str_replace(['{{ class }}', '{{class}}'], class_basename($name), $stub);
+    }
+
+    /**
+     * Handle the command execution.
+     */
+    public function handle(): int
+    {
+        $name = $this->getNameInput();
+        $path = $this->getPath($name);
+
+        // Check if the migration already exists
+        if ($this->files->exists($path)) {
+            $this->error("Migration {$path} already exists!");
+            return 1;
+        }
+
+        // Make sure the directory exists
+        $this->makeDirectory($path);
+
+        // Generate the migration
+        $this->files->put($path, $this->buildClass($name));
+
+        $this->info("Custom fields migration created successfully:");
+        $this->line("<comment>{$path}</comment>");
+
+        return 0;
+    }
+}
