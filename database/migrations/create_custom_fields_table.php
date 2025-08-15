@@ -26,6 +26,8 @@ return new class extends Migration
                 $uniqueColumns[] = config('custom-fields.column_names.tenant_foreign_key');
             }
 
+            $table->string('width')->nullable();
+
             $table->string('code');
             $table->string('name');
             $table->string('type');
