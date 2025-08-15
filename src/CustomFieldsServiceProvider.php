@@ -13,6 +13,7 @@ use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Filesystem\Filesystem;
 use Livewire\Livewire;
+use Relaticle\CustomFields\Console\Commands\MakeCustomFieldsMigrationCommand;
 use Relaticle\CustomFields\Contracts\CustomsFieldsMigrators;
 use Relaticle\CustomFields\Contracts\ValueResolvers;
 use Relaticle\CustomFields\Filament\Integration\Migrations\CustomFieldsMigrator;
@@ -162,7 +163,9 @@ final class CustomFieldsServiceProvider extends PackageServiceProvider
      */
     private function getCommands(): array
     {
-        return [];
+        return [
+            MakeCustomFieldsMigrationCommand::class,
+        ];
     }
 
     /**

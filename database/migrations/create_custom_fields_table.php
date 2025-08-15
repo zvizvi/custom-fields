@@ -43,6 +43,12 @@ return new class extends Migration
 
             $table->unique($uniqueColumns);
 
+            if (Utils::isTenantEnabled()) {
+                $table->index([config('custom-fields.column_names.tenant_foreign_key'), 'entity_type', 'active'], 'custom_field_sections_tenant_entity_active_idx');
+            } else {
+                $table->index(['entity_type', 'active'], 'custom_field_sections_entity_active_idx');
+            }
+
             $table->timestamps();
         });
 
@@ -76,6 +82,12 @@ return new class extends Migration
             $table->json('settings')->nullable();
 
             $table->unique($uniqueColumns);
+
+            if (Utils::isTenantEnabled()) {
+                $table->index([config('custom-fields.column_names.tenant_foreign_key'), 'entity_type', 'active'], 'custom_fields_tenant_entity_active_idx');
+            } else {
+                $table->index(['entity_type', 'active'], 'custom_fields_entity_active_idx');
+            }
 
             $table->timestamps();
         });
@@ -134,6 +146,13 @@ return new class extends Migration
             $table->json('json_value')->nullable();
 
             $table->unique($uniqueColumns, 'custom_field_values_entity_type_unique');
+
+            if (Utils::isTenantEnabled()) {
+                $table->index([config('custom-fields.column_names.tenant_foreign_key'), 'entity_type', 'entity_id'], 'custom_field_values_tenant_entity_idx');
+            } else {
+                $table->index(['entity_type', 'entity_id'], 'custom_field_values_entity_idx');
+            }
+
             $table->index(['entity_id', 'custom_field_id'], 'custom_field_values_entity_id_custom_field_id_index');
         });
     }
