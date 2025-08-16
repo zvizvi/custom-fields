@@ -37,7 +37,9 @@ abstract class BaseBuilder
             throw new InvalidArgumentException('Model must be an Eloquent Model.');
         }
 
-        $model->load('customFieldValues.customField');
+        if(!self::class instanceof TableBuilder) {
+            $model->load('customFieldValues.customField');
+        }
 
         $this->model = $model;
 
@@ -67,6 +69,16 @@ abstract class BaseBuilder
      */
     protected function getFilteredSections(): Collection
     {
+        // Use a static cache within the request to prevent duplicate queries
+        static $sectionsCache = [];
+        
+        $cacheKey = get_class($this) . ':' . $this->model::class . ':' . 
+                   md5(serialize($this->only) . serialize($this->except));
+        
+        if (isset($sectionsCache[$cacheKey])) {
+            return $sectionsCache[$cacheKey];
+        }
+
         /** @var Collection<int, CustomFieldSection> $sections */
         $sections = $this->sections
             ->with(['fields' => function ($query): void {
@@ -79,6 +91,10 @@ abstract class BaseBuilder
             }])
             ->get();
 
-        return $sections->filter(fn (CustomFieldSection $section) => $section->fields->isNotEmpty());
+        $filteredSections = $sections->filter(fn (CustomFieldSection $section) => $section->fields->isNotEmpty());
+        
+        $sectionsCache[$cacheKey] = $filteredSections;
+        
+        return $filteredSections;
     }
 }
