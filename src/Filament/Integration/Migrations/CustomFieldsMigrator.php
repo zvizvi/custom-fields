@@ -308,20 +308,6 @@ class CustomFieldsMigrator implements CustomsFieldsMigrators
 
     protected function isCustomFieldTypeOptionable(): bool
     {
-        // Get the field type data to check if it's a choice field
-        if ($this->customField instanceof CustomField) {
-            return $this->customField->isChoiceField();
-        }
-
-        // For new fields, check based on the field type string
-        $fieldType = $this->customFieldData->type;
-
-        return in_array($fieldType, [
-            'select',
-            'multi_select',
-            'radio',
-            'checkbox_list',
-            'toggle_buttons',
-        ]);
+        return $this->customField instanceof CustomField && $this->customField->isChoiceField();
     }
 }
