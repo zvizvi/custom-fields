@@ -75,7 +75,7 @@ public function form(Schema $schema): Form
     return $schema->components([
         // Your existing form fields...
         
-        CustomFields::form()->forModel($schema->getRecord())->build()
+        CustomFields::form()->forSchema($schema)->build()
     ]);
 }
 ```

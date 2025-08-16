@@ -89,7 +89,7 @@ trait UsesCustomFields
 
     public function scopeWithCustomFieldValues(Builder $query): Builder
     {
-        return $query->with('customFieldValues.customField');
+        return $query->with('customFieldValues.customField.options');
     }
 
     public function getCustomFieldValue(CustomField $customField): mixed

@@ -1,10 +1,10 @@
 <?php
 
-// ABOUTME: Base builder class that provides common functionality for building Filament components
-// ABOUTME: Handles model binding, field filtering (except/only), and section grouping
+declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Filament\Integration\Builders;
 
+use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
@@ -23,6 +23,14 @@ abstract class BaseBuilder
 
     protected array $only = [];
 
+    public function forSchema(Schema $schema): static
+    {
+        /** @var Model & HasCustomFields $model */
+        $model = $schema->getRecord() ?? $schema->getModel();
+
+        return $this->forModel($model);
+    }
+
     public function forModel(Model | string $model): static
     {
         if (is_string($model)) {
@@ -37,8 +45,8 @@ abstract class BaseBuilder
             throw new InvalidArgumentException('Model must be an Eloquent Model.');
         }
 
-        if (!$this instanceof TableBuilder) {
-            $model->load('customFieldValues.customField');
+        if (! $this instanceof TableBuilder) {
+            $model->load('customFieldValues.customField.options');
         }
 
         $this->model = $model;
@@ -73,7 +81,7 @@ abstract class BaseBuilder
         static $sectionsCache = [];
 
         $cacheKey = get_class($this) . ':' . $this->model::class . ':' .
-                   md5(serialize($this->only) . serialize($this->except));
+            md5(serialize($this->only) . serialize($this->except));
 
         if (isset($sectionsCache[$cacheKey])) {
             return $sectionsCache[$cacheKey];
