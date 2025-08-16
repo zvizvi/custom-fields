@@ -64,7 +64,7 @@ class MakeCustomFieldsMigrationCommand extends GeneratorCommand
      */
     protected function getStub(): string
     {
-        return __DIR__ . '/../../stubs/custom-fields-migration.stub';
+        return __DIR__ . '/../../../stubs/custom-fields-migration.stub';
     }
 
     /**
