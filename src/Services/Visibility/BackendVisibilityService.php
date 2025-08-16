@@ -167,7 +167,7 @@ final readonly class BackendVisibilityService
         }
 
         // Get options for the field
-        $options = $field->options()->get()->keyBy('id');
+        $options = $field->options->keyBy('id');
 
         // Single value optionable fields
         if (! $field->isMultiChoiceField()) {
