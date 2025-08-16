@@ -22,8 +22,8 @@ A powerful Laravel/Filament plugin for adding dynamic custom fields to any Eloqu
 
 ## 🔧 Requirements
 
-- PHP 8.1+
-- Laravel via Filament 3.0+
+- PHP 8.2+
+- Laravel via Filament 4.0+
 
 ## 🚀 Quick Start
 
