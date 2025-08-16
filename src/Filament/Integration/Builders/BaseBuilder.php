@@ -87,6 +87,7 @@ abstract class BaseBuilder
                     ->when($this instanceof InfolistBuilder, fn ($q) => $q->visibleInView())
                     ->when($this->only !== [], fn ($q) => $q->whereIn('code', $this->only))
                     ->when($this->except !== [], fn ($q) => $q->whereNotIn('code', $this->except))
+                    ->with('options')
                     ->orderBy('sort_order');
             }])
             ->get();

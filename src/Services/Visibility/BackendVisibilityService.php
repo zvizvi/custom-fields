@@ -306,6 +306,7 @@ final readonly class BackendVisibilityService
     ): ?array {
         $field = CustomFields::newCustomFieldModel()::forMorphEntity($entityType)
             ->where('code', $fieldCode)
+            ->with('options')
             ->first();
 
         if (! $field) {
