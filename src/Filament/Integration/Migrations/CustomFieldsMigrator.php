@@ -12,7 +12,9 @@ use Relaticle\CustomFields\Data\CustomFieldData;
 use Relaticle\CustomFields\Exceptions\CustomFieldAlreadyExistsException;
 use Relaticle\CustomFields\Exceptions\CustomFieldDoesNotExistException;
 use Relaticle\CustomFields\Exceptions\FieldTypeNotOptionableException;
+use Relaticle\CustomFields\Facades\CustomFieldsType;
 use Relaticle\CustomFields\Facades\Entities;
+use Relaticle\CustomFields\FieldTypes\FieldTypeManager;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Support\Utils;
 use Throwable;
@@ -308,6 +310,6 @@ class CustomFieldsMigrator implements CustomsFieldsMigrators
 
     protected function isCustomFieldTypeOptionable(): bool
     {
-        return $this->customField instanceof CustomField && $this->customField->isChoiceField();
+        return CustomFieldsType::getFieldType($this->customFieldData->type)->dataType->isChoiceField();
     }
 }
