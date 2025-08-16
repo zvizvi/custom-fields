@@ -15,7 +15,7 @@ use Relaticle\CustomFields\Models\CustomFieldSection;
 
 abstract class BaseBuilder
 {
-    protected Model&HasCustomFields $model;
+    protected Model & HasCustomFields $model;
 
     protected Builder $sections;
 
@@ -23,7 +23,7 @@ abstract class BaseBuilder
 
     protected array $only = [];
 
-    public function forModel(Model|string $model): static
+    public function forModel(Model | string $model): static
     {
         if (is_string($model)) {
             $model = app($model);
@@ -37,7 +37,7 @@ abstract class BaseBuilder
             throw new InvalidArgumentException('Model must be an Eloquent Model.');
         }
 
-        if(!self::class instanceof TableBuilder) {
+        if (! self::class instanceof TableBuilder) {
             $model->load('customFieldValues.customField');
         }
 
@@ -71,10 +71,10 @@ abstract class BaseBuilder
     {
         // Use a static cache within the request to prevent duplicate queries
         static $sectionsCache = [];
-        
-        $cacheKey = get_class($this) . ':' . $this->model::class . ':' . 
+
+        $cacheKey = get_class($this) . ':' . $this->model::class . ':' .
                    md5(serialize($this->only) . serialize($this->except));
-        
+
         if (isset($sectionsCache[$cacheKey])) {
             return $sectionsCache[$cacheKey];
         }
@@ -92,9 +92,9 @@ abstract class BaseBuilder
             ->get();
 
         $filteredSections = $sections->filter(fn (CustomFieldSection $section) => $section->fields->isNotEmpty());
-        
+
         $sectionsCache[$cacheKey] = $filteredSections;
-        
+
         return $filteredSections;
     }
 }
