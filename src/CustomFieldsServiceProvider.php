@@ -28,6 +28,7 @@ use Relaticle\CustomFields\Providers\ImportsServiceProvider;
 use Relaticle\CustomFields\Providers\ValidationServiceProvider;
 use Relaticle\CustomFields\Services\TenantContextService;
 use Relaticle\CustomFields\Services\ValueResolver\ValueResolver;
+use Relaticle\CustomFields\Services\Visibility\BackendVisibilityService;
 use Relaticle\CustomFields\Support\Utils;
 use Spatie\LaravelPackageTools\Commands\InstallCommand;
 use Spatie\LaravelPackageTools\Package;
@@ -50,6 +51,7 @@ final class CustomFieldsServiceProvider extends PackageServiceProvider
         $this->app->singleton(ValueResolvers::class, ValueResolver::class);
 
         $this->app->singleton(TenantContextService::class);
+        $this->app->singleton(BackendVisibilityService::class);
 
         if (Utils::isTenantEnabled()) {
             foreach (Filament::getPanels() as $panel) {
