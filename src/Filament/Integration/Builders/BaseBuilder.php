@@ -37,7 +37,7 @@ abstract class BaseBuilder
             throw new InvalidArgumentException('Model must be an Eloquent Model.');
         }
 
-        if (! self::class instanceof TableBuilder) {
+        if (!$this instanceof TableBuilder) {
             $model->load('customFieldValues.customField');
         }
 
