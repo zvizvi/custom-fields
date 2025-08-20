@@ -49,6 +49,29 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Field Types Availability
+    |--------------------------------------------------------------------------
+    |
+    | Configure which field types are available in the application.
+    | Use 'enabled' to allow only specific types, or 'disabled' to exclude types.
+    | Empty arrays mean no restrictions apply.
+    |
+    */
+    'field_types' => [
+        'enabled' => [
+            // Empty array = all field types enabled (default)
+            // Specify field type keys to allow only those types:
+            // 'text', 'textarea', 'select', 'checkbox', 'number'
+            'text'
+        ],
+        'disabled' => [
+            // Specify field type keys to disable:
+            // 'rich_editor', 'markdown_editor'
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Custom Field Types Configuration
     |--------------------------------------------------------------------------
     |
