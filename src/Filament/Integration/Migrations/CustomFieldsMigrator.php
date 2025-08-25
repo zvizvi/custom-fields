@@ -14,7 +14,6 @@ use Relaticle\CustomFields\Exceptions\CustomFieldDoesNotExistException;
 use Relaticle\CustomFields\Exceptions\FieldTypeNotOptionableException;
 use Relaticle\CustomFields\Facades\CustomFieldsType;
 use Relaticle\CustomFields\Facades\Entities;
-use Relaticle\CustomFields\FieldTypes\FieldTypeManager;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Support\Utils;
 use Throwable;

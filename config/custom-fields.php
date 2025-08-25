@@ -62,7 +62,6 @@ return [
             // Empty array = all field types enabled (default)
             // Specify field type keys to allow only those types:
             // 'text', 'textarea', 'select', 'checkbox', 'number'
-            'text'
         ],
         'disabled' => [
             // Specify field type keys to disable:

@@ -16,7 +16,6 @@ use Livewire\Livewire;
 use Relaticle\CustomFields\Console\Commands\MakeCustomFieldsMigrationCommand;
 use Relaticle\CustomFields\Contracts\CustomsFieldsMigrators;
 use Relaticle\CustomFields\Contracts\ValueResolvers;
-use Relaticle\CustomFields\FieldTypes\FieldTypeManager;
 use Relaticle\CustomFields\Filament\Integration\Migrations\CustomFieldsMigrator;
 use Relaticle\CustomFields\Livewire\ManageCustomField;
 use Relaticle\CustomFields\Livewire\ManageCustomFieldSection;
@@ -136,9 +135,9 @@ final class CustomFieldsServiceProvider extends PackageServiceProvider
 
         // Handle Stubs
         if (app()->runningInConsole()) {
-            foreach (app(Filesystem::class)->files(__DIR__ . '/../stubs/') as $file) {
+            foreach (app(Filesystem::class)->files(__DIR__.'/../stubs/') as $file) {
                 $this->publishes([
-                    $file->getRealPath() => base_path('stubs/custom-fields/' . $file->getFilename()),
+                    $file->getRealPath() => base_path('stubs/custom-fields/'.$file->getFilename()),
                 ], 'custom-fields-stubs');
             }
         }
@@ -156,7 +155,7 @@ final class CustomFieldsServiceProvider extends PackageServiceProvider
     {
         return [
             // AlpineComponent::make('custom-fields', __DIR__ . '/../resources/dist/components/custom-fields.js'),
-            Css::make('custom-fields', __DIR__ . '/../resources/dist/custom-fields.css')->loadedOnRequest(),
+            Css::make('custom-fields', __DIR__.'/../resources/dist/custom-fields.css')->loadedOnRequest(),
             // Js::make('custom-fields-scripts', __DIR__ . '/../resources/dist/custom-fields.js'),
         ];
     }

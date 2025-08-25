@@ -46,9 +46,9 @@ class MakeCustomFieldsMigrationCommand extends GeneratorCommand
             $this->files->makeDirectory($path, 0755, true);
         }
 
-        $filename = $this->getDatePrefix() . '_' . Str::snake(trim($name)) . '.php';
+        $filename = $this->getDatePrefix().'_'.Str::snake(trim($name)).'.php';
 
-        return $path . '/' . $filename;
+        return $path.'/'.$filename;
     }
 
     /**
@@ -64,7 +64,7 @@ class MakeCustomFieldsMigrationCommand extends GeneratorCommand
      */
     protected function getStub(): string
     {
-        return __DIR__ . '/../../../stubs/custom-fields-migration.stub';
+        return __DIR__.'/../../../stubs/custom-fields-migration.stub';
     }
 
     /**
@@ -81,7 +81,7 @@ class MakeCustomFieldsMigrationCommand extends GeneratorCommand
     protected function buildClass($name): string
     {
         $stub = $this->files->get($this->getStub());
-        
+
         return $this->replaceClass($stub, $name);
     }
 
@@ -104,6 +104,7 @@ class MakeCustomFieldsMigrationCommand extends GeneratorCommand
         // Check if the migration already exists
         if ($this->files->exists($path)) {
             $this->error("Migration {$path} already exists!");
+
             return 1;
         }
 
@@ -113,7 +114,7 @@ class MakeCustomFieldsMigrationCommand extends GeneratorCommand
         // Generate the migration
         $this->files->put($path, $this->buildClass($name));
 
-        $this->info("Custom fields migration created successfully:");
+        $this->info('Custom fields migration created successfully:');
         $this->line("<comment>{$path}</comment>");
 
         return 0;

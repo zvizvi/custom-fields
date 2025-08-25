@@ -50,7 +50,6 @@ final class FieldTypeManager
      */
     private array $cachedInstances = [];
 
-
     /**
      * @param  array<string, array<int, string> | string> | Closure  $fieldTypes
      */
@@ -84,19 +83,19 @@ final class FieldTypeManager
         // Apply config restrictions using Laravel's array helpers
         $enabled = config('custom-fields.field_types.enabled', []);
         $disabled = config('custom-fields.field_types.disabled', []);
-        
-        if (!empty($enabled)) {
-            $allFieldTypes = array_filter($allFieldTypes, fn($class) => in_array((new $class)->getKey(), $enabled));
+
+        if (! empty($enabled)) {
+            $allFieldTypes = array_filter($allFieldTypes, fn ($class) => in_array((new $class)->getKey(), $enabled));
         }
-        
-        if (!empty($disabled)) {
-            $allFieldTypes = array_filter($allFieldTypes, fn($class) => !in_array((new $class)->getKey(), $disabled));
+
+        if (! empty($disabled)) {
+            $allFieldTypes = array_filter($allFieldTypes, fn ($class) => ! in_array((new $class)->getKey(), $disabled));
         }
 
         $this->cachedFieldTypes = $allFieldTypes;
+
         return $this->cachedFieldTypes;
     }
-
 
     public function getFieldType(string $fieldType): ?FieldTypeData
     {

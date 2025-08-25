@@ -1,7 +1,6 @@
 <?php
 
-// ABOUTME: Builder for creating Filament infolist schemas from custom fields
-// ABOUTME: Generates read-only views of custom field data with section support
+declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Filament\Integration\Builders;
 
@@ -16,8 +15,14 @@ use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldSection;
 use Relaticle\CustomFields\Services\Visibility\BackendVisibilityService;
 
-class InfolistBuilder extends BaseBuilder
+final class InfolistBuilder extends BaseBuilder
 {
+    protected bool $hiddenLabels = false;
+
+    protected bool $visibleWhenFilled = false;
+
+    protected bool $withoutSections = false;
+
     public function build(): Component
     {
         return Grid::make(1)->schema($this->values()->toArray());
@@ -30,23 +35,51 @@ class InfolistBuilder extends BaseBuilder
     {
         $fieldInfolistsFactory = app(FieldInfolistsFactory::class);
         $sectionInfolistsFactory = app(SectionInfolistsFactory::class);
-
         $backendVisibilityService = app(BackendVisibilityService::class);
 
+        $createField = fn (CustomField $customField) => $fieldInfolistsFactory->create($customField)
+            ->hiddenLabel($this->hiddenLabels)
+            ->when($this->visibleWhenFilled, fn ($field) => $field->visible(fn ($state) => filled($state)));
+
+        $getVisibleFields = fn (CustomFieldSection $section) => $backendVisibilityService
+            ->getVisibleFields($this->model, $section->fields)
+            ->map($createField);
+
+        if ($this->withoutSections) {
+            return $this->getFilteredSections()
+                ->flatMap($getVisibleFields)
+                ->filter();
+        }
+
         return $this->getFilteredSections()
-            ->map(function (CustomFieldSection $section) use ($fieldInfolistsFactory, $sectionInfolistsFactory, $backendVisibilityService) {
-                // Filter fields to only those that should be visible based on conditional visibility
-                $visibleFields = $backendVisibilityService->getVisibleFields($this->model, $section->fields);
+            ->map(function (CustomFieldSection $section) use ($sectionInfolistsFactory, $getVisibleFields) {
+                $fields = $getVisibleFields($section);
 
-                // Only create a section if it has visible fields
-                if ($visibleFields->isEmpty()) {
-                    return null;
-                }
-
-                return $sectionInfolistsFactory->create($section)->schema(
-                    fn () => $visibleFields->map(fn (CustomField $customField) => $fieldInfolistsFactory->create($customField))->toArray()
-                );
+                return $fields->isEmpty()
+                    ? null
+                    : $sectionInfolistsFactory->create($section)->schema($fields->toArray());
             })
             ->filter();
+    }
+
+    public function hiddenLabels(bool $hiddenLabels = true): static
+    {
+        $this->hiddenLabels = $hiddenLabels;
+
+        return $this;
+    }
+
+    public function visibleWhenFilled(bool $visibleWhenFilled = true): static
+    {
+        $this->visibleWhenFilled = $visibleWhenFilled;
+
+        return $this;
+    }
+
+    public function withoutSections(bool $withoutSections = true): static
+    {
+        $this->withoutSections = $withoutSections;
+
+        return $this;
     }
 }
