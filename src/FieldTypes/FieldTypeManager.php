@@ -85,11 +85,11 @@ final class FieldTypeManager
         $disabled = config('custom-fields.field_types.disabled', []);
 
         if (! empty($enabled)) {
-            $allFieldTypes = array_filter($allFieldTypes, fn ($class) => in_array((new $class)->getKey(), $enabled));
+            $allFieldTypes = array_filter($allFieldTypes, fn ($class): bool => in_array((new $class)->getKey(), $enabled));
         }
 
         if (! empty($disabled)) {
-            $allFieldTypes = array_filter($allFieldTypes, fn ($class) => ! in_array((new $class)->getKey(), $disabled));
+            $allFieldTypes = array_filter($allFieldTypes, fn ($class): bool => ! in_array((new $class)->getKey(), $disabled));
         }
 
         $this->cachedFieldTypes = $allFieldTypes;

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Filament\Integration\Builders;
 
+use Filament\Infolists\Components\Entry;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Grid;
@@ -17,11 +18,11 @@ use Relaticle\CustomFields\Services\Visibility\BackendVisibilityService;
 
 final class InfolistBuilder extends BaseBuilder
 {
-    protected bool $hiddenLabels = false;
+    private bool $hiddenLabels = false;
 
-    protected bool $visibleWhenFilled = false;
+    private bool $visibleWhenFilled = false;
 
-    protected bool $withoutSections = false;
+    private bool $withoutSections = false;
 
     public function build(): Component
     {
@@ -39,7 +40,7 @@ final class InfolistBuilder extends BaseBuilder
 
         $createField = fn (CustomField $customField) => $fieldInfolistsFactory->create($customField)
             ->hiddenLabel($this->hiddenLabels)
-            ->when($this->visibleWhenFilled, fn ($field) => $field->visible(fn ($state) => filled($state)));
+            ->when($this->visibleWhenFilled, fn ($field): Entry => $field->visible(fn ($state) => filled($state)));
 
         $getVisibleFields = fn (CustomFieldSection $section) => $backendVisibilityService
             ->getVisibleFields($this->model, $section->fields)

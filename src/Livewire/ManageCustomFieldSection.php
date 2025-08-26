@@ -24,7 +24,7 @@ use Relaticle\CustomFields\Filament\Management\Schemas\SectionForm;
 use Relaticle\CustomFields\Models\CustomFieldSection;
 use Relaticle\CustomFields\Support\Utils;
 
-class ManageCustomFieldSection extends Component implements HasActions, HasForms
+final class ManageCustomFieldSection extends Component implements HasActions, HasForms
 {
     use InteractsWithActions;
     use InteractsWithForms;
@@ -61,6 +61,7 @@ class ManageCustomFieldSection extends Component implements HasActions, HasForms
         $model = CustomFields::newCustomFieldModel();
         foreach ($fields as $index => $field) {
             $model->query()
+                ->withDeactivated()
                 ->where($model->getKeyName(), $field)
                 ->update([
                     'custom_field_section_id' => $sectionId,
@@ -117,9 +118,31 @@ class ManageCustomFieldSection extends Component implements HasActions, HasForms
             ->requiresConfirmation()
             ->icon('heroicon-o-trash')
             ->model(CustomFields::sectionModel())
+            ->defaultColor('danger')
             ->record($this->section)
-            ->visible(fn (CustomFieldSection $record): bool => ! $record->isActive() && ! $record->isSystemDefined())
-            ->action(fn (): bool => $this->section->delete() && $this->dispatch('section-deleted'));
+            ->visible(fn (CustomFieldSection $record): bool => ! $record->isActive())
+            ->disabled(fn (CustomFieldSection $record): bool => $record->isSystemDefined() || $record->hasSystemDefinedFields())
+            ->tooltip(fn (CustomFieldSection $record): string => $record->isSystemDefined()
+                    ? __('custom-fields::custom-fields.section.form.system_defined_cannot_delete')
+                    : ($record->hasSystemDefinedFields()
+                        ? __('custom-fields::custom-fields.section.form.contains_system_fields_cannot_delete')
+                        : '')
+            )
+            ->action(function (): bool {
+                if ($this->section->isSystemDefined()) {
+                    $this->addError('system_defined', __('custom-fields::custom-fields.section.form.system_defined_cannot_delete'));
+
+                    return false;
+                }
+
+                if ($this->section->hasSystemDefinedFields()) {
+                    $this->addError('system_fields', __('custom-fields::custom-fields.section.form.contains_system_fields_cannot_delete'));
+
+                    return false;
+                }
+
+                return $this->section->delete() && $this->dispatch('section-deleted');
+            });
     }
 
     public function createFieldAction(): Action

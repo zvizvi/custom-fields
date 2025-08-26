@@ -18,7 +18,7 @@ use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Filament\Management\Schemas\FieldForm;
 use Relaticle\CustomFields\Models\CustomField;
 
-class ManageCustomField extends Component implements HasActions, HasForms
+final class ManageCustomField extends Component implements HasActions, HasForms
 {
     use InteractsWithActions;
     use InteractsWithForms;
@@ -75,9 +75,23 @@ class ManageCustomField extends Component implements HasActions, HasForms
             ->requiresConfirmation()
             ->icon('heroicon-o-trash')
             ->model(CustomFields::customFieldModel())
+            ->defaultColor('danger')
             ->record($this->field)
-            ->visible(fn (CustomField $record): bool => ! $record->isActive() && ! $record->isSystemDefined())
-            ->action(fn (): bool => $this->field->delete() && $this->dispatch('field-deleted'));
+            ->visible(fn (CustomField $record): bool => ! $record->isActive())
+            ->disabled(fn (CustomField $record): bool => $record->isSystemDefined())
+            ->tooltip(fn (CustomField $record): string => $record->isSystemDefined()
+                    ? __('custom-fields::custom-fields.field.form.system_defined_cannot_delete')
+                    : ''
+            )
+            ->action(function (): bool {
+                if ($this->field->isSystemDefined()) {
+                    $this->addError('system_defined', __('custom-fields::custom-fields.field.form.system_defined_cannot_delete'));
+
+                    return false;
+                }
+
+                return $this->field->delete() && $this->dispatch('field-deleted');
+            });
     }
 
     public function setWidth(int|string $fieldId, int $width): void

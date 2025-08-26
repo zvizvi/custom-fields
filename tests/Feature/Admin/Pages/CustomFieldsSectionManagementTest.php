@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Relaticle\CustomFields\Filament\Management\Pages\CustomFieldsManagementPage as CustomFieldsPage;
 use Relaticle\CustomFields\Livewire\ManageCustomFieldSection;
+use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldSection;
 use Relaticle\CustomFields\Tests\Fixtures\Models\Post;
 use Relaticle\CustomFields\Tests\Fixtures\Models\User;
@@ -225,6 +226,55 @@ describe('ManageCustomFieldSection - Section Actions', function (): void {
         livewire(ManageCustomFieldSection::class, [
             'section' => $systemSection,
             'entityType' => $this->userEntityType,
-        ])->assertActionHidden('delete');
+        ])->assertActionVisible('delete')
+            ->assertActionDisabled('delete');
+    });
+
+    it('cannot delete a section containing system-defined fields', function (): void {
+        // Arrange
+        $section = CustomFieldSection::factory()
+            ->inactive()
+            ->forEntityType($this->userEntityType)
+            ->create();
+
+        // Create a system-defined field in the section
+        CustomField::factory()->create([
+            'custom_field_section_id' => $section->getKey(),
+            'entity_type' => $this->userEntityType,
+            'active' => false,
+            'system_defined' => true,
+            'type' => 'text',
+        ]);
+
+        // Act & Assert
+        livewire(ManageCustomFieldSection::class, [
+            'section' => $section,
+            'entityType' => $this->userEntityType,
+        ])->assertActionVisible('delete')
+            ->assertActionDisabled('delete');
+    });
+
+    it('can delete a section with only user-defined fields', function (): void {
+        // Arrange
+        $section = CustomFieldSection::factory()
+            ->inactive()
+            ->forEntityType($this->userEntityType)
+            ->create();
+
+        // Create a user-defined field in the section
+        CustomField::factory()->create([
+            'custom_field_section_id' => $section->getKey(),
+            'entity_type' => $this->userEntityType,
+            'active' => false,
+            'system_defined' => false,
+            'type' => 'text',
+        ]);
+
+        // Act & Assert
+        livewire(ManageCustomFieldSection::class, [
+            'section' => $section,
+            'entityType' => $this->userEntityType,
+        ])->assertActionVisible('delete')
+            ->assertActionEnabled('delete');
     });
 });

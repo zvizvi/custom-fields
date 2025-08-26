@@ -103,7 +103,7 @@ class MakeCustomFieldsMigrationCommand extends GeneratorCommand
 
         // Check if the migration already exists
         if ($this->files->exists($path)) {
-            $this->error("Migration {$path} already exists!");
+            $this->error(sprintf('Migration %s already exists!', $path));
 
             return 1;
         }
@@ -115,7 +115,7 @@ class MakeCustomFieldsMigrationCommand extends GeneratorCommand
         $this->files->put($path, $this->buildClass($name));
 
         $this->info('Custom fields migration created successfully:');
-        $this->line("<comment>{$path}</comment>");
+        $this->line(sprintf('<comment>%s</comment>', $path));
 
         return 0;
     }

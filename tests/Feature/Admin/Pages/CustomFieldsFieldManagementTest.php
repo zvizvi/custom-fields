@@ -56,6 +56,82 @@ describe('ManageCustomFieldSection - Field Management', function (): void {
         expect($field1->fresh())->sort_order->toBe(1);
     });
 
+    it('can move inactive fields within and between sections', function (): void {
+        // Arrange - Create an inactive field
+        $inactiveField = CustomField::factory()
+            ->ofType('text')
+            ->inactive()
+            ->create([
+                'custom_field_section_id' => $this->section->getKey(),
+                'entity_type' => $this->userEntityType,
+                'sort_order' => 0,
+            ]);
+
+        // Create another active field
+        $activeField = CustomField::factory()
+            ->ofType('number')
+            ->create([
+                'custom_field_section_id' => $this->section->getKey(),
+                'entity_type' => $this->userEntityType,
+                'sort_order' => 1,
+            ]);
+
+        // Verify initial state
+        expect($inactiveField->fresh())->isActive()->toBeFalse();
+        expect($activeField->fresh())->isActive()->toBeTrue();
+
+        // Act - Test that the updateFieldsOrder method can handle inactive fields
+        livewire(ManageCustomFieldSection::class, [
+            'section' => $this->section,
+            'entityType' => $this->userEntityType,
+        ])->call('updateFieldsOrder', $this->section->getKey(), [$activeField->getKey(), $inactiveField->getKey()]);
+
+        // Assert - Both active and inactive fields can be reordered
+        expect($activeField->fresh())->sort_order->toBe(0);
+        expect($inactiveField->fresh())->sort_order->toBe(1);
+
+        // Verify the inactive field is still inactive but with new position
+        expect($inactiveField->fresh())->isActive()->toBeFalse();
+    });
+
+    it('can move fields between active and inactive sections', function (): void {
+        // Arrange - Create an active section and an inactive section
+        $activeSection = $this->section; // Default section is active
+        $inactiveSection = CustomFieldSection::factory()
+            ->inactive()
+            ->forEntityType($this->userEntityType)
+            ->create();
+
+        // Create a field in the active section
+        $field = CustomField::factory()
+            ->ofType('text')
+            ->create([
+                'custom_field_section_id' => $activeSection->getKey(),
+                'entity_type' => $this->userEntityType,
+                'sort_order' => 0,
+            ]);
+
+        // Act - Move field from active section to inactive section
+        livewire(ManageCustomFieldSection::class, [
+            'section' => $inactiveSection,
+            'entityType' => $this->userEntityType,
+        ])->call('updateFieldsOrder', $inactiveSection->getKey(), [$field->getKey()]);
+
+        // Assert - Field can be moved to inactive section
+        expect($field->fresh())->custom_field_section_id->toBe($inactiveSection->getKey());
+        expect($field->fresh())->sort_order->toBe(0);
+
+        // Act - Move field back from inactive section to active section
+        livewire(ManageCustomFieldSection::class, [
+            'section' => $activeSection,
+            'entityType' => $this->userEntityType,
+        ])->call('updateFieldsOrder', $activeSection->getKey(), [$field->getKey()]);
+
+        // Assert - Field can be moved back to active section
+        expect($field->fresh())->custom_field_section_id->toBe($activeSection->getKey());
+        expect($field->fresh())->sort_order->toBe(0);
+    });
+
     it('can update field width', function (): void {
         // Arrange
         $field = CustomField::factory()
@@ -172,7 +248,8 @@ describe('ManageCustomField - Field Actions', function (): void {
         // Act & Assert
         livewire(ManageCustomField::class, [
             'field' => $systemField,
-        ])->assertActionHidden('delete');
+        ])->assertActionVisible('delete')
+            ->assertActionDisabled('delete');
     });
 
     it('dispatches width update event', function (): void {
@@ -230,7 +307,8 @@ describe('Enhanced field management with datasets', function (): void {
 
         livewire(ManageCustomField::class, [
             'field' => $systemField,
-        ])->assertActionHidden('delete');
+        ])->assertActionVisible('delete')
+            ->assertActionDisabled('delete');
 
         // Active field cannot be deleted
         $activeField = CustomField::factory()
@@ -607,9 +685,9 @@ describe('Custom Fields Management Workflow - Phase 2.1', function (): void {
         ])
             ->callAction('deactivate')
             ->assertSuccessful()
-            ->assertActionHidden('delete');
+            ->assertActionDisabled('delete');
 
-        // System field should still exist since delete action is hidden
+        // System field should still exist since delete action is disabled
         expect($systemField->fresh())->not->toBeNull();
     });
 });

@@ -97,4 +97,12 @@ class CustomFieldSection extends Model
     {
         return $this->system_defined === true;
     }
+
+    /**
+     * Determine if the section contains any system-defined fields.
+     */
+    public function hasSystemDefinedFields(): bool
+    {
+        return $this->fields()->withDeactivated()->where('system_defined', true)->exists();
+    }
 }

@@ -19,6 +19,6 @@ final class BooleanEntry extends AbstractInfolistEntry
         return BaseIconEntry::make($this->getFieldName($customField))
             ->boolean()
             ->label($customField->name)
-            ->state(fn ($record) => (bool) $record->getCustomFieldValue($customField));
+            ->state(fn ($record): bool => (bool) $record->getCustomFieldValue($customField));
     }
 }

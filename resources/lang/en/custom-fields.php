@@ -18,6 +18,8 @@ return [
             'type' => 'Type',
             'description' => 'Description',
             'add_section' => 'Add Section',
+            'system_defined_cannot_delete' => 'System-defined sections cannot be deleted.',
+            'contains_system_fields_cannot_delete' => 'Sections containing system-defined fields cannot be deleted.',
         ],
         'default' => [
             'new_section' => 'New Section',
@@ -62,6 +64,7 @@ return [
                 'add' => 'Add Option',
             ],
             'add_field' => 'Add Field',
+            'system_defined_cannot_delete' => 'System-defined fields cannot be deleted.',
             'validation' => [
                 'label' => 'Validation',
                 'rules' => 'Validation Rules',
