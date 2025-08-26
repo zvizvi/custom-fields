@@ -132,6 +132,39 @@ describe('ManageCustomFieldSection - Field Management', function (): void {
         expect($field->fresh())->sort_order->toBe(0);
     });
 
+    it('properly updates section fields collection when moving fields into empty sections', function (): void {
+        // Arrange - Create an empty section and a field in another section
+        $emptySection = CustomFieldSection::factory()
+            ->forEntityType($this->userEntityType)
+            ->create();
+        
+        $field = CustomField::factory()
+            ->ofType('text')
+            ->create([
+                'custom_field_section_id' => $this->section->getKey(),
+                'entity_type' => $this->userEntityType,
+                'sort_order' => 0,
+            ]);
+
+        // Verify initial state - empty section has no fields
+        $emptySectionComponent = livewire(ManageCustomFieldSection::class, [
+            'section' => $emptySection,
+            'entityType' => $this->userEntityType,
+        ]);
+        
+        expect($emptySectionComponent->fields)->toHaveCount(0);
+
+        // Act - Move field to the empty section
+        $emptySectionComponent->call('updateFieldsOrder', $emptySection->getKey(), [$field->getKey()]);
+
+        // Assert - The section's fields collection is updated to include the moved field
+        expect($emptySectionComponent->fields)->toHaveCount(1);
+        expect($emptySectionComponent->fields->first()->id)->toBe($field->getKey());
+        
+        // Verify the field was actually moved in the database
+        expect($field->fresh())->custom_field_section_id->toBe($emptySection->getKey());
+    });
+
     it('can update field width', function (): void {
         // Arrange
         $field = CustomField::factory()

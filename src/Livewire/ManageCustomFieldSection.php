@@ -56,6 +56,12 @@ final class ManageCustomFieldSection extends Component implements HasActions, Ha
         $this->section->refresh();
     }
 
+    #[On('fields-reordered')]
+    public function fieldsReordered(): void
+    {
+        unset($this->fields);
+    }
+
     public function updateFieldsOrder(int|string $sectionId, array $fields): void
     {
         $model = CustomFields::newCustomFieldModel();
@@ -68,6 +74,9 @@ final class ManageCustomFieldSection extends Component implements HasActions, Ha
                     'sort_order' => $index,
                 ]);
         }
+
+        // Broadcast to all section components to refresh their fields
+        $this->dispatch('fields-reordered')->to('manage-custom-field-section');
     }
 
     public function actions(): ActionGroup
