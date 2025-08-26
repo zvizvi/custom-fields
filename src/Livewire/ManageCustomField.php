@@ -33,7 +33,7 @@ final class ManageCustomField extends Component implements HasActions, HasForms
             $this->activateAction(),
             $this->deactivateAction(),
             $this->deleteAction(),
-        ]);
+        ])->dropdownPlacement('bottom-end');
     }
 
     public function editAction(): Action

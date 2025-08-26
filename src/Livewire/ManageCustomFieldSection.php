@@ -86,7 +86,7 @@ final class ManageCustomFieldSection extends Component implements HasActions, Ha
             $this->activateAction(),
             $this->deactivateAction(),
             $this->deleteAction(),
-        ]);
+        ])->dropdownPlacement('bottom-end');
     }
 
     public function editAction(): Action
