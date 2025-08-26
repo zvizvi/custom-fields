@@ -6,9 +6,7 @@ namespace Relaticle\CustomFields\Filament\Integration\Builders;
 
 use Filament\Infolists\Components\Entry;
 use Filament\Schemas\Components\Component;
-use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Grid;
-use Filament\Schemas\Components\Section;
 use Illuminate\Support\Collection;
 use Relaticle\CustomFields\Filament\Integration\Factories\FieldInfolistsFactory;
 use Relaticle\CustomFields\Filament\Integration\Factories\SectionInfolistsFactory;
@@ -30,7 +28,7 @@ final class InfolistBuilder extends BaseBuilder
     }
 
     /**
-     * @return Collection<int, Section|Fieldset|Grid>
+     * @return Collection<int, mixed>
      */
     public function values(): Collection
     {

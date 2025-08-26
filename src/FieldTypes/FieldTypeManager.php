@@ -41,7 +41,7 @@ final class FieldTypeManager
     private array $fieldTypes = [];
 
     /**
-     * @var array<string, array<int, string>>
+     * @var array<int, string>
      */
     private array $cachedFieldTypes;
 
@@ -61,7 +61,7 @@ final class FieldTypeManager
     }
 
     /**
-     * @return array<string, array<int, string>>
+     * @return array<int, string>
      */
     public function getFieldTypes(): array
     {

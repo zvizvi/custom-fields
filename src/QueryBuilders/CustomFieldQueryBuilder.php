@@ -5,6 +5,7 @@ namespace Relaticle\CustomFields\QueryBuilders;
 use Illuminate\Database\Eloquent\Builder;
 use Relaticle\CustomFields\Facades\Entities;
 use Relaticle\CustomFields\Models\CustomField;
+use Relaticle\CustomFields\Models\Scopes\CustomFieldsActivableScope;
 
 /**
  * @template TModelClass of CustomField
@@ -77,5 +78,15 @@ class CustomFieldQueryBuilder extends Builder
     public function active(): self
     {
         return $this->where('active', true);
+    }
+
+    /** @return CustomFieldQueryBuilder<TModelClass> */
+    public function withDeactivated(bool $withDeactivated = true): self
+    {
+        if (! $withDeactivated) {
+            return $this;
+        }
+
+        return $this->withoutGlobalScope(CustomFieldsActivableScope::class);
     }
 }

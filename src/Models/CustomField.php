@@ -51,6 +51,7 @@ use Spatie\LaravelData\DataCollection;
  * @method static CustomFieldQueryBuilder<CustomField> forEntity(string $model)
  * @method static CustomFieldQueryBuilder<CustomField> forMorphEntity(string $entity)
  * @method static CustomFieldQueryBuilder<CustomField> forType(string $type)
+ * @method static CustomFieldQueryBuilder<CustomField> withDeactivated(bool $withDeactivated = true)
  */
 #[ScopedBy([TenantScope::class, SortOrderScope::class])]
 #[ObservedBy(CustomFieldObserver::class)]

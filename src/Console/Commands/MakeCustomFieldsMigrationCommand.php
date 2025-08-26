@@ -96,7 +96,7 @@ class MakeCustomFieldsMigrationCommand extends GeneratorCommand
     /**
      * Handle the command execution.
      */
-    public function handle(): int
+    public function handle(): bool
     {
         $name = $this->getNameInput();
         $path = $this->getPath($name);
@@ -105,7 +105,7 @@ class MakeCustomFieldsMigrationCommand extends GeneratorCommand
         if ($this->files->exists($path)) {
             $this->error(sprintf('Migration %s already exists!', $path));
 
-            return 1;
+            return false;
         }
 
         // Make sure the directory exists
@@ -117,6 +117,6 @@ class MakeCustomFieldsMigrationCommand extends GeneratorCommand
         $this->info('Custom fields migration created successfully:');
         $this->line(sprintf('<comment>%s</comment>', $path));
 
-        return 0;
+        return true;
     }
 }
