@@ -115,8 +115,6 @@ final class CustomFieldsServiceProvider extends PackageServiceProvider
         }
     }
 
-    public function packageRegistered(): void {}
-
     public function packageBooted(): void
     {
         // Asset Registration
@@ -154,9 +152,7 @@ final class CustomFieldsServiceProvider extends PackageServiceProvider
     private function getAssets(): array
     {
         return [
-            // AlpineComponent::make('custom-fields', __DIR__ . '/../resources/dist/components/custom-fields.js'),
             Css::make('custom-fields', __DIR__.'/../resources/dist/custom-fields.css')->loadedOnRequest(),
-            // Js::make('custom-fields-scripts', __DIR__ . '/../resources/dist/custom-fields.js'),
         ];
     }
 

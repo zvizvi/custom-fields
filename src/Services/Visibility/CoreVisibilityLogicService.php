@@ -250,21 +250,6 @@ final readonly class CoreVisibilityLogicService
     }
 
     /**
-     * Normalize a single condition for consistent evaluation.
-     * Ensures conditions are in the expected format across contexts.
-     *
-     * @return array<string, mixed>
-     */
-    public function normalizeCondition(VisibilityConditionData $condition): array
-    {
-        return [
-            'field_code' => $condition->field_code,
-            'operator' => $condition->operator->value,
-            'value' => $condition->value,
-        ];
-    }
-
-    /**
      * Check if a condition requires the target field to be optionable.
      * Used to validate condition setup and provide appropriate error messages.
      */
@@ -292,49 +277,5 @@ final readonly class CoreVisibilityLogicService
         }
 
         return null;
-    }
-
-    /**
-     * Filter visible fields from a collection based on field values.
-     * Uses core evaluation logic without cascading.
-     *
-     * @param  Collection<int, CustomField>  $fields
-     * @param  array<string, mixed>  $fieldValues
-     * @return Collection<int, CustomField>
-     */
-    public function filterVisibleFields(Collection $fields, array $fieldValues): Collection
-    {
-        return $fields->filter(fn (CustomField $field): bool => $this->evaluateVisibility($field, $fieldValues));
-    }
-
-    /**
-     * Get fields that should be saved regardless of visibility.
-     *
-     * @param  Collection<int, CustomField>  $fields
-     * @return Collection<int, CustomField>
-     */
-    public function getAlwaysSaveFields(Collection $fields): Collection
-    {
-        return $fields->filter(fn (CustomField $field): bool => $this->shouldAlwaysSave($field));
-    }
-
-    /**
-     * Legacy method aliases for backward compatibility.
-     * These delegates to the main methods with consistent naming.
-     *
-     * @param  array<string, mixed>  $fieldValues
-     */
-    public function shouldShowField(CustomField $field, array $fieldValues): bool
-    {
-        return $this->evaluateVisibility($field, $fieldValues);
-    }
-
-    /**
-     * @param  array<string, mixed>  $fieldValues
-     * @param  Collection<int, CustomField>  $allFields
-     */
-    public function shouldShowFieldWithCascading(CustomField $field, array $fieldValues, Collection $allFields): bool
-    {
-        return $this->evaluateVisibilityWithCascading($field, $fieldValues, $allFields);
     }
 }

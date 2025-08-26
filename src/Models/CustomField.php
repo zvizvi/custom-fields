@@ -145,9 +145,6 @@ class CustomField extends Model
         return $this->hasMany(CustomFields::optionModel());
     }
 
-    /**
-     * @noinspection PhpUnused
-     */
     public function typeData(): Attribute
     {
         return Attribute::make(

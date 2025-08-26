@@ -25,6 +25,7 @@ use Illuminate\Validation\Rules\Unique;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Facades\CustomFieldsType;
 use Relaticle\CustomFields\Facades\Entities;
+use Relaticle\CustomFields\FieldTypes\FieldTypeManager;
 use Relaticle\CustomFields\Filament\Management\Forms\Components\CustomFieldValidationComponent;
 use Relaticle\CustomFields\Filament\Management\Forms\Components\TypeField;
 use Relaticle\CustomFields\Filament\Management\Forms\Components\VisibilityComponent;
@@ -59,7 +60,17 @@ class FieldForm implements FormInterface
             ])
             ->columns(12)
             ->columnSpanFull()
-            ->requiredUnless('type', 'tags_input') // TODO: Check via CustomFieldsType
+            ->requiredUnless('type', function (callable $get) {
+                $fieldType = $get('type');
+                if (! $fieldType) {
+                    return false;
+                }
+
+                $fieldTypeInstance = app(FieldTypeManager::class)
+                    ->getFieldTypeInstance($fieldType);
+
+                return $fieldTypeInstance?->acceptsArbitraryValues() ?? false;
+            })
             ->hiddenLabel()
             ->defaultItems(1)
             ->addActionLabel(
