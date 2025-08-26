@@ -133,7 +133,7 @@ class CustomFieldsManagementPage extends Page
     private function storeSection(array $data): CustomFieldSection
     {
         if (Utils::isTenantEnabled()) {
-            $data[config('custom-fields.column_names.tenant_foreign_key')] = Filament::getTenant()?->getKey();
+            $data[config('custom-fields.database.column_names.tenant_foreign_key')] = Filament::getTenant()?->getKey();
         }
 
         $data['type'] ??= CustomFieldSectionType::SECTION->value;

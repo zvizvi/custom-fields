@@ -137,7 +137,7 @@ describe('ManageCustomFieldSection - Field Management', function (): void {
         $emptySection = CustomFieldSection::factory()
             ->forEntityType($this->userEntityType)
             ->create();
-        
+
         $field = CustomField::factory()
             ->ofType('text')
             ->create([
@@ -151,7 +151,7 @@ describe('ManageCustomFieldSection - Field Management', function (): void {
             'section' => $emptySection,
             'entityType' => $this->userEntityType,
         ]);
-        
+
         expect($emptySectionComponent->fields)->toHaveCount(0);
 
         // Act - Move field to the empty section
@@ -160,7 +160,7 @@ describe('ManageCustomFieldSection - Field Management', function (): void {
         // Assert - The section's fields collection is updated to include the moved field
         expect($emptySectionComponent->fields)->toHaveCount(1);
         expect($emptySectionComponent->fields->first()->id)->toBe($field->getKey());
-        
+
         // Verify the field was actually moved in the database
         expect($field->fresh())->custom_field_section_id->toBe($emptySection->getKey());
     });

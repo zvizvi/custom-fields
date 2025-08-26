@@ -116,7 +116,7 @@ trait UsesCustomFields
         $data = ['custom_field_id' => $customField->getKey()];
 
         if (Utils::isTenantEnabled()) {
-            $data[config('custom-fields.column_names.tenant_foreign_key')] = $this->resolveTenantId($tenant, $customField);
+            $data[config('custom-fields.database.column_names.tenant_foreign_key')] = $this->resolveTenantId($tenant, $customField);
         }
 
         $customFieldValue = $this->customFieldValues();
@@ -147,7 +147,7 @@ trait UsesCustomFields
         }
 
         // Fallback: Use the tenant from the custom field
-        $tenantColumn = config('custom-fields.column_names.tenant_foreign_key');
+        $tenantColumn = config('custom-fields.database.column_names.tenant_foreign_key');
 
         return $customField->{$tenantColumn};
     }

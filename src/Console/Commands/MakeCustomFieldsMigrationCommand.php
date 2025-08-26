@@ -40,7 +40,7 @@ class MakeCustomFieldsMigrationCommand extends GeneratorCommand
      */
     protected function getPath($name): string
     {
-        $path = $this->option('path') ?? config('custom-fields.migrations_paths.0', database_path('custom-fields'));
+        $path = $this->option('path') ?? config('custom-fields.database.migrations_path', database_path('custom-fields'));
 
         if (! $this->files->isDirectory($path)) {
             $this->files->makeDirectory($path, 0755, true);

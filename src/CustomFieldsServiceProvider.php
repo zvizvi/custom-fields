@@ -59,11 +59,11 @@ final class CustomFieldsServiceProvider extends PackageServiceProvider
                 if ($tenantModel !== null) {
                     $tenantModelInstance = app($tenantModel);
 
-                    CustomFieldSection::resolveRelationUsing('team', fn (CustomField $customField) => $customField->belongsTo($tenantModel, config('custom-fields.column_names.tenant_foreign_key')));
+                    CustomFieldSection::resolveRelationUsing('team', fn (CustomField $customField) => $customField->belongsTo($tenantModel, config('custom-fields.database.column_names.tenant_foreign_key')));
 
-                    CustomField::resolveRelationUsing('team', fn (CustomField $customField) => $customField->belongsTo($tenantModel, config('custom-fields.column_names.tenant_foreign_key')));
+                    CustomField::resolveRelationUsing('team', fn (CustomField $customField) => $customField->belongsTo($tenantModel, config('custom-fields.database.column_names.tenant_foreign_key')));
 
-                    $tenantModelInstance->resolveRelationUsing('customFields', fn (Model $tenantModel) => $tenantModel->hasMany(CustomField::class, config('custom-fields.column_names.tenant_foreign_key')));
+                    $tenantModelInstance->resolveRelationUsing('customFields', fn (Model $tenantModel) => $tenantModel->hasMany(CustomField::class, config('custom-fields.database.column_names.tenant_foreign_key')));
                 }
             }
         }

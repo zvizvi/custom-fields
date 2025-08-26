@@ -120,13 +120,13 @@ class CustomFieldsMigrator implements CustomsFieldsMigrators
             ];
 
             if (Utils::isTenantEnabled()) {
-                $data[config('custom-fields.column_names.tenant_foreign_key')] =
+                $data[config('custom-fields.database.column_names.tenant_foreign_key')] =
                     $this->tenantId;
                 $sectionData[
-                    config('custom-fields.column_names.tenant_foreign_key')
+                    config('custom-fields.database.column_names.tenant_foreign_key')
                 ] = $this->tenantId;
                 $sectionAttributes[
-                    config('custom-fields.column_names.tenant_foreign_key')
+                    config('custom-fields.database.column_names.tenant_foreign_key')
                 ] = $this->tenantId;
             }
 
@@ -184,7 +184,7 @@ class CustomFieldsMigrator implements CustomsFieldsMigrators
 
             if (Utils::isTenantEnabled()) {
                 $updateData[
-                    config('custom-fields.column_names.tenant_foreign_key')
+                    config('custom-fields.database.column_names.tenant_foreign_key')
                 ] = $this->tenantId;
             }
 
@@ -277,7 +277,7 @@ class CustomFieldsMigrator implements CustomsFieldsMigrators
                     if (Utils::isTenantEnabled()) {
                         $data[
                             config(
-                                'custom-fields.column_names.tenant_foreign_key'
+                                'custom-fields.database.column_names.tenant_foreign_key'
                             )
                         ] = $this->tenantId;
                     }
@@ -300,7 +300,7 @@ class CustomFieldsMigrator implements CustomsFieldsMigrators
             ->when(
                 Utils::isTenantEnabled() && $tenantId,
                 fn ($query) => $query->where(
-                    config('custom-fields.column_names.tenant_foreign_key'),
+                    config('custom-fields.database.column_names.tenant_foreign_key'),
                     $tenantId
                 )
             )

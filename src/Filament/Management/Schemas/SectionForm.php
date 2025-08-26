@@ -52,7 +52,7 @@ class SectionForm implements FormInterface, SectionFormInterface
                                 Utils::isTenantEnabled(),
                                 fn (Unique $rule) => $rule->where(
                                     config(
-                                        'custom-fields.column_names.tenant_foreign_key'
+                                        'custom-fields.database.column_names.tenant_foreign_key'
                                     ),
                                     Filament::getTenant()?->getKey()
                                 )
@@ -94,7 +94,7 @@ class SectionForm implements FormInterface, SectionFormInterface
                                 Utils::isTenantEnabled(),
                                 fn (Unique $rule) => $rule->where(
                                     config(
-                                        'custom-fields.column_names.tenant_foreign_key'
+                                        'custom-fields.database.column_names.tenant_foreign_key'
                                     ),
                                     Filament::getTenant()?->getKey()
                                 )

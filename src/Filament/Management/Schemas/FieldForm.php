@@ -76,7 +76,7 @@ class FieldForm implements FormInterface
                 array $data
             ): array {
                 if (Utils::isTenantEnabled()) {
-                    $data[config('custom-fields.column_names.tenant_foreign_key')] = Filament::getTenant()?->getKey();
+                    $data[config('custom-fields.database.column_names.tenant_foreign_key')] = Filament::getTenant()?->getKey();
                 }
 
                 return $data;
@@ -165,7 +165,7 @@ class FieldForm implements FormInterface
                                         Utils::isTenantEnabled(),
                                         fn (Unique $rule) => $rule->where(
                                             config(
-                                                'custom-fields.column_names.tenant_foreign_key'
+                                                'custom-fields.database.column_names.tenant_foreign_key'
                                             ),
                                             Filament::getTenant()?->getKey()
                                         )
@@ -225,7 +225,7 @@ class FieldForm implements FormInterface
                                         Utils::isTenantEnabled(),
                                         fn (Unique $rule) => $rule->where(
                                             config(
-                                                'custom-fields.column_names.tenant_foreign_key'
+                                                'custom-fields.database.column_names.tenant_foreign_key'
                                             ),
                                             Filament::getTenant()?->getKey()
                                         )

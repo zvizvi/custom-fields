@@ -166,7 +166,7 @@ final class ManageCustomFieldSection extends Component implements HasActions, Ha
             ])
             ->mutateDataUsing(function (array $data): array {
                 if (Utils::isTenantEnabled()) {
-                    $data[config('custom-fields.column_names.tenant_foreign_key')] = Filament::getTenant()?->getKey();
+                    $data[config('custom-fields.database.column_names.tenant_foreign_key')] = Filament::getTenant()?->getKey();
                 }
 
                 return [
@@ -180,7 +180,7 @@ final class ManageCustomFieldSection extends Component implements HasActions, Ha
                     ->filter()
                     ->map(function (array $option): array {
                         if (Utils::isTenantEnabled()) {
-                            $option[config('custom-fields.column_names.tenant_foreign_key')] = Filament::getTenant()?->getKey();
+                            $option[config('custom-fields.database.column_names.tenant_foreign_key')] = Filament::getTenant()?->getKey();
                         }
 
                         return $option;

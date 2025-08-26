@@ -78,7 +78,7 @@ class CustomField extends Model
     public function __construct(array $attributes = [])
     {
         if ($this->table === null) {
-            $this->setTable(config('custom-fields.table_names.custom_fields'));
+            $this->setTable(config('custom-fields.database.table_names.custom_fields'));
         }
 
         parent::__construct($attributes);

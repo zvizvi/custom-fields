@@ -51,7 +51,7 @@ class CustomFieldValue extends Model
     {
         if ($this->table === null) {
             $this->setTable(
-                config('custom-fields.table_names.custom_field_values')
+                config('custom-fields.database.table_names.custom_field_values')
             );
         }
 

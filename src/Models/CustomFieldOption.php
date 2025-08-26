@@ -56,7 +56,7 @@ class CustomFieldOption extends Model
     {
         if ($this->table === null) {
             $this->setTable(
-                config('custom-fields.table_names.custom_field_options')
+                config('custom-fields.database.table_names.custom_field_options')
             );
         }
 

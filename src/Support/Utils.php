@@ -11,52 +11,52 @@ class Utils
 {
     public static function getResourceCluster(): ?string
     {
-        return config('custom-fields.custom_fields_management.cluster', null);
+        return config('custom-fields.management.cluster');
     }
 
     public static function getResourceSlug(): string
     {
-        return (string) config('custom-fields.custom_fields_management.slug');
+        return config('custom-fields.management.slug', 'custom-fields');
     }
 
     public static function isResourceNavigationRegistered(): bool
     {
-        return config('custom-fields.custom_fields_management.should_register_navigation', true);
+        return config('custom-fields.management.enabled', true);
     }
 
     public static function getResourceNavigationSort(): ?int
     {
-        return config('custom-fields.custom_fields_management.navigation_sort');
+        return config('custom-fields.management.navigation_sort', -1);
     }
 
     public static function isResourceNavigationGroupEnabled(): bool
     {
-        return config('custom-fields.custom_fields_management.navigation_group', true);
+        return config('custom-fields.management.navigation_group_enabled', true);
     }
 
     public static function isTableColumnsEnabled(): bool
     {
-        return config('custom-fields.resource.table.columns.enabled', true);
+        return config('custom-fields.resource.table.columns', true);
     }
 
     public static function isTableColumnsToggleableEnabled(): bool
     {
-        return config('custom-fields.resource.table.columns_toggleable.enabled', true);
+        return config('custom-fields.resource.table.columns_toggleable', true);
     }
 
     public static function isTableColumnsToggleableHiddenByDefault(): bool
     {
-        return config('custom-fields.resource.table.columns_toggleable.hidden_by_default', true);
+        return true;
     }
 
     public static function isTableColumnsToggleableUserControlEnabled(): bool
     {
-        return config('custom-fields.resource.table.columns_toggleable.user_control', false);
+        return true;
     }
 
     public static function isTableFiltersEnabled(): bool
     {
-        return config('custom-fields.resource.table.filters.enabled', true);
+        return config('custom-fields.resource.table.filters', true);
     }
 
     public static function isTenantEnabled(): bool
@@ -66,12 +66,12 @@ class Utils
 
     public static function isConditionalVisibilityFeatureEnabled(): bool
     {
-        return config('custom-fields.features.conditional_visibility.enabled', false);
+        return config('custom-fields.features.conditional_visibility', false);
     }
 
     public static function isValuesEncryptionFeatureEnabled(): bool
     {
-        return config('custom-fields.features.encryption.enabled', false);
+        return config('custom-fields.features.encryption', false);
     }
 
     /**
@@ -79,7 +79,7 @@ class Utils
      */
     public static function isSelectOptionColorsFeatureEnabled(): bool
     {
-        return config('custom-fields.features.select_option_colors.enabled', false);
+        return config('custom-fields.features.select_option_colors', false);
     }
 
     /**

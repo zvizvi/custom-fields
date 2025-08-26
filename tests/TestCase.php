@@ -102,10 +102,22 @@ class TestCase extends BaseTestCase
         config()->set('auth.providers.users.model', User::class);
 
         // Custom fields configuration
-        config()->set('custom-fields.table_names.custom_field_sections', 'custom_field_sections');
-        config()->set('custom-fields.table_names.custom_fields', 'custom_fields');
-        config()->set('custom-fields.table_names.custom_field_values', 'custom_field_values');
-        config()->set('custom-fields.table_names.custom_field_options', 'custom_field_options');
+        config()->set('custom-fields.database.table_names.custom_field_sections', 'custom_field_sections');
+        config()->set('custom-fields.database.table_names.custom_fields', 'custom_fields');
+        config()->set('custom-fields.database.table_names.custom_field_values', 'custom_field_values');
+        config()->set('custom-fields.database.table_names.custom_field_options', 'custom_field_options');
+
+        // Entity configuration for tests using the new builder
+        config()->set('custom-fields.entity_configuration',
+            \Relaticle\CustomFields\Entities\Configuration\EntityConfiguration::configure()
+                ->autoDiscover(false)
+                ->models([
+                    \Relaticle\CustomFields\Entities\Configuration\EntityModel::for(\Relaticle\CustomFields\Tests\Fixtures\Models\Post::class)
+                        ->label('Post')
+                        ->searchIn(['title', 'content'])
+                        ->features([\Relaticle\CustomFields\Enums\EntityFeature::CUSTOM_FIELDS, \Relaticle\CustomFields\Enums\EntityFeature::LOOKUP_SOURCE]),
+                ])
+        );
 
         // Filament configuration
         config()->set('app.key', 'base64:'.base64_encode(random_bytes(32)));

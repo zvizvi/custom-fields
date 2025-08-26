@@ -1,16 +1,13 @@
 <?php
 
-// ABOUTME: Service provider that registers the entity management system with Laravel
-// ABOUTME: Handles singleton registration, configuration loading, and auto-discovery setup
-
 declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Providers;
 
-use Filament\Resources\Resource;
 use Illuminate\Support\ServiceProvider;
 use Relaticle\CustomFields\Contracts\EntityManagerInterface;
 use Relaticle\CustomFields\Data\EntityConfigurationData;
+use Relaticle\CustomFields\Entities\Configuration\Contracts\EntityConfigurationInterface;
 use Relaticle\CustomFields\Entities\EntityManager;
 
 class EntityServiceProvider extends ServiceProvider
@@ -22,13 +19,17 @@ class EntityServiceProvider extends ServiceProvider
     {
         // Register EntityManager as singleton
         $this->app->singleton(EntityManagerInterface::class, EntityManager::class);
-        $this->app->singleton(EntityManager::class, fn ($app): EntityManager => new EntityManager(
-            cacheEnabled: config('custom-fields.entity_management.cache_entities', true)
-        ));
+        $this->app->singleton(EntityManager::class, function ($app): EntityManager {
+            $config = $this->getEntityConfig();
 
-        // Set up discovery paths when manager is resolved
+            return new EntityManager(
+                cacheEnabled: $config['cache_entities'] ?? true
+            );
+        });
+
+        // Configure discovery and entities when manager is resolved
         $this->app->resolving(EntityManager::class, function (EntityManager $manager): void {
-            $this->configureDiscovery($manager);
+            $this->configureEntityManager($manager);
         });
     }
 
@@ -37,13 +38,17 @@ class EntityServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        $manager = $this->app->make(EntityManager::class);
+        // Entity manager configuration happens in register() via resolving callback
+    }
 
-        // Register default entities from config
-        $this->registerConfiguredEntities($manager);
-
-        // Set up resolving callbacks
-        $this->registerResolvingCallbacks($manager);
+    /**
+     * Configure the EntityManager with discovery and registered entities
+     */
+    private function configureEntityManager(EntityManager $manager): void
+    {
+        $this->configureDiscovery($manager);
+        $this->registerEntities($manager);
+        $this->registerFilters($manager);
     }
 
     /**
@@ -51,8 +56,10 @@ class EntityServiceProvider extends ServiceProvider
      */
     private function configureDiscovery(EntityManager $manager): void
     {
-        if (config('custom-fields.entity_management.auto_discover_entities', true)) {
-            $paths = config('custom-fields.entity_management.entity_discovery_paths', [app_path('Models')]);
+        $config = $this->getEntityConfig();
+
+        if ($config['auto_discover_entities'] ?? true) {
+            $paths = $config['entity_discovery_paths'] ?? [app_path('Models')];
             $manager->enableDiscovery($paths);
         }
     }
@@ -60,61 +67,80 @@ class EntityServiceProvider extends ServiceProvider
     /**
      * Register entities from configuration
      */
-    private function registerConfiguredEntities(EntityManager $manager): void
+    private function registerEntities(EntityManager $manager): void
     {
-        $entities = config('custom-fields.entity_management.entities', []);
+        $config = $this->getEntityConfig();
+        $entities = $config['entities'] ?? [];
 
-        if (! empty($entities)) {
-            $manager->register(function () use ($entities) {
-                $configurations = [];
-
-                foreach ($entities as $alias => $config) {
-                    if (is_array($config)) {
-                        if (! isset($config['alias']) && is_string($alias)) {
-                            $config['alias'] = $alias;
-                        }
-
-                        $config['features'] = collect($config['features'] ?? []);
-
-                        $configurations[] = EntityConfigurationData::from($config);
-                    } elseif (is_string($config) && class_exists($config) && is_subclass_of($config, Resource::class)) {
-                        $configurations[] = EntityConfigurationData::fromResource($config);
-                    }
-                }
-
-                return $configurations;
-            });
+        if (empty($entities)) {
+            return;
         }
-    }
 
-    /**
-     * Register resolving callbacks
-     */
-    private function registerResolvingCallbacks(EntityManager $manager): void
-    {
-        // Apply feature filters based on configuration
-        $manager->resolving(function (array $entities): array {
-            $filtered = [];
+        $manager->register(function () use ($entities) {
+            $configurations = [];
 
-            foreach ($entities as $alias => $entity) {
-                if ($this->shouldIncludeEntity($entity)) {
-                    $filtered[$alias] = $entity;
+            foreach ($entities as $alias => $config) {
+                if (is_array($config)) {
+                    if (! isset($config['alias']) && is_string($alias)) {
+                        $config['alias'] = $alias;
+                    }
+
+                    // Convert features to collection of enums
+                    if (isset($config['features']) && is_array($config['features'])) {
+                        $config['features'] = collect($config['features'])->map(function ($feature) {
+                            if (is_string($feature)) {
+                                return \Relaticle\CustomFields\Enums\EntityFeature::from($feature);
+                            }
+
+                            return $feature;
+                        });
+                    }
+
+                    $configurations[] = EntityConfigurationData::from($config);
                 }
             }
 
-            return $filtered;
+            return $configurations;
         });
     }
 
     /**
-     * Check if an entity should be included based on configuration
+     * Register entity filters
      */
-    private function shouldIncludeEntity(EntityConfigurationData $entity): bool
+    private function registerFilters(EntityManager $manager): void
     {
-        // Check excluded models
-        $excludedModels = config('custom-fields.entity_management.excluded_models', []);
+        $config = $this->getEntityConfig();
+        $excludedModels = $config['excluded_models'] ?? [];
 
-        // Add more filtering logic as needed
-        return ! in_array($entity->getModelClass(), $excludedModels, true);
+        if (empty($excludedModels)) {
+            return;
+        }
+
+        $manager->resolving(function (array $entities) use ($excludedModels): array {
+            return array_filter($entities, function ($entity) use ($excludedModels) {
+                return ! in_array($entity->getModelClass(), $excludedModels, true);
+            });
+        });
+    }
+
+    /**
+     * Get entity configuration from the builder
+     */
+    private function getEntityConfig(): array
+    {
+        $entityConfiguration = config('custom-fields.entity_configuration');
+
+        if ($entityConfiguration instanceof EntityConfigurationInterface) {
+            return $entityConfiguration->build();
+        }
+
+        // Return sensible defaults if no configuration is provided
+        return [
+            'auto_discover_entities' => true,
+            'entity_discovery_paths' => [app_path('Models')],
+            'cache_entities' => true,
+            'entities' => [],
+            'excluded_models' => [],
+        ];
     }
 }

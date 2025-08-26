@@ -28,7 +28,7 @@ class TenantScope implements Scope
         }
 
         $builder->where(
-            config('custom-fields.column_names.tenant_foreign_key'),
+            config('custom-fields.database.column_names.tenant_foreign_key'),
             $tenantId
         );
     }

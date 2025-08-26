@@ -57,7 +57,7 @@ class CustomFieldSection extends Model
     public function __construct(array $attributes = [])
     {
         if ($this->table === null) {
-            $this->setTable(config('custom-fields.table_names.custom_field_sections'));
+            $this->setTable(config('custom-fields.database.table_names.custom_field_sections'));
         }
 
         parent::__construct($attributes);
