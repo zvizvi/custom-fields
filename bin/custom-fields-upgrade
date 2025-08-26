@@ -11,7 +11,7 @@
  */
 
 // Parse command line arguments
-$options = getopt('', ['path::', 'help']);
+$options = getopt('', ['path::', 'help', 'dry-run', 'backup', 'verbose']);
 
 if (isset($options['help'])) {
     echo "\033[36mCustom Fields v1 to v2 Upgrade Script\033[0m\n";
@@ -19,12 +19,21 @@ if (isset($options['help'])) {
     echo "Usage: \033[33mvendor/bin/custom-fields-upgrade\033[0m [options]\n\n";
     echo "Options:\n";
     echo "  \033[32m--path=PATH\033[0m    Specific path to upgrade (defaults to app directory)\n";
+    echo "  \033[32m--dry-run\033[0m      Show what would be changed without making changes\n";
+    echo "  \033[32m--backup\033[0m       Create backup files before making changes\n";
+    echo "  \033[32m--verbose\033[0m      Show detailed progress information\n";
     echo "  \033[32m--help\033[0m         Show this help message\n\n";
     echo "Examples:\n";
-    echo "  vendor/bin/custom-fields-upgrade\n";
-    echo "  vendor/bin/custom-fields-upgrade --path=app/Filament\n\n";
+    echo "  vendor/bin/custom-fields-upgrade                    # Upgrade app directory\n";
+    echo "  vendor/bin/custom-fields-upgrade --dry-run          # Preview changes\n";
+    echo "  vendor/bin/custom-fields-upgrade --backup           # Create backups\n";
+    echo "  vendor/bin/custom-fields-upgrade --path=app/Filament # Specific path\n\n";
     exit(0);
 }
+
+$dryRun = isset($options['dry-run']);
+$createBackup = isset($options['backup']);
+$verbose = isset($options['verbose']);
 
 // Determine the path to scan
 $basePath = getcwd();
@@ -38,10 +47,43 @@ if (! is_dir($scanPath)) {
 echo "🚀 Custom Fields Upgrade Tool (V1 → V2)\n";
 echo "=====================================\n\n";
 
+if ($dryRun) {
+    echo "🔍 DRY RUN MODE - No files will be modified\n";
+}
+if ($createBackup) {
+    echo "💾 BACKUP MODE - Creating backups before changes\n";
+}
+
 echo "📁 Scanning directory: $scanPath\n\n";
 
-// Upgrade patterns
-$patterns = [
+/**
+ * Create backup of a file
+ */
+function createBackupFile($filePath) {
+    $backupPath = $filePath . '.v1-backup-' . date('Y-m-d-H-i-s');
+    if (copy($filePath, $backupPath)) {
+        return $backupPath;
+    }
+    return false;
+}
+
+/**
+ * Show progress for large file operations
+ */
+function showProgress($current, $total, $message = '') {
+    if ($total > 10) { // Only show progress for larger operations
+        $percentage = round(($current / $total) * 100);
+        $bar = str_repeat('█', intval($percentage / 5));
+        $spaces = str_repeat(' ', 20 - intval($percentage / 5));
+        echo "\r🔄 Progress: [$bar$spaces] {$percentage}% ($current/$total) $message";
+        if ($current == $total) {
+            echo "\n";
+        }
+    }
+}
+
+// Import pattern upgrades
+$importPatterns = [
     // Form component imports
     [
         'pattern' => '/use\s+Relaticle\\\\CustomFields\\\\Filament\\\\Forms\\\\Components\\\\CustomFieldsComponent;/',
@@ -54,6 +96,17 @@ $patterns = [
         'replacement' => 'use Relaticle\CustomFields\Facades\CustomFields;',
         'description' => 'Infolist component import',
     ],
+    // Import/Export component imports
+    [
+        'pattern' => '/use\s+Relaticle\\\\CustomFields\\\\Filament\\\\Imports\\\\CustomFieldsImporter;/',
+        'replacement' => 'use Relaticle\CustomFields\Facades\CustomFields;',
+        'description' => 'Import component import',
+    ],
+    [
+        'pattern' => '/use\s+Relaticle\\\\CustomFields\\\\Filament\\\\Exports\\\\CustomFieldsExporter;/',
+        'replacement' => 'use Relaticle\CustomFields\Facades\CustomFields;',
+        'description' => 'Export component import',
+    ],
     // Trait namespace update
     [
         'pattern' => '/use\s+Relaticle\\\\CustomFields\\\\Filament\\\\Tables\\\\Concerns\\\\InteractsWithCustomFields;/',
@@ -62,24 +115,104 @@ $patterns = [
     ],
 ];
 
-// Component usage patterns
-$componentPatterns = [
-    // Form component usage
+// Complex component usage patterns (handles multiline and chaining)
+$complexPatterns = [
+    // Form component with potential chaining - handles multiline
     [
-        'pattern' => '/CustomFieldsComponent::make\(\)/',
-        'replacement' => 'CustomFields::form()
+        'pattern' => '/CustomFieldsComponent::make\(\)(?:\s*->[a-zA-Z_][a-zA-Z0-9_]*\([^)]*\))*\s*(?:,|\]|\)|;)/',
+        'replacement' => function($matches) {
+            $original = $matches[0];
+            $endChar = substr(trim($original), -1);
+            
+            // Extract any chained methods after make()
+            preg_match('/CustomFieldsComponent::make\(\)(.*?)(?:,|\]|\)|;)/', $original, $chainMatches);
+            $chainedMethods = isset($chainMatches[1]) ? trim($chainMatches[1]) : '';
+            
+            return 'CustomFields::form()
                 ->forModel($form->getRecord())
-                ->build()',
-        'description' => 'Form component usage',
+                ->build()' . $chainedMethods . $endChar;
+        },
+        'description' => 'Form component usage (with chaining)',
         'requiresImport' => 'Relaticle\CustomFields\Facades\CustomFields',
     ],
-    // Infolist component usage
+    
+    // Infolist component with chaining - handles multiline  
     [
-        'pattern' => '/CustomFieldsInfolists::make\(\)(\s*->columnSpanFull\(\))?/',
-        'replacement' => 'CustomFields::infolist()
+        'pattern' => '/CustomFieldsInfolists::make\(\)(?:\s*->[a-zA-Z_][a-zA-Z0-9_]*\([^)]*\))*\s*(?:,|\]|\)|;)/',
+        'replacement' => function($matches) {
+            $original = $matches[0];
+            $endChar = substr(trim($original), -1);
+            
+            // Extract chained methods
+            preg_match('/CustomFieldsInfolists::make\(\)(.*?)(?:,|\]|\)|;)/', $original, $chainMatches);
+            $chainedMethods = isset($chainMatches[1]) ? trim($chainMatches[1]) : '';
+            
+            return 'CustomFields::infolist()
                 ->forModel($infolist->getRecord())
-                ->build()$1',
-        'description' => 'Infolist component usage',
+                ->build()' . $chainedMethods . $endChar;
+        },
+        'description' => 'Infolist component usage (with chaining)', 
+        'requiresImport' => 'Relaticle\CustomFields\Facades\CustomFields',
+    ],
+];
+
+// Import/Export usage patterns
+$importExportPatterns = [
+    // CustomFieldsImporter usage in getColumns
+    [
+        'pattern' => '/\.\.\.app\(CustomFieldsImporter::class\)->getColumns\(([^)]+)\)/',
+        'replacement' => '...CustomFields::importer()
+            ->forModel($1)
+            ->columns()',
+        'description' => 'Importer getColumns usage',
+        'requiresImport' => 'Relaticle\CustomFields\Facades\CustomFields',
+    ],
+    
+    // CustomFieldsImporter usage in getColumnsByFieldCodes (multiline)
+    [
+        'pattern' => '/\.\.\.app\(CustomFieldsImporter::class\)->getColumnsByFieldCodes\(\s*([^,\s]+),\s*(\[[^\]]+\])\s*\)/',
+        'replacement' => '...CustomFields::importer()
+            ->forModel($1)
+            ->only($2)
+            ->columns()',
+        'description' => 'Importer getColumnsByFieldCodes usage',
+        'requiresImport' => 'Relaticle\CustomFields\Facades\CustomFields',
+    ],
+
+    // CustomFieldsImporter filterCustomFieldsFromData
+    [
+        'pattern' => '/app\(CustomFieldsImporter::class\)->filterCustomFieldsFromData\(([^)]+)\)/',
+        'replacement' => 'CustomFields::importer()->filterCustomFieldsFromData($1)',
+        'description' => 'Importer filterCustomFieldsFromData usage',
+        'requiresImport' => 'Relaticle\CustomFields\Facades\CustomFields',
+    ],
+
+    // CustomFieldsImporter saveCustomFieldValues
+    [
+        'pattern' => '/app\(CustomFieldsImporter::class\)->saveCustomFieldValues\(([^;]+)\);/',
+        'replacement' => function($matches) {
+            $params = trim($matches[1]);
+            // Parse parameters - typically record, data, tenant
+            $paramArray = array_map('trim', explode(',', $params));
+            
+            if (count($paramArray) >= 2) {
+                return 'CustomFields::importer()
+            ->forModel(' . $paramArray[0] . ')
+            ->saveCustomFieldValues(' . implode(', ', $paramArray) . ');';
+            }
+            return $matches[0]; // Fallback if parsing fails
+        },
+        'description' => 'Importer saveCustomFieldValues usage',
+        'requiresImport' => 'Relaticle\CustomFields\Facades\CustomFields',
+    ],
+
+    // CustomFieldsExporter getColumns usage
+    [
+        'pattern' => '/\.\.\.CustomFieldsExporter::getColumns\(([^)]+)\)/',
+        'replacement' => '...CustomFields::exporter()
+            ->forModel($1)
+            ->columns()',
+        'description' => 'Exporter getColumns usage',
         'requiresImport' => 'Relaticle\CustomFields\Facades\CustomFields',
     ],
 ];
@@ -100,71 +233,311 @@ echo 'Found ' . count($files) . " PHP files to scan\n\n";
 
 $filesUpdated = [];
 $errors = [];
+$backupFiles = [];
+$processedFiles = 0;
+
+/**
+ * Enhanced pattern processor that handles closures and complex patterns
+ */
+function processPatterns($content, $patterns, $patternType = 'simple') {
+    $updates = [];
+    $needsCustomFieldsImport = false;
+    
+    foreach ($patterns as $pattern) {
+        if (preg_match($pattern['pattern'], $content)) {
+            if (is_callable($pattern['replacement'])) {
+                // Handle closure-based replacements
+                $content = preg_replace_callback($pattern['pattern'], $pattern['replacement'], $content);
+            } else {
+                // Handle simple string replacements  
+                $content = preg_replace($pattern['pattern'], $pattern['replacement'], $content);
+            }
+            
+            $updates[] = $pattern['description'];
+            
+            // Track if we need to add the CustomFields import
+            if (isset($pattern['requiresImport'])) {
+                $needsCustomFieldsImport = true;
+            }
+        }
+    }
+    
+    return [$content, $updates, $needsCustomFieldsImport];
+}
+
+/**
+ * Clean up imports - remove old ones and add new consolidated import
+ */
+function cleanupImports($content) {
+    // Remove all old Custom Fields imports first
+    $oldImports = [
+        'Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent',
+        'Relaticle\CustomFields\Filament\Infolists\CustomFieldsInfolists', 
+        'Relaticle\CustomFields\Filament\Imports\CustomFieldsImporter',
+        'Relaticle\CustomFields\Filament\Exports\CustomFieldsExporter',
+        'Relaticle\CustomFields\Facades\CustomFields', // Also remove any existing facade imports
+    ];
+    
+    foreach ($oldImports as $oldImport) {
+        $content = preg_replace('/^use\s+' . preg_quote($oldImport, '/') . ';\s*\n/m', '', $content);
+    }
+    
+    // Remove any duplicate/orphaned use statements
+    $content = preg_replace('/^use\s*;\s*\n/m', '', $content);
+    
+    // Add single CustomFields facade import 
+    $newImport = 'Relaticle\CustomFields\Facades\CustomFields';
+    
+    // Find the last use statement position
+    if (preg_match('/^((?:use\s+[^;]+;\s*\n)*)/m', $content, $matches)) {
+        // Insert after existing use statements
+        $useSection = $matches[1];
+        $content = str_replace(
+            $useSection,
+            $useSection . "use {$newImport};\n", 
+            $content
+        );
+    } else {
+        // No use statements exist, add after namespace or at the beginning
+        if (preg_match('/(namespace\s+[^;]+;)/', $content)) {
+            $content = preg_replace(
+                '/(namespace\s+[^;]+;)/',
+                "$1\n\nuse {$newImport};",
+                $content,
+                1
+            );
+        } else {
+            // Add at the beginning after opening PHP tag
+            $content = preg_replace(
+                '/^(<\?php\s*\n)/m',
+                "$1\nuse {$newImport};\n",
+                $content,
+                1
+            );
+        }
+    }
+    
+    return $content;
+}
+
+/**
+ * Check if file needs CustomFields import based on transformations made
+ */
+function needsCustomFieldsFacade($allUpdates) {
+    $requiresImportPatterns = [
+        'Form component usage',
+        'Infolist component usage',
+        'Importer',
+        'Exporter'
+    ];
+    
+    foreach ($allUpdates as $update) {
+        foreach ($requiresImportPatterns as $pattern) {
+            if (strpos($update, $pattern) !== false) {
+                return true;
+            }
+        }
+    }
+    
+    return false;
+}
+
+/**
+ * Process multiline patterns that span across lines
+ */
+function processMultilinePatterns($content) {
+    $updates = [];
+    $needsImport = false;
+    
+    // Handle multiline CustomFieldsComponent patterns
+    $multilineFormPattern = '/CustomFieldsComponent::make\(\)(\s*(?:\/\/[^\n]*\n)?(?:\s*->[a-zA-Z_][a-zA-Z0-9_]*\([^)]*\)(?:\s*(?:\/\/[^\n]*)?)*)*\s*)(?=,|\]|\)|;)/s';
+    if (preg_match($multilineFormPattern, $content)) {
+        $content = preg_replace_callback($multilineFormPattern, function($matches) {
+            $chainedMethods = isset($matches[1]) ? $matches[1] : '';
+            return 'CustomFields::form()
+                ->forModel($form->getRecord())
+                ->build()' . $chainedMethods;
+        }, $content);
+        $updates[] = 'Form component usage (multiline)';
+        $needsImport = true;
+    }
+    
+    // Handle multiline CustomFieldsInfolists patterns  
+    $multilineInfolistPattern = '/CustomFieldsInfolists::make\(\)(\s*(?:\/\/[^\n]*\n)?(?:\s*->[a-zA-Z_][a-zA-Z0-9_]*\([^)]*\)(?:\s*(?:\/\/[^\n]*)?)*)*\s*)(?=,|\]|\)|;)/s';
+    if (preg_match($multilineInfolistPattern, $content)) {
+        $content = preg_replace_callback($multilineInfolistPattern, function($matches) {
+            $chainedMethods = isset($matches[1]) ? $matches[1] : '';
+            return 'CustomFields::infolist()
+                ->forModel($infolist->getRecord())
+                ->build()' . $chainedMethods;
+        }, $content);
+        $updates[] = 'Infolist component usage (multiline)';
+        $needsImport = true;
+    }
+    
+    // Handle multiline getColumnsByFieldCodes patterns
+    $multilineFieldCodesPattern = '/\.\.\.app\(CustomFieldsImporter::class\)->getColumnsByFieldCodes\(\s*([^,\n]+),\s*(\[[^\]]+\])\s*\)/s';
+    if (preg_match($multilineFieldCodesPattern, $content)) {
+        $content = preg_replace($multilineFieldCodesPattern, '...CustomFields::importer()
+            ->forModel($1)
+            ->only($2)
+            ->columns()', $content);
+        $updates[] = 'Importer getColumnsByFieldCodes usage (multiline)';
+        $needsImport = true;
+    }
+    
+    return [$content, $updates, $needsImport];
+}
 
 // Process each file
 foreach ($files as $filePath) {
+    $processedFiles++;
     $content = file_get_contents($filePath);
     $originalContent = $content;
-    $updates = [];
+    $allUpdates = [];
+    $needsCustomFieldsImport = false;
 
-    // Check for import updates
-    foreach ($patterns as $pattern) {
-        if (preg_match($pattern['pattern'], $content)) {
-            $content = preg_replace($pattern['pattern'], $pattern['replacement'], $content);
-            $updates[] = $pattern['description'];
-        }
-    }
+    // Show progress for large operations
+    showProgress($processedFiles, count($files), basename($filePath));
 
-    // Check for component usage updates
-    foreach ($componentPatterns as $pattern) {
-        if (preg_match($pattern['pattern'], $content)) {
-            // Check if we need to add import
-            if (isset($pattern['requiresImport']) && ! strpos($content, 'use ' . $pattern['requiresImport'] . ';')) {
-                // Add import after namespace
-                $content = preg_replace(
-                    '/(namespace\s+[^;]+;)/',
-                    "$1\n\nuse {$pattern['requiresImport']};",
-                    $content,
-                    1
-                );
-            }
+    // Process import pattern updates
+    [$content, $importUpdates, $needsImport1] = processPatterns($content, $importPatterns, 'imports');
+    $allUpdates = array_merge($allUpdates, $importUpdates);
+    $needsCustomFieldsImport = $needsCustomFieldsImport || $needsImport1;
 
-            $content = preg_replace($pattern['pattern'], $pattern['replacement'], $content);
-            $updates[] = $pattern['description'];
-        }
+    // Process complex component patterns
+    [$content, $complexUpdates, $needsImport2] = processPatterns($content, $complexPatterns, 'complex');
+    $allUpdates = array_merge($allUpdates, $complexUpdates);
+    $needsCustomFieldsImport = $needsCustomFieldsImport || $needsImport2;
+
+    // Process import/export patterns
+    [$content, $importExportUpdates, $needsImport3] = processPatterns($content, $importExportPatterns, 'import-export');
+    $allUpdates = array_merge($allUpdates, $importExportUpdates);
+    $needsCustomFieldsImport = $needsCustomFieldsImport || $needsImport3;
+
+    // Process multiline patterns
+    [$content, $multilineUpdates, $needsImport4] = processMultilinePatterns($content);
+    $allUpdates = array_merge($allUpdates, $multilineUpdates);
+    $needsCustomFieldsImport = $needsCustomFieldsImport || $needsImport4;
+
+    // Clean up imports if any Custom Fields transformations were made
+    if ($needsCustomFieldsImport || needsCustomFieldsFacade($allUpdates)) {
+        $content = cleanupImports($content);
     }
 
     // Save if changed
     if ($content !== $originalContent) {
         $relativePath = str_replace($basePath . '/', '', $filePath);
 
-        if (file_put_contents($filePath, $content)) {
-            $filesUpdated[$relativePath] = $updates;
-            echo "✅ Updated: $relativePath\n";
-            foreach ($updates as $update) {
+        if ($dryRun) {
+            // Dry run mode - just show what would be changed
+            echo "🔍 Would update: $relativePath\n";
+            foreach ($allUpdates as $update) {
                 echo "   - $update\n";
             }
+            if ($verbose) {
+                echo "   📄 Preview of changes:\n";
+                $diff = getDiffPreview($originalContent, $content);
+                echo $diff . "\n";
+            }
+            $filesUpdated[$relativePath] = $allUpdates;
         } else {
-            $errors[] = $relativePath;
-            echo "❌ Failed to update: $relativePath\n";
+            // Create backup if requested
+            if ($createBackup) {
+                $backupPath = createBackupFile($filePath);
+                if ($backupPath) {
+                    $backupFiles[] = $backupPath;
+                    if ($verbose) {
+                        echo "💾 Backup created: $backupPath\n";
+                    }
+                } else {
+                    echo "⚠️  Warning: Could not create backup for $relativePath\n";
+                }
+            }
+
+            // Write the actual changes
+            if (file_put_contents($filePath, $content)) {
+                $filesUpdated[$relativePath] = $allUpdates;
+                echo "✅ Updated: $relativePath\n";
+                if ($verbose || count($allUpdates) <= 5) {
+                    foreach ($allUpdates as $update) {
+                        echo "   - $update\n";
+                    }
+                } else {
+                    echo "   - " . count($allUpdates) . " changes made (use --verbose to see details)\n";
+                }
+            } else {
+                $errors[] = $relativePath;
+                echo "❌ Failed to update: $relativePath\n";
+            }
+        }
+    } else if ($verbose) {
+        echo "⚪ No changes needed: " . str_replace($basePath . '/', '', $filePath) . "\n";
+    }
+}
+
+/**
+ * Generate a simple diff preview
+ */
+function getDiffPreview($original, $new) {
+    $originalLines = explode("\n", $original);
+    $newLines = explode("\n", $new);
+    $diff = "";
+    $maxLines = 5; // Show max 5 lines of diff
+    $lineCount = 0;
+    
+    for ($i = 0; $i < min(count($originalLines), count($newLines)) && $lineCount < $maxLines; $i++) {
+        if ($originalLines[$i] !== $newLines[$i]) {
+            $diff .= "     - " . trim($originalLines[$i]) . "\n";
+            $diff .= "     + " . trim($newLines[$i]) . "\n";
+            $lineCount++;
         }
     }
+    
+    if ($lineCount == $maxLines) {
+        $diff .= "     ... (showing first $maxLines changes)\n";
+    }
+    
+    return $diff;
 }
 
 // Show summary
 echo "\n========================================\n";
-echo "🎉 Upgrade Process Complete!\n";
+if ($dryRun) {
+    echo "🔍 Dry Run Complete - No Files Modified\n";
+} else {
+    echo "🎉 Upgrade Process Complete!\n";
+}
 echo "========================================\n\n";
 
 if (count($filesUpdated) > 0) {
-    echo '✅ Files updated: ' . count($filesUpdated) . "\n\n";
-
-    echo "Updated files:\n";
+    if ($dryRun) {
+        echo "🔍 Files that would be updated: " . count($filesUpdated) . "\n\n";
+        echo "Files that would be changed:\n";
+    } else {
+        echo "✅ Files updated: " . count($filesUpdated) . "\n\n";
+        echo "Updated files:\n";
+    }
+    
     foreach ($filesUpdated as $file => $updates) {
-        echo "  • $file\n";
+        echo "  • $file";
+        if ($verbose) {
+            echo " (" . count($updates) . " changes)";
+        }
+        echo "\n";
     }
 } else {
     echo "✅ No v1 components found. Your codebase appears to be already using v2!\n";
+}
+
+// Show backup information
+if (!$dryRun && $createBackup && count($backupFiles) > 0) {
+    echo "\n💾 Backup files created:\n";
+    foreach ($backupFiles as $backupFile) {
+        echo "  • " . str_replace($basePath . '/', '', $backupFile) . "\n";
+    }
+    echo "\nTo restore backups if needed:\n";
+    echo "  find . -name '*.v1-backup-*' -exec sh -c 'mv \"\$1\" \"\${1%.v1-backup-*}\"' _ {} \\;\n";
 }
 
 if (count($errors) > 0) {
@@ -175,21 +548,60 @@ if (count($errors) > 0) {
     echo "\nPlease review and fix these errors manually.\n";
 }
 
-// Clear caches advice
+// Next steps advice
 echo "\n✨ Next Steps:\n";
-echo "1. Clear Laravel caches:\n";
-echo "   php artisan cache:clear\n";
-echo "   php artisan config:clear\n";
-echo "   php artisan view:clear\n";
-echo "   php artisan filament:cache-components\n";
-echo "2. Review your configuration (config/custom-fields.php):\n";
-echo "   - Field types are now managed via 'field_types' configuration\n";
-echo "   - Custom field types use trait-based composition (see docs)\n";
-echo "3. Review the updated files to ensure everything looks correct\n";
-echo "4. Run your test suite to verify functionality\n";
-echo "5. Check your Filament resources in the browser\n";
 
-echo "\nFor more information, visit the upgrade guide:\n";
-echo "https://custom-fields.dev/docs/v2/upgrade\n\n";
+if ($dryRun) {
+    echo "🔍 You ran in dry-run mode. To apply these changes:\n";
+    echo "1. Run the upgrade script without --dry-run:\n";
+    echo "   vendor/bin/custom-fields-upgrade";
+    if (isset($options['path'])) {
+        echo " --path=" . $options['path'];
+    }
+    if ($createBackup) {
+        echo " --backup";
+    }
+    echo "\n\n";
+    echo "2. Consider using --backup flag to create backups before changes\n";
+} else if (count($filesUpdated) > 0) {
+    echo "1. Clear Laravel caches:\n";
+    echo "   php artisan cache:clear\n";
+    echo "   php artisan config:clear\n";
+    echo "   php artisan view:clear\n";
+    echo "   php artisan filament:cache-components\n\n";
+    
+    echo "2. Review your configuration (config/custom-fields.php):\n";
+    echo "   - Field types are now managed via 'field_types' configuration\n";
+    echo "   - Custom field types use trait-based composition (see docs)\n\n";
+    
+    echo "3. Review the updated files to ensure everything looks correct\n";
+    echo "4. Run your test suite to verify functionality\n";
+    echo "5. Check your Filament resources in the browser\n\n";
+    
+    if (count($backupFiles) > 0) {
+        echo "6. Remove backup files after confirming everything works:\n";
+        echo "   find . -name '*.v1-backup-*' -delete\n\n";
+    }
+} else {
+    echo "🎉 No changes were needed - you're already using v2 syntax!\n";
+    echo "You can still review your configuration and run cache clear commands if needed.\n\n";
+}
+
+echo "📚 For more information:\n";
+echo "- Upgrade guide: https://custom-fields.dev/docs/v2/upgrade\n";
+echo "- V2 documentation: https://custom-fields.dev/docs/v2/introduction\n";
+echo "- Configuration: https://custom-fields.dev/docs/v2/essentials/configuration\n\n";
+
+// Statistics
+if ($verbose) {
+    echo "📊 Upgrade Statistics:\n";
+    echo "- Files scanned: " . count($files) . "\n";
+    echo "- Files modified: " . count($filesUpdated) . "\n";
+    echo "- Errors encountered: " . count($errors) . "\n";
+    if (!$dryRun && $createBackup) {
+        echo "- Backup files created: " . count($backupFiles) . "\n";
+    }
+    echo "\n";
+}
 
 exit(count($errors) > 0 ? 1 : 0);
