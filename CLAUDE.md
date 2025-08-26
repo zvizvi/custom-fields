@@ -15,10 +15,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Security** - Optional field encryption and type-safe validation
 - **Extensible** - Custom field types and automatic discovery (coming soon)
 
-### Requirements
+### Requirements  
 - PHP 8.3+
-- Laravel 11.0+
+- Laravel 11.0+ 
 - Filament 4.0+
+
+**Note:** The README.md shows PHP 8.2+ but composer.json requires PHP 8.3+. Follow composer.json requirements.
 
 ### Package Details
 - **Package Name**: `relaticle/custom-fields`
@@ -37,7 +39,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `composer test:pest` - Run all tests in parallel
 - `composer test:arch` - Run architecture tests only
 - `composer test:types` - Run PHPStan static analysis (Level 5)
-- `composer test:type-coverage` - Check type coverage (must be ≥98%)
+- `composer test:type-coverage` - Check type coverage (must be ≥97.8%)
 - `composer test:lint` - Check code style (dry run)
 - `composer test:refactor` - Check Rector rules (dry run)
 - `composer test-coverage` - Run tests with code coverage report
@@ -92,8 +94,9 @@ vendor/bin/pest --profile
 
 **Frontend Stack**
 - CSS: Tailwind CSS 4.x with PostCSS
-- JS: esbuild for fast bundling
+- JS: esbuild for fast bundling  
 - Uses PostCSS nesting and prefix selectors for component isolation
+- Concurrency: CSS and JS builds run in parallel during development
 
 ## Architecture Overview
 
@@ -150,12 +153,14 @@ Tests use Pest PHP with custom expectations:
 - `toHaveFieldType()` - Verify field types
 - `toHaveVisibilityCondition()` - Test conditional visibility
 
-Test fixtures include `Post` and `User` models with pre-configured resources.
+Test fixtures include `Post` and `User` models with pre-configured resources in `tests/Fixtures/`.
 
 **Environment Setup**
 - Tests run with SQLite in-memory database
-- Automatic migration of test database
+- Automatic migration of test database  
 - Parallel execution enabled by default
+- RefreshDatabase trait applied to all tests
+- Custom expectations defined in `tests/Pest.php`
 
 ### Multi-tenancy
 
@@ -271,11 +276,15 @@ it('creates a custom field with validation', function () {
 ```
 
 ### Architecture Tests
-The project includes architecture tests to enforce coding standards:
-- Controllers don't use Models directly
-- Services have proper suffixes
-- No debugging functions in production code
-- DTOs are immutable
+The project includes comprehensive architecture tests (`tests/Architecture.php`) to enforce coding standards:
+- **Structural Requirements**: Models extend Eloquent, Resources extend Filament base classes
+- **Security**: No debugging functions (`dd`, `dump`, `ray`) in production code  
+- **Type Safety**: Strict type declarations, return types, and parameter types required
+- **Service Layer**: Services have proper suffixes, use dependency injection, no direct model usage in controllers
+- **Data Integrity**: Models use proper casts, validation rules consistently applied
+- **Multi-tenancy**: Tenant isolation properly implemented, no global scope bypasses
+- **Performance**: No N+1 query patterns, proper caching for expensive operations
+- **Testing**: Feature tests use RefreshDatabase, proper factory usage
 
 ## Contributing
 
@@ -291,9 +300,22 @@ See the full contributing guide at https://custom-fields.relaticle.com/contribut
 
 ### Creating New Field Types
 1. Create a new class in `src/FieldTypes/` implementing `FieldTypeDefinitionInterface`
-2. Register the field type in a service provider
+2. Register the field type in `src/Providers/FieldTypeServiceProvider.php`
 3. Add corresponding form component, table column, and infolist entry methods
 4. Create tests for the new field type behavior
+5. Follow existing field types like `TextFieldType.php` or `SelectFieldType.php` as patterns
+
+### Package Structure Insights
+- **Service Providers**: Multiple providers handle different concerns:
+  - `FieldTypeServiceProvider` - Registers field types
+  - `ImportsServiceProvider` - Import/export functionality  
+  - `ValidationServiceProvider` - Validation rules
+  - `EntityServiceProvider` - Entity discovery and management
+- **Factory Pattern**: Extensive use of factories for component creation:
+  - `FieldComponentFactory` - Form components
+  - `FieldColumnFactory` - Table columns
+  - `FieldInfolistsFactory` - Infolist entries
+- **Custom Eloquent Features**: Models use custom scopes, observers, and traits for multi-tenancy and activation states
 
 ## Resources
 
