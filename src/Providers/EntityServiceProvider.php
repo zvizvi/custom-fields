@@ -9,6 +9,7 @@ use Relaticle\CustomFields\Contracts\EntityManagerInterface;
 use Relaticle\CustomFields\Data\EntityConfigurationData;
 use Relaticle\CustomFields\Entities\Configuration\Contracts\EntityConfigurationInterface;
 use Relaticle\CustomFields\Entities\EntityManager;
+use Relaticle\CustomFields\Enums\EntityFeature;
 
 class EntityServiceProvider extends ServiceProvider
 {
@@ -89,7 +90,7 @@ class EntityServiceProvider extends ServiceProvider
                     if (isset($config['features']) && is_array($config['features'])) {
                         $config['features'] = collect($config['features'])->map(function ($feature) {
                             if (is_string($feature)) {
-                                return \Relaticle\CustomFields\Enums\EntityFeature::from($feature);
+                                return EntityFeature::from($feature);
                             }
 
                             return $feature;
@@ -117,7 +118,7 @@ class EntityServiceProvider extends ServiceProvider
         }
 
         $manager->resolving(function (array $entities) use ($excludedModels): array {
-            return array_filter($entities, function ($entity) use ($excludedModels) {
+            return array_filter($entities, function ($entity) use ($excludedModels): bool {
                 return ! in_array($entity->getModelClass(), $excludedModels, true);
             });
         });

@@ -2,6 +2,24 @@
 
 All notable changes to `custom-fields` will be documented in this file.
 
+## 1.2.0 - TBD
+
+### Removed
+- **Dead Code Cleanup**: Removed backward compatibility methods and legacy code patterns for cleaner architecture
+- Removed deprecated method aliases `shouldShowField()` and `shouldShowFieldWithCascading()` from `CoreVisibilityLogicService`
+- Removed commented-out asset imports and empty `packageRegistered()` method from `CustomFieldsServiceProvider`
+- Removed unnecessary `@noinspection PhpUnused` annotation from actively used methods
+
+### Improved
+- **Field Type System**: Enhanced TODO resolution in `FieldForm.php` with dynamic field type checking using `acceptsArbitraryValues()`
+- **Architecture Documentation**: Updated field types documentation to accurately reflect trait-based composition over abstract classes
+- **Code Quality**: Applied consistent code formatting and removed fallback comments that weren't actual fallback code
+
+### Technical Details
+- Improved `FieldForm::schema()` to dynamically determine option requirements based on field type capabilities
+- All field types now properly leverage the trait-based architecture (`HasCommonFieldProperties`, `HasImportExportDefaults`)
+- Enhanced data type documentation with detailed descriptions and use cases for each `FieldDataType`
+
 ## 1.1.0 - 2025-05-16
 
 ### Fixed

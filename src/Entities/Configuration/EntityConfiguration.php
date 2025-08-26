@@ -18,7 +18,7 @@ final class EntityConfiguration implements EntityConfigurationInterface
 
     private array $discoveryPaths = [];
 
-    private array $discoveryNamespaces = [];
+    private array $discoveryNamespaces = ['App\\Models'];
 
     private array $excludedModels = [];
 
@@ -32,7 +32,6 @@ final class EntityConfiguration implements EntityConfigurationInterface
     {
         // Set smart defaults
         $this->discoveryPaths = [app_path('Models')];
-        $this->discoveryNamespaces = ['App\\Models'];
     }
 
     /**

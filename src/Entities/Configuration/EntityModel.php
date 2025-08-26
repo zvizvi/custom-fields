@@ -152,7 +152,7 @@ final class EntityModel
     public function resource(string $resourceClass): self
     {
         if (! class_exists($resourceClass)) {
-            throw new InvalidArgumentException("Resource class {$resourceClass} does not exist");
+            throw new InvalidArgumentException(sprintf('Resource class %s does not exist', $resourceClass));
         }
 
         $this->resourceClass = $resourceClass;
@@ -186,11 +186,11 @@ final class EntityModel
     private function validateModelClass(string $modelClass): void
     {
         if (! class_exists($modelClass)) {
-            throw new InvalidArgumentException("Model class {$modelClass} does not exist");
+            throw new InvalidArgumentException(sprintf('Model class %s does not exist', $modelClass));
         }
 
         if (! is_subclass_of($modelClass, Model::class)) {
-            throw new InvalidArgumentException("Class {$modelClass} must extend ".Model::class);
+            throw new InvalidArgumentException(sprintf('Class %s must extend ', $modelClass).Model::class);
         }
     }
 

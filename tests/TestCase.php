@@ -23,7 +23,11 @@ use Orchestra\Testbench\TestCase as BaseTestCase;
 use Override;
 use Postare\BladeMdi\BladeMdiServiceProvider;
 use Relaticle\CustomFields\CustomFieldsServiceProvider;
+use Relaticle\CustomFields\Entities\Configuration\EntityConfiguration;
+use Relaticle\CustomFields\Entities\Configuration\EntityModel;
+use Relaticle\CustomFields\Enums\EntityFeature;
 use Relaticle\CustomFields\Tests\database\factories\UserFactory;
+use Relaticle\CustomFields\Tests\Fixtures\Models\Post;
 use Relaticle\CustomFields\Tests\Fixtures\Models\User;
 use Relaticle\CustomFields\Tests\Fixtures\Providers\AdminPanelProvider;
 use RyanChandler\BladeCaptureDirective\BladeCaptureDirectiveServiceProvider;
@@ -109,13 +113,13 @@ class TestCase extends BaseTestCase
 
         // Entity configuration for tests using the new builder
         config()->set('custom-fields.entity_configuration',
-            \Relaticle\CustomFields\Entities\Configuration\EntityConfiguration::configure()
+            EntityConfiguration::configure()
                 ->autoDiscover(false)
                 ->models([
-                    \Relaticle\CustomFields\Entities\Configuration\EntityModel::for(\Relaticle\CustomFields\Tests\Fixtures\Models\Post::class)
+                    EntityModel::for(Post::class)
                         ->label('Post')
                         ->searchIn(['title', 'content'])
-                        ->features([\Relaticle\CustomFields\Enums\EntityFeature::CUSTOM_FIELDS, \Relaticle\CustomFields\Enums\EntityFeature::LOOKUP_SOURCE]),
+                        ->features([EntityFeature::CUSTOM_FIELDS, EntityFeature::LOOKUP_SOURCE]),
                 ])
         );
 
