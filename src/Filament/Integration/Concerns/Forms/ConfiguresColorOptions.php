@@ -64,7 +64,7 @@ trait ConfiguresColorOptions
     protected function getColorDescriptions(array $optionIds, CustomField $customField): array
     {
         return array_map(
-            fn ($optionId): string => $this->getColoredOptionDescription((string) $optionId, $customField),
+            fn (int|string $optionId): string => $this->getColoredOptionDescription((string) $optionId, $customField),
             $optionIds
         );
     }

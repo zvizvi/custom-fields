@@ -53,26 +53,26 @@ class MakeFieldTypeCommand extends GeneratorCommand
     protected function getPath($name): string
     {
         $name = Str::replaceFirst($this->rootNamespace(), '', $name);
-        
+
         // Get the directory path and base name
         $nameWithoutRoot = ltrim($name, '\\/');
         $pathParts = explode('\\', $nameWithoutRoot);
         $baseName = array_pop($pathParts);
-        
+
         // Ensure the filename matches the class name (with FieldType suffix)
         if (! Str::endsWith($baseName, 'FieldType')) {
             $baseName .= 'FieldType';
         }
-        
+
         // Rebuild the path with proper filename
         $directory = implode('/', $pathParts);
         $fullPath = $this->laravel['path'];
-        
-        if (! empty($directory)) {
-            $fullPath .= '/' . $directory;
+
+        if ($directory !== '' && $directory !== '0') {
+            $fullPath .= '/'.$directory;
         }
-        
-        return $fullPath . '/' . $baseName . '.php';
+
+        return $fullPath.'/'.$baseName.'.php';
     }
 
     /**
@@ -103,12 +103,12 @@ class MakeFieldTypeCommand extends GeneratorCommand
     protected function getClassName($name): string
     {
         $className = class_basename($name);
-        
+
         // Only add FieldType suffix if it doesn't already have it
         if (! Str::endsWith($className, 'FieldType')) {
             $className .= 'FieldType';
         }
-        
+
         return $className;
     }
 
@@ -118,7 +118,7 @@ class MakeFieldTypeCommand extends GeneratorCommand
     protected function getFieldTypeName($name): string
     {
         $className = class_basename($name);
-        
+
         return Str::replaceLast('FieldType', '', $className);
     }
 
@@ -128,7 +128,7 @@ class MakeFieldTypeCommand extends GeneratorCommand
     public function handle(): bool
     {
         $name = $this->getNameInput();
-        
+
         // Resolve the full class name with namespace
         $name = $this->qualifyClass($name);
 

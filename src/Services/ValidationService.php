@@ -174,7 +174,7 @@ final class ValidationService
         $nameToIdMap = $customField->options->pluck('id', 'name')->toArray();
 
         // Convert names to IDs, keeping the original value if not found
-        return array_map(function ($name) use ($nameToIdMap): string {
+        return array_map(function (string $name) use ($nameToIdMap): string {
             return (string) ($nameToIdMap[$name] ?? $name);
         }, $optionNames);
     }
