@@ -25,10 +25,6 @@ return [
             //     ->searchIn(['title', 'content'])
             //     ->features([EntityFeature::CUSTOM_FIELDS, EntityFeature::LOOKUP_SOURCE])
             //     ->priority(10),
-            //
-            // EntityModel::for(\App\Models\User::class)
-            //     ->label('User')
-            //     ->features([EntityFeature::LOOKUP_SOURCE]),
         ]),
 
     /*
