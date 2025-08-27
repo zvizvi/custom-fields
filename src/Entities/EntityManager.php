@@ -43,7 +43,7 @@ final class EntityManager implements EntityManagerInterface
     public function register(array|Closure $entities): static
     {
         $this->entities[] = $entities;
-        $this->clearCache();
+        $this->invalidateCache();
 
         return $this;
     }
@@ -85,7 +85,7 @@ final class EntityManager implements EntityManagerInterface
     {
         $this->discoveryEnabled = true;
         $this->discovery = new EntityDiscovery($paths);
-        $this->clearCache();
+        $this->invalidateCache();
 
         return $this;
     }
@@ -97,17 +97,25 @@ final class EntityManager implements EntityManagerInterface
     {
         $this->discoveryEnabled = false;
         $this->discovery = null;
-        $this->clearCache();
+        $this->invalidateCache();
 
         return $this;
     }
 
     /**
-     * Clear the entity cache
+     * Invalidate the in-memory cache (lightweight operation)
+     */
+    private function invalidateCache(): void
+    {
+        $this->cachedEntities = null;
+    }
+
+    /**
+     * Clear the entity cache (includes database/file cache operations)
      */
     public function clearCache(): static
     {
-        $this->cachedEntities = null;
+        $this->invalidateCache();
 
         if ($this->cacheEnabled) {
             Cache::forget(self::CACHE_KEY);
@@ -207,4 +215,5 @@ final class EntityManager implements EntityManagerInterface
 
         return $resolved;
     }
+
 }
