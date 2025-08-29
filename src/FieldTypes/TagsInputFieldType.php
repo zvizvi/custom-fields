@@ -6,10 +6,8 @@ namespace Relaticle\CustomFields\FieldTypes;
 
 use Filament\Actions\Imports\ImportColumn;
 use Relaticle\CustomFields\Contracts\FieldImportExportInterface;
-use Relaticle\CustomFields\Contracts\FieldTypeDefinitionInterface;
 use Relaticle\CustomFields\Enums\FieldDataType;
 use Relaticle\CustomFields\Enums\ValidationRule;
-use Relaticle\CustomFields\FieldTypes\Concerns\HasCommonFieldProperties;
 use Relaticle\CustomFields\FieldTypes\Concerns\HasImportExportDefaults;
 use Relaticle\CustomFields\Filament\Integration\Components\Forms\TagsInputComponent;
 use Relaticle\CustomFields\Filament\Integration\Components\Infolists\MultiChoiceEntry;
@@ -19,9 +17,8 @@ use Relaticle\CustomFields\Filament\Integration\Components\Tables\Columns\MultiC
  * ABOUTME: Field type definition for Tags Input fields
  * ABOUTME: Provides Tags Input functionality with appropriate validation rules
  */
-final class TagsInputFieldType implements FieldImportExportInterface, FieldTypeDefinitionInterface
+final class TagsInputFieldType extends BaseFieldType implements FieldImportExportInterface
 {
-    use HasCommonFieldProperties;
     use HasImportExportDefaults;
 
     public function getKey(): string
@@ -44,17 +41,17 @@ final class TagsInputFieldType implements FieldImportExportInterface, FieldTypeD
         return FieldDataType::MULTI_CHOICE;
     }
 
-    public function getFormComponentClass(): string
+    public function getFormComponent(): string
     {
         return TagsInputComponent::class;
     }
 
-    public function getTableColumnClass(): string
+    public function getTableColumn(): string
     {
         return MultiChoiceColumn::class;
     }
 
-    public function getInfolistEntryClass(): string
+    public function getInfolistEntry(): string
     {
         return MultiChoiceEntry::class;
     }

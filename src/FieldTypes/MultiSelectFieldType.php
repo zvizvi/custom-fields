@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\FieldTypes;
 
-use Relaticle\CustomFields\Contracts\FieldTypeDefinitionInterface;
 use Relaticle\CustomFields\Enums\FieldDataType;
 use Relaticle\CustomFields\Enums\ValidationRule;
-use Relaticle\CustomFields\FieldTypes\Concerns\HasCommonFieldProperties;
 use Relaticle\CustomFields\Filament\Integration\Components\Forms\MultiSelectComponent;
 use Relaticle\CustomFields\Filament\Integration\Components\Infolists\MultiChoiceEntry;
 use Relaticle\CustomFields\Filament\Integration\Components\Tables\Columns\MultiChoiceColumn;
@@ -16,10 +14,8 @@ use Relaticle\CustomFields\Filament\Integration\Components\Tables\Columns\MultiC
  * ABOUTME: Field type definition for Multi Select fields
  * ABOUTME: Provides Multi Select functionality with appropriate validation rules
  */
-class MultiSelectFieldType implements FieldTypeDefinitionInterface
+class MultiSelectFieldType extends BaseFieldType
 {
-    use HasCommonFieldProperties;
-
     public function getKey(): string
     {
         return 'multi-select';
@@ -40,17 +36,17 @@ class MultiSelectFieldType implements FieldTypeDefinitionInterface
         return FieldDataType::MULTI_CHOICE;
     }
 
-    public function getFormComponentClass(): string
+    public function getFormComponent(): string
     {
         return MultiSelectComponent::class;
     }
 
-    public function getTableColumnClass(): string
+    public function getTableColumn(): string
     {
         return MultiChoiceColumn::class;
     }
 
-    public function getInfolistEntryClass(): string
+    public function getInfolistEntry(): string
     {
         return MultiChoiceEntry::class;
     }

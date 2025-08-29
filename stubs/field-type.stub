@@ -4,14 +4,12 @@ declare(strict_types=1);
 
 namespace {{ namespace }};
 
-use Relaticle\CustomFields\Contracts\FieldTypeDefinitionInterface;
 use Relaticle\CustomFields\Enums\FieldDataType;
 use Relaticle\CustomFields\Enums\ValidationRule;
-use Relaticle\CustomFields\FieldTypes\Concerns\HasCommonFieldProperties;
+use Relaticle\CustomFields\FieldTypes\BaseFieldType;
 
-class {{ class }} implements FieldTypeDefinitionInterface
+class {{ class }} extends BaseFieldType
 {
-    use HasCommonFieldProperties;
 
     public function getKey(): string
     {
@@ -35,23 +33,23 @@ class {{ class }} implements FieldTypeDefinitionInterface
         return FieldDataType::TEXT;
     }
 
-    public function getFormComponentClass(): string
+    public function getFormComponent(): string
     {
         // TODO: Create and reference your form component class
         return \Filament\Forms\Components\TextInput::class;
     }
 
-    public function getTableColumnClass(): string
-    {
-        // TODO: Create and reference your table column class
-        return \Filament\Tables\Columns\TextColumn::class;
-    }
+    // TODO: Override table column if needed (defaults to TextColumn)
+    // public function getTableColumn(): string
+    // {
+    //     return \Filament\Tables\Columns\TextColumn::class;
+    // }
 
-    public function getInfolistEntryClass(): string
-    {
-        // TODO: Create and reference your infolist entry class
-        return \Filament\Infolists\Components\TextEntry::class;
-    }
+    // TODO: Override infolist entry if needed (defaults to TextEntry)
+    // public function getInfolistEntry(): string
+    // {
+    //     return \Filament\Infolists\Components\TextEntry::class;
+    // }
 
     public function getPriority(): int
     {
@@ -68,11 +66,13 @@ class {{ class }} implements FieldTypeDefinitionInterface
         ];
     }
 
-    // TODO: Override any methods from HasCommonFieldProperties if needed:
-    // - isSearchable(): bool
-    // - isSortable(): bool  
-    // - isFilterable(): bool
-    // - isEncryptable(): bool
-    // - acceptsArbitraryValues(): bool
-    // - getTableFilterClass(): ?string
+    // TODO: Override any methods from BaseFieldType if needed:
+    // - isSearchable(): bool (defaults to true)
+    // - isSortable(): bool (defaults to true)
+    // - isFilterable(): bool (defaults to false)
+    // - isEncryptable(): bool (defaults to false)
+    // - acceptsArbitraryValues(): bool (defaults to false)
+    // - getTableFilter(): ?string (defaults to null)
+    // - getDataType(): FieldDataType (defaults to TEXT)
+    // - getPriority(): int (defaults to 500)
 }

@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\FieldTypes;
 
-use Relaticle\CustomFields\Contracts\FieldTypeDefinitionInterface;
 use Relaticle\CustomFields\Enums\FieldDataType;
 use Relaticle\CustomFields\Enums\ValidationRule;
-use Relaticle\CustomFields\FieldTypes\Concerns\HasCommonFieldProperties;
 use Relaticle\CustomFields\Filament\Integration\Components\Forms\CheckboxComponent;
 use Relaticle\CustomFields\Filament\Integration\Components\Infolists\BooleanEntry;
 use Relaticle\CustomFields\Filament\Integration\Components\Tables\Columns\IconColumn;
@@ -16,10 +14,8 @@ use Relaticle\CustomFields\Filament\Integration\Components\Tables\Columns\IconCo
  * ABOUTME: Field type definition for Checkbox fields
  * ABOUTME: Provides Checkbox functionality with appropriate validation rules
  */
-class CheckboxFieldType implements FieldTypeDefinitionInterface
+class CheckboxFieldType extends BaseFieldType
 {
-    use HasCommonFieldProperties;
-
     public function getKey(): string
     {
         return 'checkbox';
@@ -40,17 +36,17 @@ class CheckboxFieldType implements FieldTypeDefinitionInterface
         return FieldDataType::BOOLEAN;
     }
 
-    public function getFormComponentClass(): string
+    public function getFormComponent(): string
     {
         return CheckboxComponent::class;
     }
 
-    public function getTableColumnClass(): string
+    public function getTableColumn(): string
     {
         return IconColumn::class;
     }
 
-    public function getInfolistEntryClass(): string
+    public function getInfolistEntry(): string
     {
         return BooleanEntry::class;
     }

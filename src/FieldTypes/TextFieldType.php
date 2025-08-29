@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\FieldTypes;
 
-use Relaticle\CustomFields\Contracts\FieldTypeDefinitionInterface;
-use Relaticle\CustomFields\Enums\FieldDataType;
+use Closure;
 use Relaticle\CustomFields\Enums\ValidationRule;
-use Relaticle\CustomFields\FieldTypes\Concerns\HasCommonFieldProperties;
 use Relaticle\CustomFields\Filament\Integration\Components\Forms\TextInputComponent;
 use Relaticle\CustomFields\Filament\Integration\Components\Infolists\TextEntry;
 use Relaticle\CustomFields\Filament\Integration\Components\Tables\Columns\TextColumn;
@@ -16,10 +14,8 @@ use Relaticle\CustomFields\Filament\Integration\Components\Tables\Columns\TextCo
  * ABOUTME: Field type definition for standard text input fields
  * ABOUTME: Provides text input functionality with validation rules like min/max length
  */
-class TextFieldType implements FieldTypeDefinitionInterface
+class TextFieldType extends BaseFieldType
 {
-    use HasCommonFieldProperties;
-
     public function getKey(): string
     {
         return 'text';
@@ -35,22 +31,17 @@ class TextFieldType implements FieldTypeDefinitionInterface
         return 'mdi-form-textbox';
     }
 
-    public function getDataType(): FieldDataType
-    {
-        return FieldDataType::TEXT;
-    }
-
-    public function getFormComponentClass(): string
+    public function getFormComponent(): string|null|Closure
     {
         return TextInputComponent::class;
     }
 
-    public function getTableColumnClass(): string
+    public function getTableColumn(): string|null|Closure
     {
         return TextColumn::class;
     }
 
-    public function getInfolistEntryClass(): string
+    public function getInfolistEntry(): string|null|Closure
     {
         return TextEntry::class;
     }

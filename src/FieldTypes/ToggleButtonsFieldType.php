@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\FieldTypes;
 
-use Relaticle\CustomFields\Contracts\FieldTypeDefinitionInterface;
 use Relaticle\CustomFields\Enums\FieldDataType;
 use Relaticle\CustomFields\Enums\ValidationRule;
-use Relaticle\CustomFields\FieldTypes\Concerns\HasCommonFieldProperties;
 use Relaticle\CustomFields\Filament\Integration\Components\Forms\ToggleButtonsComponent;
 use Relaticle\CustomFields\Filament\Integration\Components\Infolists\SingleChoiceEntry;
 use Relaticle\CustomFields\Filament\Integration\Components\Tables\Columns\SingleChoiceColumn;
@@ -16,10 +14,8 @@ use Relaticle\CustomFields\Filament\Integration\Components\Tables\Columns\Single
  * ABOUTME: Field type definition for Toggle Buttons fields
  * ABOUTME: Provides Toggle Buttons functionality with appropriate validation rules
  */
-class ToggleButtonsFieldType implements FieldTypeDefinitionInterface
+class ToggleButtonsFieldType extends BaseFieldType
 {
-    use HasCommonFieldProperties;
-
     public function getKey(): string
     {
         return 'toggle-buttons';
@@ -40,17 +36,17 @@ class ToggleButtonsFieldType implements FieldTypeDefinitionInterface
         return FieldDataType::SINGLE_CHOICE;
     }
 
-    public function getFormComponentClass(): string
+    public function getFormComponent(): string
     {
         return ToggleButtonsComponent::class;
     }
 
-    public function getTableColumnClass(): string
+    public function getTableColumn(): string
     {
         return SingleChoiceColumn::class;
     }
 
-    public function getInfolistEntryClass(): string
+    public function getInfolistEntry(): string
     {
         return SingleChoiceEntry::class;
     }

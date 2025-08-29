@@ -215,5 +215,4 @@ final class EntityManager implements EntityManagerInterface
 
         return $resolved;
     }
-
 }

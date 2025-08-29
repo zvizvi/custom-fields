@@ -4,22 +4,16 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\FieldTypes;
 
-use Relaticle\CustomFields\Contracts\FieldTypeDefinitionInterface;
 use Relaticle\CustomFields\Enums\FieldDataType;
 use Relaticle\CustomFields\Enums\ValidationRule;
-use Relaticle\CustomFields\FieldTypes\Concerns\HasCommonFieldProperties;
 use Relaticle\CustomFields\Filament\Integration\Components\Forms\TextareaFormComponent;
-use Relaticle\CustomFields\Filament\Integration\Components\Infolists\TextEntry;
-use Relaticle\CustomFields\Filament\Integration\Components\Tables\Columns\TextColumn;
 
 /**
  * ABOUTME: Field type definition for Textarea fields
  * ABOUTME: Provides Textarea functionality with appropriate validation rules
  */
-final class TextareaFieldType implements FieldTypeDefinitionInterface
+final class TextareaFieldType extends BaseFieldType
 {
-    use HasCommonFieldProperties;
-
     public function getKey(): string
     {
         return 'textarea';
@@ -40,19 +34,9 @@ final class TextareaFieldType implements FieldTypeDefinitionInterface
         return FieldDataType::TEXT;
     }
 
-    public function getFormComponentClass(): string
+    public function getFormComponent(): string
     {
         return TextareaFormComponent::class;
-    }
-
-    public function getTableColumnClass(): string
-    {
-        return TextColumn::class;
-    }
-
-    public function getInfolistEntryClass(): string
-    {
-        return TextEntry::class;
     }
 
     public function getPriority(): int

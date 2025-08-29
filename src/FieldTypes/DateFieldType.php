@@ -4,22 +4,17 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\FieldTypes;
 
-use Relaticle\CustomFields\Contracts\FieldTypeDefinitionInterface;
 use Relaticle\CustomFields\Enums\FieldDataType;
 use Relaticle\CustomFields\Enums\ValidationRule;
-use Relaticle\CustomFields\FieldTypes\Concerns\HasCommonFieldProperties;
 use Relaticle\CustomFields\Filament\Integration\Components\Forms\DateComponent;
-use Relaticle\CustomFields\Filament\Integration\Components\Infolists\TextEntry;
 use Relaticle\CustomFields\Filament\Integration\Components\Tables\Columns\DateTimeColumn;
 
 /**
  * ABOUTME: Field type definition for Date fields
  * ABOUTME: Provides Date functionality with appropriate validation rules
  */
-class DateFieldType implements FieldTypeDefinitionInterface
+class DateFieldType extends BaseFieldType
 {
-    use HasCommonFieldProperties;
-
     public function getKey(): string
     {
         return 'date';
@@ -40,19 +35,14 @@ class DateFieldType implements FieldTypeDefinitionInterface
         return FieldDataType::DATE;
     }
 
-    public function getFormComponentClass(): string
+    public function getFormComponent(): string
     {
         return DateComponent::class;
     }
 
-    public function getTableColumnClass(): string
+    public function getTableColumn(): string
     {
         return DateTimeColumn::class;
-    }
-
-    public function getInfolistEntryClass(): string
-    {
-        return TextEntry::class;
     }
 
     public function getPriority(): int

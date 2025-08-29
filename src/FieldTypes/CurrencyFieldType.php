@@ -6,22 +6,17 @@ namespace Relaticle\CustomFields\FieldTypes;
 
 use Filament\Actions\Imports\ImportColumn;
 use Relaticle\CustomFields\Contracts\FieldImportExportInterface;
-use Relaticle\CustomFields\Contracts\FieldTypeDefinitionInterface;
 use Relaticle\CustomFields\Enums\FieldDataType;
 use Relaticle\CustomFields\Enums\ValidationRule;
-use Relaticle\CustomFields\FieldTypes\Concerns\HasCommonFieldProperties;
 use Relaticle\CustomFields\FieldTypes\Concerns\HasImportExportDefaults;
 use Relaticle\CustomFields\Filament\Integration\Components\Forms\CurrencyComponent;
-use Relaticle\CustomFields\Filament\Integration\Components\Infolists\TextEntry;
-use Relaticle\CustomFields\Filament\Integration\Components\Tables\Columns\TextColumn;
 
 /**
  * ABOUTME: Field type definition for Currency fields
  * ABOUTME: Provides Currency functionality with appropriate validation rules
  */
-class CurrencyFieldType implements FieldImportExportInterface, FieldTypeDefinitionInterface
+class CurrencyFieldType extends BaseFieldType implements FieldImportExportInterface
 {
-    use HasCommonFieldProperties;
     use HasImportExportDefaults;
 
     public function getKey(): string
@@ -44,19 +39,9 @@ class CurrencyFieldType implements FieldImportExportInterface, FieldTypeDefiniti
         return FieldDataType::FLOAT;
     }
 
-    public function getFormComponentClass(): string
+    public function getFormComponent(): string
     {
         return CurrencyComponent::class;
-    }
-
-    public function getTableColumnClass(): string
-    {
-        return TextColumn::class;
-    }
-
-    public function getInfolistEntryClass(): string
-    {
-        return TextEntry::class;
     }
 
     public function getPriority(): int

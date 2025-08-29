@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Contracts;
 
+use Closure;
 use Relaticle\CustomFields\Enums\FieldDataType;
 use Relaticle\CustomFields\Enums\ValidationRule;
 
@@ -34,36 +35,48 @@ interface FieldTypeDefinitionInterface
     public function getDataType(): FieldDataType;
 
     /**
-     * Get the form component class for this field type.
-     * Must implement FieldComponentInterface.
+     * Get the form component for this field type.
+     * Can return:
+     * - class-string: Traditional component class approach
+     * - callable: Inline component factory function
+     * - null: Field type doesn't support forms
      *
-     * @return class-string
+     * @return class-string|Closure|null
      */
-    public function getFormComponentClass(): string;
+    public function getFormComponent(): string|Closure|null;
 
     /**
-     * Get the table column class for this field type.
-     * Must implement ColumnInterface.
+     * Get the table column for this field type.
+     * Can return:
+     * - class-string: Traditional column class
+     * - callable: Inline column factory
+     * - null: Field type doesn't support tables
      *
-     * @return class-string
+     * @return class-string|Closure|null
      */
-    public function getTableColumnClass(): string;
+    public function getTableColumn(): string|Closure|null;
 
     /**
-     * Get the table filter class for this field type.
-     * Must implement FilterInterface.
+     * Get the table filter for this field type.
+     * Can return:
+     * - class-string: Traditional filter class
+     * - callable: Inline filter factory
+     * - null: Field type doesn't support filtering
      *
-     * @return class-string|null
+     * @return class-string|Closure|null
      */
-    public function getTableFilterClass(): ?string;
+    public function getTableFilter(): string|Closure|null;
 
     /**
-     * Get the infolist entry class for this field type.
-     * Must implement FieldInfolistsComponentInterface.
+     * Get the infolist entry for this field type.
+     * Can return:
+     * - class-string: Traditional entry class
+     * - callable: Inline entry factory
+     * - null: Field type doesn't support infolists
      *
-     * @return class-string
+     * @return class-string|Closure|null
      */
-    public function getInfolistEntryClass(): string;
+    public function getInfolistEntry(): string|Closure|null;
 
     /**
      * Determine if this field type is searchable in tables.

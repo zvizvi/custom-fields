@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\FieldTypes;
 
-use Relaticle\CustomFields\Contracts\FieldTypeDefinitionInterface;
 use Relaticle\CustomFields\Enums\FieldDataType;
 use Relaticle\CustomFields\Enums\ValidationRule;
-use Relaticle\CustomFields\FieldTypes\Concerns\HasCommonFieldProperties;
 use Relaticle\CustomFields\Filament\Integration\Components\Forms\RadioComponent;
 use Relaticle\CustomFields\Filament\Integration\Components\Infolists\SingleChoiceEntry;
 use Relaticle\CustomFields\Filament\Integration\Components\Tables\Columns\SingleChoiceColumn;
@@ -17,10 +15,8 @@ use Relaticle\CustomFields\Filament\Integration\Components\Tables\Filters\Select
  * ABOUTME: Field type definition for Radio fields
  * ABOUTME: Provides Radio functionality with appropriate validation rules
  */
-class RadioFieldType implements FieldTypeDefinitionInterface
+class RadioFieldType extends BaseFieldType
 {
-    use HasCommonFieldProperties;
-
     public function getKey(): string
     {
         return 'radio';
@@ -41,22 +37,22 @@ class RadioFieldType implements FieldTypeDefinitionInterface
         return FieldDataType::SINGLE_CHOICE;
     }
 
-    public function getFormComponentClass(): string
+    public function getFormComponent(): string
     {
         return RadioComponent::class;
     }
 
-    public function getTableColumnClass(): string
+    public function getTableColumn(): string
     {
         return SingleChoiceColumn::class;
     }
 
-    public function getTableFilterClass(): ?string
+    public function getTableFilter(): ?string
     {
         return SelectFilter::class;
     }
 
-    public function getInfolistEntryClass(): string
+    public function getInfolistEntry(): string
     {
         return SingleChoiceEntry::class;
     }
