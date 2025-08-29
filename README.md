@@ -18,7 +18,7 @@ A powerful Laravel/Filament plugin for adding dynamic custom fields to any Eloqu
 - **Filament Integration** - Forms, tables, infolists, and admin interface
 - **Import/Export** - Built-in CSV capabilities
 - **Security** - Optional field encryption and type-safe validation
-- **Extensible** - Custom field types and automatic discovery (coming soon)
+- **Extensible** - Custom field types and automatic discovery
 
 ## 🔧 Requirements
 
