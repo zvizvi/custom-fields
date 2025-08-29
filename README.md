@@ -25,14 +25,7 @@ A powerful Laravel/Filament plugin for adding dynamic custom fields to any Eloqu
 - PHP 8.3+
 - Laravel via Filament 4.0+
 
-## 🚀 Quick Start
-
-### Installation
-
-```bash
-composer require relaticle/custom-fields
-php artisan custom-fields:install
-```
+## 🚀 Getting Started
 
 ### Integrating Custom Fields Plugin into a panel
 
@@ -82,17 +75,11 @@ public function form(Schema $schema): Form
 
 ## 📚 Documentation
 
-**Full documentation and examples:** https://custom-fields.relaticle.com/
-
-- [Installation Guide](https://custom-fields.relaticle.com/installation)
-- [Quickstart](https://custom-fields.relaticle.com/quickstart)
-- [Configuration](https://custom-fields.relaticle.com/essentials/configuration)
-- [Authorization](https://custom-fields.relaticle.com/essentials/authorization)
-- [Preset Custom Fields](https://custom-fields.relaticle.com/essentials/preset-custom-fields)
+For complete installation instructions, configuration options, and examples, visit our [documentation](https://custom-fields.relaticle.com/).
 
 ## 🤝 Contributing
 
-Contributions welcome! Please see our [contributing guide](https://custom-fields.relaticle.com/help-support/contributing).
+Contributions are welcome! Please see our contributing guide in the documentation.
 
 ## 📄 Licensing
 
@@ -100,4 +87,4 @@ This plugin is dual-licensed: **Open Source (AGPL-3.0)** for open source project
 
 **AGPL-3.0 requires your entire application to be open source.** For private/closed-source projects, you need a commercial license.
 
-**More Information:** [License Details](https://custom-fields.relaticle.com/legal-acknowledgments/license)  
+See our documentation for licensing details.  
