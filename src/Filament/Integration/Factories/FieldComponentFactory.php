@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Filament\Integration\Factories;
 
+use Closure;
 use Filament\Forms\Components\Field;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Collection;
 use Relaticle\CustomFields\Contracts\FormComponentInterface;
+use Relaticle\CustomFields\Filament\Integration\Components\Forms\ClosureFormAdapter;
 use Relaticle\CustomFields\Models\CustomField;
 
 /**
@@ -23,8 +25,19 @@ final class FieldComponentFactory extends AbstractComponentFactory
      */
     public function create(CustomField $customField, array $dependentFieldCodes = [], ?Collection $allFields = null): Field
     {
-        /** @var FormComponentInterface $component */
-        $component = $this->createComponent($customField, 'form_component', FormComponentInterface::class);
+        $formComponentDefinition = $customField->typeData->formComponent;
+
+        // Handle inline component (Closure) - use ClosureFormAdapter for full AbstractFormComponent benefits
+        if ($formComponentDefinition instanceof Closure) {
+            /** @var FormComponentInterface $component */
+            $component = $this->container->make(ClosureFormAdapter::class, [
+                'closure' => $formComponentDefinition,
+            ]);
+        } else {
+            // Handle traditional component class
+            /** @var FormComponentInterface $component */
+            $component = $this->createComponent($customField, 'form_component', FormComponentInterface::class);
+        }
 
         return $component->make($customField, $dependentFieldCodes, $allFields);
     }

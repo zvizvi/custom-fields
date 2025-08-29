@@ -52,7 +52,7 @@ abstract class AbstractComponentFactory
         $customFieldType = $customField->typeData;
 
         if (! $customFieldType) {
-            throw new InvalidArgumentException('Unknown field type: '.$customField->type);
+            throw new InvalidArgumentException('Unknown field type: ' . $customField->type);
         }
 
         // Get the component definition dynamically based on the component key
@@ -60,32 +60,11 @@ abstract class AbstractComponentFactory
             'form_component' => $customFieldType->formComponent,
             'table_column' => $customFieldType->tableColumn,
             'infolist_entry' => $customFieldType->infolistEntry,
-            default => throw new InvalidArgumentException('Invalid component key: '.$componentKey)
+            default => throw new InvalidArgumentException('Invalid component key: ' . $componentKey)
         };
 
         if ($componentDefinition === null) {
             throw new InvalidArgumentException(sprintf('Field type "%s" does not support %s', $customField->type, $componentKey));
-        }
-
-        // Handle inline component (Closure) - return a special wrapper
-        if ($componentDefinition instanceof Closure) {
-            return new class($componentDefinition, $customField)
-            {
-                public function __construct(
-                    private readonly Closure $closure,
-                    private readonly CustomField $customField
-                ) {}
-
-                public function make(): mixed
-                {
-                    return ($this->closure)($this->customField);
-                }
-
-                public function create(): mixed
-                {
-                    return $this->make();
-                }
-            };
         }
 
         // Handle traditional component class
