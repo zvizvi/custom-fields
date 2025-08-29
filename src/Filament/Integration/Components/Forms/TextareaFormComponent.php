@@ -13,7 +13,7 @@ final readonly class TextareaFormComponent extends AbstractFormComponent
 {
     public function create(CustomField $customField): Field
     {
-        return Textarea::make($this->getFieldName($customField))
+        return Textarea::make($customField->getFieldName())
             ->rows(3)
             ->maxLength(50000)
             ->placeholder(null);

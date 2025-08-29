@@ -69,17 +69,18 @@ abstract class AbstractComponentFactory
 
         // Handle inline component (Closure) - return a special wrapper
         if ($componentDefinition instanceof Closure) {
-            return new class($componentDefinition, $customField) {
+            return new class($componentDefinition, $customField)
+            {
                 public function __construct(
                     private readonly Closure $closure,
                     private readonly CustomField $customField
                 ) {}
-                
+
                 public function make(): mixed
                 {
                     return ($this->closure)($this->customField);
                 }
-                
+
                 public function create(): mixed
                 {
                     return $this->make();

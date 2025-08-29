@@ -18,7 +18,7 @@ final readonly class MultiSelectComponent extends AbstractFormComponent
 
     public function create(CustomField $customField): Field
     {
-        $field = Select::make($this->getFieldName($customField))
+        $field = Select::make($customField->getFieldName())
             ->multiple()
             ->searchable();
 

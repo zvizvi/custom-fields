@@ -15,11 +15,11 @@ final class FieldColumnFactory
     public function create(CustomField $customField): Column
     {
         $tableColumnDefinition = $customField->typeData->tableColumn;
-        
+
         if ($tableColumnDefinition === null) {
-            throw new InvalidArgumentException("Field type '{$customField->type}' does not support table columns.");
+            throw new InvalidArgumentException(sprintf("Field type '%s' does not support table columns.", $customField->type));
         }
-        
+
         // Handle inline component (Closure)
         if ($tableColumnDefinition instanceof Closure) {
             $column = $tableColumnDefinition($customField);

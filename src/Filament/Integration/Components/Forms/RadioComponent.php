@@ -18,7 +18,7 @@ final readonly class RadioComponent extends AbstractFormComponent
 
     public function create(CustomField $customField): Field
     {
-        $field = Radio::make($this->getFieldName($customField))->inline(false);
+        $field = Radio::make($customField->getFieldName())->inline(false);
 
         // Get options from lookup or field options
         $options = $this->getFieldOptions($customField);

@@ -14,7 +14,7 @@ final readonly class DateTimeComponent extends AbstractFormComponent
 {
     public function create(CustomField $customField): Field
     {
-        return DateTimePicker::make($this->getFieldName($customField))
+        return DateTimePicker::make($customField->getFieldName())
             ->native(FieldTypeUtils::isDateTimePickerNative())
             ->format(FieldTypeUtils::getDateTimeFormat())
             ->displayFormat(FieldTypeUtils::getDateTimeFormat())

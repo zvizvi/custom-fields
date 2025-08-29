@@ -13,7 +13,7 @@ final readonly class NumberComponent extends AbstractFormComponent
 {
     public function create(CustomField $customField): Field
     {
-        return TextInput::make($this->getFieldName($customField))
+        return TextInput::make($customField->getFieldName())
             ->numeric()
             ->placeholder(null)
             ->minValue($customField->settings->min ?? null)

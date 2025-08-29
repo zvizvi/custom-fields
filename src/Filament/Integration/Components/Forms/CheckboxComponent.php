@@ -13,6 +13,6 @@ final readonly class CheckboxComponent extends AbstractFormComponent
 {
     public function create(CustomField $customField): Field
     {
-        return Checkbox::make($this->getFieldName($customField))->inline(false);
+        return Checkbox::make($customField->getFieldName())->inline(false);
     }
 }

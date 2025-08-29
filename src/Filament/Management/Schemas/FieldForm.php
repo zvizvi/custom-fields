@@ -441,6 +441,7 @@ class FieldForm implements FormInterface
                                             ? 'lookup'
                                             : 'options';
                                     }
+
                                     $component->state($optionsLookupType);
                                 }
                             })

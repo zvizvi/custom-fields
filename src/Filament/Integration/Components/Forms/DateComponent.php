@@ -14,7 +14,7 @@ final readonly class DateComponent extends AbstractFormComponent
 {
     public function create(CustomField $customField): Field
     {
-        return DatePicker::make($this->getFieldName($customField))
+        return DatePicker::make($customField->getFieldName())
             ->native(FieldTypeUtils::isDatePickerNative())
             ->format(FieldTypeUtils::getDateFormat())
             ->displayFormat(FieldTypeUtils::getDateFormat())

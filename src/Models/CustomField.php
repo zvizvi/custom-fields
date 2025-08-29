@@ -74,7 +74,7 @@ class CustomField extends Model
     ];
 
     /**
-     * @param array<string, mixed> $attributes
+     * @param  array<string, mixed>  $attributes
      */
     public function __construct(array $attributes = [])
     {
@@ -112,10 +112,10 @@ class CustomField extends Model
         return [
             'type' => 'string',
             'width' => CustomFieldWidth::class,
-            'validation_rules' => DataCollection::class . ':' . ValidationRuleData::class . ',default',
+            'validation_rules' => DataCollection::class.':'.ValidationRuleData::class.',default',
             'active' => 'boolean',
             'system_defined' => 'boolean',
-            'settings' => CustomFieldSettingsData::class . ':default',
+            'settings' => CustomFieldSettingsData::class.':default',
         ];
     }
 
@@ -149,7 +149,7 @@ class CustomField extends Model
     public function typeData(): Attribute
     {
         return Attribute::make(
-            get: fn(mixed $value, array $attributes): ?FieldTypeData => CustomFieldsType::getFieldType($attributes['type'])
+            get: fn (mixed $value, array $attributes): ?FieldTypeData => CustomFieldsType::getFieldType($attributes['type'])
         );
     }
 
@@ -168,6 +168,6 @@ class CustomField extends Model
 
     public function getFieldName(): string
     {
-        return 'custom_fields.' . $this->code;
+        return 'custom_fields.'.$this->code;
     }
 }

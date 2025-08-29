@@ -16,7 +16,7 @@ final readonly class ToggleButtonsComponent extends AbstractFormComponent
 
     public function create(CustomField $customField): Field
     {
-        $field = ToggleButtons::make($this->getFieldName($customField))->inline(false);
+        $field = ToggleButtons::make($customField->getFieldName())->inline(false);
 
         // ToggleButtons only use field options, no lookup support
         $options = $customField->options->pluck('name', 'id')->all();

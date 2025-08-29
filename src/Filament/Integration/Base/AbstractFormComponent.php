@@ -8,7 +8,6 @@ use Filament\Forms\Components\Field;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Relaticle\CustomFields\Contracts\FormComponentInterface;
-use Relaticle\CustomFields\Filament\Integration\Concerns\Forms\ConfiguresFieldName;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Services\ValidationService;
 use Relaticle\CustomFields\Services\Visibility\CoreVisibilityLogicService;
@@ -27,8 +26,6 @@ use Relaticle\CustomFields\Support\Utils;
  */
 abstract readonly class AbstractFormComponent implements FormComponentInterface
 {
-    use ConfiguresFieldName;
-
     public function __construct(
         protected ValidationService $validationService,
         protected CoreVisibilityLogicService $coreVisibilityLogic,

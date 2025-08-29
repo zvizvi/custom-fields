@@ -17,18 +17,18 @@ final class FieldFilterFactory
     public function create(CustomField $customField)
     {
         $tableFilterDefinition = $customField->typeData->tableFilter;
-        
+
         if ($tableFilterDefinition === null) {
-            throw new InvalidArgumentException("Field type '{$customField->type}' does not support table filters.");
+            throw new InvalidArgumentException(sprintf("Field type '%s' does not support table filters.", $customField->type));
         }
-        
+
         // Handle inline component (Closure)
         if ($tableFilterDefinition instanceof Closure) {
             return $tableFilterDefinition($customField);
-        } else {
-            // Handle traditional component class
-            $component = app($tableFilterDefinition);
-            return $component->make($customField);
         }
+        // Handle traditional component class
+        $component = app($tableFilterDefinition);
+
+        return $component->make($customField);
     }
 }

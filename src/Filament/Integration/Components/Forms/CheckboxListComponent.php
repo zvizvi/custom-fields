@@ -18,7 +18,7 @@ final readonly class CheckboxListComponent extends AbstractFormComponent
 
     public function create(CustomField $customField): Field
     {
-        $field = CheckboxList::make($this->getFieldName($customField));
+        $field = CheckboxList::make($customField->getFieldName());
 
         // Get options from lookup or field options
         $options = $this->getFieldOptions($customField);

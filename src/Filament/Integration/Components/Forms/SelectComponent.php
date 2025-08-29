@@ -17,7 +17,7 @@ final readonly class SelectComponent extends AbstractFormComponent
 
     public function create(CustomField $customField): Select
     {
-        $field = Select::make($this->getFieldName($customField))->searchable();
+        $field = Select::make($customField->getFieldName())->searchable();
 
         if ($this->usesLookupType($customField)) {
             $field = $this->configureAdvancedLookup($field, $customField->lookup_type);

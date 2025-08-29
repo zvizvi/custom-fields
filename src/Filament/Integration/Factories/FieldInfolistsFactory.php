@@ -16,7 +16,7 @@ final class FieldInfolistsFactory
         $infolistEntryDefinition = $customField->typeData->infolistEntry;
 
         if ($infolistEntryDefinition === null) {
-            throw new InvalidArgumentException("Field type '{$customField->type}' does not support infolist entries.");
+            throw new InvalidArgumentException(sprintf("Field type '%s' does not support infolist entries.", $customField->type));
         }
 
         // Handle inline component (Closure)
