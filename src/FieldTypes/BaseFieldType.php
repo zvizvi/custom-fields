@@ -131,4 +131,13 @@ abstract class BaseFieldType implements FieldTypeDefinitionInterface
     {
         return false;
     }
+
+    /**
+     * Check if this field type provides built-in options (like predefined colors, statuses, etc.)
+     * When true, users don't need to manually add options - the field type handles them internally
+     */
+    public function providesBuiltInOptions(): bool
+    {
+        return false;
+    }
 }

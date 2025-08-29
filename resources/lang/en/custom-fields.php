@@ -55,6 +55,7 @@ return [
                 'label' => 'Options Lookup Type',
                 'options' => 'Options',
                 'lookup' => 'Lookup',
+                'built-in' => 'Built-in',
             ],
             'lookup_type' => [
                 'label' => 'Lookup Type',

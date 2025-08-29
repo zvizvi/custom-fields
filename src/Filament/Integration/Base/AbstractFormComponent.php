@@ -56,7 +56,7 @@ abstract readonly class AbstractFormComponent implements FormComponentInterface
         array $dependentFieldCodes
     ): Field {
         return $field
-            ->name('custom_fields.'.$customField->code)
+            ->name($customField->getFieldName())
             ->label($customField->name)
             ->afterStateHydrated(
                 fn (mixed $component, mixed $state, mixed $record): mixed => $component->state(

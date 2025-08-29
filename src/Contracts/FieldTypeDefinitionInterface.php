@@ -116,4 +116,10 @@ interface FieldTypeDefinitionInterface
      * For example, tags-input allows users to create new tags on the fly.
      */
     public function acceptsArbitraryValues(): bool;
+
+    /**
+     * Check if this field type provides built-in options (like predefined colors, statuses, etc.)
+     * When true, users don't need to manually add options - the field type handles them internally.
+     */
+    public function providesBuiltInOptions(): bool;
 }

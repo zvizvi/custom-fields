@@ -148,6 +148,7 @@ final class FieldTypeManager
                 searchable: $fieldType->isSearchable(),
                 sortable: $fieldType->isSortable(),
                 filterable: $fieldType->isFilterable(),
+                providesBuiltInOptions: $fieldType->providesBuiltInOptions(),
                 validationRules: $fieldType->allowedValidationRules()
             );
 

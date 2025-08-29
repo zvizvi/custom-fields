@@ -21,7 +21,7 @@ final class SelectFilter extends AbstractTableFilter
      */
     public function make(CustomField $customField): FilamentSelectFilter
     {
-        $filter = FilamentSelectFilter::make('custom_fields.'.$customField->code)
+        $filter = FilamentSelectFilter::make($customField->getFieldName())
             ->multiple()
             ->label($customField->name)
             ->searchable()
