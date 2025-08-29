@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\FieldTypes;
 
-use Relaticle\CustomFields\Enums\FieldDataType;
 use Relaticle\CustomFields\Enums\ValidationRule;
 use Relaticle\CustomFields\Filament\Integration\Components\Forms\CheckboxComponent;
 use Relaticle\CustomFields\Filament\Integration\Components\Infolists\BooleanEntry;
@@ -16,52 +15,20 @@ use Relaticle\CustomFields\Filament\Integration\Components\Tables\Columns\IconCo
  */
 class CheckboxFieldType extends BaseFieldType
 {
-    public function getKey(): string
+    public function configure(): FieldTypeConfigurator
     {
-        return 'checkbox';
-    }
-
-    public function getLabel(): string
-    {
-        return 'Checkbox';
-    }
-
-    public function getIcon(): string
-    {
-        return 'mdi-checkbox-marked';
-    }
-
-    public function getDataType(): FieldDataType
-    {
-        return FieldDataType::BOOLEAN;
-    }
-
-    public function getFormComponent(): string
-    {
-        return CheckboxComponent::class;
-    }
-
-    public function getTableColumn(): string
-    {
-        return IconColumn::class;
-    }
-
-    public function getInfolistEntry(): string
-    {
-        return BooleanEntry::class;
-    }
-
-    public function getPriority(): int
-    {
-        return 50;
-    }
-
-    public function allowedValidationRules(): array
-    {
-        return [
-            ValidationRule::REQUIRED,
-            ValidationRule::BOOLEAN,
-            ValidationRule::ACCEPTED,
-        ];
+        return FieldTypeConfigurator::boolean()
+            ->key('checkbox')
+            ->label('Checkbox')
+            ->icon('mdi-checkbox-marked')
+            ->formComponent(CheckboxComponent::class)
+            ->tableColumn(IconColumn::class)
+            ->infolistEntry(BooleanEntry::class)
+            ->priority(50)
+            ->validationRules([
+                ValidationRule::REQUIRED,
+                ValidationRule::BOOLEAN,
+                ValidationRule::ACCEPTED,
+            ]);
     }
 }

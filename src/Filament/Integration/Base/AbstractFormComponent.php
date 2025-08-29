@@ -87,8 +87,7 @@ abstract readonly class AbstractFormComponent implements FormComponentInterface
         CustomField $customField,
         mixed $state,
         mixed $record
-    ): mixed
-    {
+    ): mixed {
         return value(function () use ($customField, $state, $record) {
             $value = $record?->getCustomFieldValue($customField) ??
                 ($state ?? ($customField->isMultiChoiceField() ? [] : null));

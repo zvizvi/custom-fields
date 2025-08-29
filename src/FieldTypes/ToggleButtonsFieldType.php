@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\FieldTypes;
 
-use Relaticle\CustomFields\Enums\FieldDataType;
 use Relaticle\CustomFields\Enums\ValidationRule;
 use Relaticle\CustomFields\Filament\Integration\Components\Forms\ToggleButtonsComponent;
 use Relaticle\CustomFields\Filament\Integration\Components\Infolists\SingleChoiceEntry;
 use Relaticle\CustomFields\Filament\Integration\Components\Tables\Columns\SingleChoiceColumn;
+use Relaticle\CustomFields\Filament\Integration\Components\Tables\Filters\SelectFilter;
 
 /**
  * ABOUTME: Field type definition for Toggle Buttons fields
@@ -16,52 +16,22 @@ use Relaticle\CustomFields\Filament\Integration\Components\Tables\Columns\Single
  */
 class ToggleButtonsFieldType extends BaseFieldType
 {
-    public function getKey(): string
+    public function configure(): FieldTypeConfigurator
     {
-        return 'toggle-buttons';
-    }
-
-    public function getLabel(): string
-    {
-        return 'Toggle Buttons';
-    }
-
-    public function getIcon(): string
-    {
-        return 'mdi-toggle-switch-off-outline';
-    }
-
-    public function getDataType(): FieldDataType
-    {
-        return FieldDataType::SINGLE_CHOICE;
-    }
-
-    public function getFormComponent(): string
-    {
-        return ToggleButtonsComponent::class;
-    }
-
-    public function getTableColumn(): string
-    {
-        return SingleChoiceColumn::class;
-    }
-
-    public function getInfolistEntry(): string
-    {
-        return SingleChoiceEntry::class;
-    }
-
-    public function getPriority(): int
-    {
-        return 53;
-    }
-
-    public function allowedValidationRules(): array
-    {
-        return [
-            ValidationRule::REQUIRED,
-            ValidationRule::IN,
-            ValidationRule::NOT_IN,
-        ];
+        return FieldTypeConfigurator::singleChoice()
+            ->key('toggle-buttons')
+            ->label('Toggle Buttons')
+            ->icon('mdi-toggle-switch-off-outline')
+            ->formComponent(ToggleButtonsComponent::class)
+            ->tableColumn(SingleChoiceColumn::class)
+            ->tableFilter(SelectFilter::class)
+            ->infolistEntry(SingleChoiceEntry::class)
+            ->priority(53)
+            ->validationRules([
+                ValidationRule::REQUIRED,
+                ValidationRule::IN,
+                ValidationRule::NOT_IN,
+            ])
+            ->filterable();
     }
 }

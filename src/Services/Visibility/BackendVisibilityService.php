@@ -7,6 +7,7 @@ namespace Relaticle\CustomFields\Services\Visibility;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Relaticle\CustomFields\CustomFields;
+use Relaticle\CustomFields\Facades\CustomFieldsType;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 use Relaticle\CustomFields\Models\CustomField;
 
@@ -217,6 +218,13 @@ final readonly class BackendVisibilityService
 
         if (! $field || ! $field->isChoiceField()) {
             return [];
+        }
+
+        // Check if field type provides built-in options
+        $fieldType = CustomFieldsType::getFieldTypeInstance($field->type);
+
+        if ($fieldType && $fieldType->configure()->providesBuiltInOptions()) {
+            return $fieldType->getBuiltInOptions();
         }
 
         return $field

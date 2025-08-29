@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\FieldTypes;
 
-use Closure;
 use Relaticle\CustomFields\Enums\ValidationRule;
 use Relaticle\CustomFields\Filament\Integration\Components\Forms\TextInputComponent;
 use Relaticle\CustomFields\Filament\Integration\Components\Infolists\TextEntry;
@@ -16,53 +15,26 @@ use Relaticle\CustomFields\Filament\Integration\Components\Tables\Columns\TextCo
  */
 class TextFieldType extends BaseFieldType
 {
-    public function getKey(): string
+    public function configure(): FieldTypeConfigurator
     {
-        return 'text';
-    }
-
-    public function getLabel(): string
-    {
-        return 'Text';
-    }
-
-    public function getIcon(): string
-    {
-        return 'mdi-form-textbox';
-    }
-
-    public function getFormComponent(): string|null|Closure
-    {
-        return TextInputComponent::class;
-    }
-
-    public function getTableColumn(): string|null|Closure
-    {
-        return TextColumn::class;
-    }
-
-    public function getInfolistEntry(): string|null|Closure
-    {
-        return TextEntry::class;
-    }
-
-    public function getPriority(): int
-    {
-        return 10;
-    }
-
-    public function allowedValidationRules(): array
-    {
-        return [
-            ValidationRule::REQUIRED,
-            ValidationRule::MIN,
-            ValidationRule::MAX,
-            ValidationRule::ALPHA,
-            ValidationRule::ALPHA_NUM,
-            ValidationRule::ALPHA_DASH,
-            ValidationRule::EMAIL,
-            ValidationRule::STARTS_WITH,
-            ValidationRule::ENDS_WITH,
-        ];
+        return FieldTypeConfigurator::text()
+            ->key('text')
+            ->label('Text')
+            ->icon('mdi-form-textbox')
+            ->formComponent(TextInputComponent::class)
+            ->tableColumn(TextColumn::class)
+            ->infolistEntry(TextEntry::class)
+            ->priority(10)
+            ->validationRules([
+                ValidationRule::REQUIRED,
+                ValidationRule::MIN,
+                ValidationRule::MAX,
+                ValidationRule::ALPHA,
+                ValidationRule::ALPHA_NUM,
+                ValidationRule::ALPHA_DASH,
+                ValidationRule::EMAIL,
+                ValidationRule::STARTS_WITH,
+                ValidationRule::ENDS_WITH,
+            ]);
     }
 }

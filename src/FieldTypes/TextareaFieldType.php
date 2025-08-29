@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\FieldTypes;
 
-use Relaticle\CustomFields\Enums\FieldDataType;
 use Relaticle\CustomFields\Enums\ValidationRule;
 use Relaticle\CustomFields\Filament\Integration\Components\Forms\TextareaFormComponent;
+use Relaticle\CustomFields\Filament\Integration\Components\Infolists\TextEntry;
+use Relaticle\CustomFields\Filament\Integration\Components\Tables\Columns\TextColumn;
 
 /**
  * ABOUTME: Field type definition for Textarea fields
@@ -14,42 +15,20 @@ use Relaticle\CustomFields\Filament\Integration\Components\Forms\TextareaFormCom
  */
 final class TextareaFieldType extends BaseFieldType
 {
-    public function getKey(): string
+    public function configure(): FieldTypeConfigurator
     {
-        return 'textarea';
-    }
-
-    public function getLabel(): string
-    {
-        return 'Textarea';
-    }
-
-    public function getIcon(): string
-    {
-        return 'mdi-form-textarea';
-    }
-
-    public function getDataType(): FieldDataType
-    {
-        return FieldDataType::TEXT;
-    }
-
-    public function getFormComponent(): string
-    {
-        return TextareaFormComponent::class;
-    }
-
-    public function getPriority(): int
-    {
-        return 15;
-    }
-
-    public function allowedValidationRules(): array
-    {
-        return [
-            ValidationRule::REQUIRED,
-            ValidationRule::MIN,
-            ValidationRule::MAX,
-        ];
+        return FieldTypeConfigurator::text()
+            ->key('textarea')
+            ->label('Textarea')
+            ->icon('mdi-form-textarea')
+            ->formComponent(TextareaFormComponent::class)
+            ->tableColumn(TextColumn::class)
+            ->infolistEntry(TextEntry::class)
+            ->priority(15)
+            ->validationRules([
+                ValidationRule::REQUIRED,
+                ValidationRule::MIN,
+                ValidationRule::MAX,
+            ]);
     }
 }

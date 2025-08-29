@@ -52,7 +52,7 @@ abstract class AbstractComponentFactory
         $customFieldType = $customField->typeData;
 
         if (! $customFieldType) {
-            throw new InvalidArgumentException('Unknown field type: ' . $customField->type);
+            throw new InvalidArgumentException('Unknown field type: '.$customField->type);
         }
 
         // Get the component definition dynamically based on the component key
@@ -60,7 +60,7 @@ abstract class AbstractComponentFactory
             'form_component' => $customFieldType->formComponent,
             'table_column' => $customFieldType->tableColumn,
             'infolist_entry' => $customFieldType->infolistEntry,
-            default => throw new InvalidArgumentException('Invalid component key: ' . $componentKey)
+            default => throw new InvalidArgumentException('Invalid component key: '.$componentKey)
         };
 
         if ($componentDefinition === null) {

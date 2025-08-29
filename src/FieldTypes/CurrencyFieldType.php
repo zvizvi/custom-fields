@@ -6,10 +6,11 @@ namespace Relaticle\CustomFields\FieldTypes;
 
 use Filament\Actions\Imports\ImportColumn;
 use Relaticle\CustomFields\Contracts\FieldImportExportInterface;
-use Relaticle\CustomFields\Enums\FieldDataType;
 use Relaticle\CustomFields\Enums\ValidationRule;
 use Relaticle\CustomFields\FieldTypes\Concerns\HasImportExportDefaults;
 use Relaticle\CustomFields\Filament\Integration\Components\Forms\CurrencyComponent;
+use Relaticle\CustomFields\Filament\Integration\Components\Infolists\TextEntry;
+use Relaticle\CustomFields\Filament\Integration\Components\Tables\Columns\TextColumn;
 
 /**
  * ABOUTME: Field type definition for Currency fields
@@ -19,48 +20,26 @@ class CurrencyFieldType extends BaseFieldType implements FieldImportExportInterf
 {
     use HasImportExportDefaults;
 
-    public function getKey(): string
+    public function configure(): FieldTypeConfigurator
     {
-        return 'currency';
-    }
-
-    public function getLabel(): string
-    {
-        return 'Currency';
-    }
-
-    public function getIcon(): string
-    {
-        return 'mdi-currency-usd';
-    }
-
-    public function getDataType(): FieldDataType
-    {
-        return FieldDataType::FLOAT;
-    }
-
-    public function getFormComponent(): string
-    {
-        return CurrencyComponent::class;
-    }
-
-    public function getPriority(): int
-    {
-        return 25;
-    }
-
-    public function allowedValidationRules(): array
-    {
-        return [
-            ValidationRule::REQUIRED,
-            ValidationRule::NUMERIC,
-            ValidationRule::DECIMAL,
-            ValidationRule::MIN,
-            ValidationRule::MAX,
-            ValidationRule::BETWEEN,
-            ValidationRule::GT,
-            ValidationRule::GTE,
-        ];
+        return FieldTypeConfigurator::float()
+            ->key('currency')
+            ->label('Currency')
+            ->icon('mdi-currency-usd')
+            ->formComponent(CurrencyComponent::class)
+            ->tableColumn(TextColumn::class)
+            ->infolistEntry(TextEntry::class)
+            ->priority(25)
+            ->validationRules([
+                ValidationRule::REQUIRED,
+                ValidationRule::NUMERIC,
+                ValidationRule::DECIMAL,
+                ValidationRule::MIN,
+                ValidationRule::MAX,
+                ValidationRule::BETWEEN,
+                ValidationRule::GT,
+                ValidationRule::GTE,
+            ]);
     }
 
     /**

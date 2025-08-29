@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\FieldTypes;
 
-use Relaticle\CustomFields\Enums\FieldDataType;
 use Relaticle\CustomFields\Enums\ValidationRule;
 use Relaticle\CustomFields\Filament\Integration\Components\Forms\MarkdownEditorComponent;
+use Relaticle\CustomFields\Filament\Integration\Components\Infolists\HtmlEntry;
+use Relaticle\CustomFields\Filament\Integration\Components\Tables\Columns\TextColumn;
 
 /**
  * ABOUTME: Field type definition for Markdown Editor fields
@@ -14,42 +15,20 @@ use Relaticle\CustomFields\Filament\Integration\Components\Forms\MarkdownEditorC
  */
 class MarkdownEditorFieldType extends BaseFieldType
 {
-    public function getKey(): string
+    public function configure(): FieldTypeConfigurator
     {
-        return 'markdown-editor';
-    }
-
-    public function getLabel(): string
-    {
-        return 'Markdown Editor';
-    }
-
-    public function getIcon(): string
-    {
-        return 'mdi-language-markdown';
-    }
-
-    public function getDataType(): FieldDataType
-    {
-        return FieldDataType::TEXT;
-    }
-
-    public function getFormComponent(): string
-    {
-        return MarkdownEditorComponent::class;
-    }
-
-    public function getPriority(): int
-    {
-        return 85;
-    }
-
-    public function allowedValidationRules(): array
-    {
-        return [
-            ValidationRule::REQUIRED,
-            ValidationRule::MIN,
-            ValidationRule::MAX,
-        ];
+        return FieldTypeConfigurator::text()
+            ->key('markdown-editor')
+            ->label('Markdown Editor')
+            ->icon('mdi-language-markdown')
+            ->formComponent(MarkdownEditorComponent::class)
+            ->tableColumn(TextColumn::class)
+            ->infolistEntry(HtmlEntry::class)
+            ->priority(85)
+            ->validationRules([
+                ValidationRule::REQUIRED,
+                ValidationRule::MIN,
+                ValidationRule::MAX,
+            ]);
     }
 }

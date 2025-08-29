@@ -26,6 +26,7 @@ final class FieldFilterFactory
         if ($tableFilterDefinition instanceof Closure) {
             return $tableFilterDefinition($customField);
         }
+
         // Handle traditional component class
         $component = app($tableFilterDefinition);
 

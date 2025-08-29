@@ -69,7 +69,7 @@ class FieldForm implements FormInterface
                 $fieldTypeInstance = app(FieldTypeManager::class)
                     ->getFieldTypeInstance($fieldType);
 
-                return $fieldTypeInstance?->acceptsArbitraryValues() ?? false;
+                return $fieldTypeInstance?->configure()->acceptsArbitraryValues() ?? false;
             })
             ->hiddenLabel()
             ->defaultItems(1)

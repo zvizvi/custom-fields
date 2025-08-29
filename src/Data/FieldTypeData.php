@@ -24,6 +24,8 @@ final class FieldTypeData extends Data implements Stringable
         public bool $searchable = false,
         public bool $sortable = false,
         public bool $filterable = false,
+        public bool $encryptable = false,
+        public bool $acceptsArbitraryValues = false,
         public bool $providesBuiltInOptions = false,
         public array $validationRules = [],
     ) {}

@@ -117,16 +117,6 @@ final class FieldTypeManager
         return $this->cachedInstances[$key] ?? null;
     }
 
-    /**
-     * Check if a field type implements a specific interface.
-     */
-    public function fieldTypeImplements(string $key, string $interface): bool
-    {
-        $instance = $this->getFieldTypeInstance($key);
-
-        return $instance instanceof FieldTypeDefinitionInterface && $instance instanceof $interface;
-    }
-
     public function toCollection(): FieldTypeCollection
     {
         $fieldTypes = [];
@@ -134,26 +124,13 @@ final class FieldTypeManager
         foreach ($this->getFieldTypes() as $fieldTypeClass) {
             /** @var FieldTypeDefinitionInterface $fieldType */
             $fieldType = new $fieldTypeClass;
+            $config = $fieldType->configure();
+            $data = $config->data();
 
-            $fieldTypes[$fieldType->getKey()] = new FieldTypeData(
-                key: $fieldType->getKey(),
-                label: $fieldType->getLabel(),
-                icon: $fieldType->getIcon(),
-                priority: $fieldType->getPriority(),
-                dataType: $fieldType->getDataType(),
-                tableColumn: $fieldType->getTableColumn(),
-                tableFilter: $fieldType->getTableFilter(),
-                formComponent: $fieldType->getFormComponent(),
-                infolistEntry: $fieldType->getInfolistEntry(),
-                searchable: $fieldType->isSearchable(),
-                sortable: $fieldType->isSortable(),
-                filterable: $fieldType->isFilterable(),
-                providesBuiltInOptions: $fieldType->providesBuiltInOptions(),
-                validationRules: $fieldType->allowedValidationRules()
-            );
+            $fieldTypes[$data->key] = $data;
 
             // Cache the instance
-            $this->cachedInstances[$fieldType->getKey()] = $fieldType;
+            $this->cachedInstances[$data->key] = $fieldType;
         }
 
         return FieldTypeCollection::make($fieldTypes)->sortBy('priority', SORT_NATURAL)->values();

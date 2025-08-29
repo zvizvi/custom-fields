@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\FieldTypes;
 
-use Relaticle\CustomFields\Enums\FieldDataType;
 use Relaticle\CustomFields\Enums\ValidationRule;
 use Relaticle\CustomFields\Filament\Integration\Components\Forms\DateComponent;
+use Relaticle\CustomFields\Filament\Integration\Components\Infolists\DateTimeEntry;
 use Relaticle\CustomFields\Filament\Integration\Components\Tables\Columns\DateTimeColumn;
 
 /**
@@ -15,50 +15,23 @@ use Relaticle\CustomFields\Filament\Integration\Components\Tables\Columns\DateTi
  */
 class DateFieldType extends BaseFieldType
 {
-    public function getKey(): string
+    public function configure(): FieldTypeConfigurator
     {
-        return 'date';
-    }
-
-    public function getLabel(): string
-    {
-        return 'Date';
-    }
-
-    public function getIcon(): string
-    {
-        return 'mdi-calendar';
-    }
-
-    public function getDataType(): FieldDataType
-    {
-        return FieldDataType::DATE;
-    }
-
-    public function getFormComponent(): string
-    {
-        return DateComponent::class;
-    }
-
-    public function getTableColumn(): string
-    {
-        return DateTimeColumn::class;
-    }
-
-    public function getPriority(): int
-    {
-        return 30;
-    }
-
-    public function allowedValidationRules(): array
-    {
-        return [
-            ValidationRule::REQUIRED,
-            ValidationRule::AFTER,
-            ValidationRule::AFTER_OR_EQUAL,
-            ValidationRule::BEFORE,
-            ValidationRule::BEFORE_OR_EQUAL,
-            ValidationRule::DATE_EQUALS,
-        ];
+        return FieldTypeConfigurator::date()
+            ->key('date')
+            ->label('Date')
+            ->icon('mdi-calendar')
+            ->formComponent(DateComponent::class)
+            ->tableColumn(DateTimeColumn::class)
+            ->infolistEntry(DateTimeEntry::class)
+            ->priority(30)
+            ->validationRules([
+                ValidationRule::REQUIRED,
+                ValidationRule::AFTER,
+                ValidationRule::AFTER_OR_EQUAL,
+                ValidationRule::BEFORE,
+                ValidationRule::BEFORE_OR_EQUAL,
+                ValidationRule::DATE_EQUALS,
+            ]);
     }
 }

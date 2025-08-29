@@ -6,7 +6,6 @@ namespace Relaticle\CustomFields\FieldTypes;
 
 use Filament\Actions\Imports\ImportColumn;
 use Relaticle\CustomFields\Contracts\FieldImportExportInterface;
-use Relaticle\CustomFields\Enums\FieldDataType;
 use Relaticle\CustomFields\Enums\ValidationRule;
 use Relaticle\CustomFields\FieldTypes\Concerns\HasImportExportDefaults;
 use Relaticle\CustomFields\Filament\Integration\Components\Forms\TagsInputComponent;
@@ -21,60 +20,24 @@ final class TagsInputFieldType extends BaseFieldType implements FieldImportExpor
 {
     use HasImportExportDefaults;
 
-    public function getKey(): string
+    public function configure(): FieldTypeConfigurator
     {
-        return 'tags-input';
-    }
-
-    public function getLabel(): string
-    {
-        return 'Tags Input';
-    }
-
-    public function getIcon(): string
-    {
-        return 'mdi-tag-multiple';
-    }
-
-    public function getDataType(): FieldDataType
-    {
-        return FieldDataType::MULTI_CHOICE;
-    }
-
-    public function getFormComponent(): string
-    {
-        return TagsInputComponent::class;
-    }
-
-    public function getTableColumn(): string
-    {
-        return MultiChoiceColumn::class;
-    }
-
-    public function getInfolistEntry(): string
-    {
-        return MultiChoiceEntry::class;
-    }
-
-    public function getPriority(): int
-    {
-        return 70;
-    }
-
-    public function allowedValidationRules(): array
-    {
-        return [
-            ValidationRule::REQUIRED,
-            ValidationRule::ARRAY,
-            ValidationRule::MIN,
-            ValidationRule::MAX,
-            ValidationRule::DISTINCT,
-        ];
-    }
-
-    public function acceptsArbitraryValues(): bool
-    {
-        return true;
+        return FieldTypeConfigurator::multiChoice()
+            ->key('tags-input')
+            ->label('Tags Input')
+            ->icon('mdi-tag-multiple')
+            ->formComponent(TagsInputComponent::class)
+            ->tableColumn(MultiChoiceColumn::class)
+            ->infolistEntry(MultiChoiceEntry::class)
+            ->priority(70)
+            ->validationRules([
+                ValidationRule::REQUIRED,
+                ValidationRule::ARRAY,
+                ValidationRule::MIN,
+                ValidationRule::MAX,
+                ValidationRule::DISTINCT,
+            ])
+            ->withArbitraryValues();
     }
 
     /**
