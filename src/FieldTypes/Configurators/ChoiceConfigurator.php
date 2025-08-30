@@ -30,4 +30,15 @@ class ChoiceConfigurator extends FieldTypeConfigurator
 
         return $this;
     }
+
+    /**
+     * Field doesn't need user-configured options (component provides its own)
+     * This disables database options UI and enables dynamic extraction from components
+     */
+    public function withoutUserOptions(): self
+    {
+        $this->withoutUserOptions = true;
+        
+        return $this;
+    }
 }

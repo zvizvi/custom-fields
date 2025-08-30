@@ -48,6 +48,9 @@ class FieldTypeConfigurator
 
     private bool $acceptsArbitraryValues = false;
 
+    protected bool $withoutUserOptions = false;
+
+
     public function __construct(FieldDataType $dataType)
     {
         $this->dataType = $dataType;
@@ -281,6 +284,7 @@ class FieldTypeConfigurator
         return $this;
     }
 
+
     // ========== Export Configuration ==========
 
     /**
@@ -420,7 +424,8 @@ class FieldTypeConfigurator
             filterable: $this->filterable,
             encryptable: $this->encryptable,
             acceptsArbitraryValues: $this->acceptsArbitraryValues,
-            validationRules: $this->validationRules
+            validationRules: $this->validationRules,
+            withoutUserOptions: $this->withoutUserOptions,
         );
     }
 }
