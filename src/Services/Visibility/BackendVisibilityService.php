@@ -224,7 +224,7 @@ final readonly class BackendVisibilityService
 
         // Priority 1: Check for component-provided options (dynamic extraction)
         $fieldTypeData = \Relaticle\CustomFields\Facades\CustomFieldsType::getFieldType($field->type);
-        if ($fieldTypeData?->usesComponentOptions()) {
+        if ($fieldTypeData?->withoutUserOptions) {
             $options = $this->optionsExtractor->extractOptionsFromFieldType($field->type, $field);
             return $this->normalizeOptionsForVisibility($options);
         }

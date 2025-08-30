@@ -42,6 +42,7 @@ final class InfolistBuilder extends BaseBuilder
 
         $getVisibleFields = fn (CustomFieldSection $section) => $backendVisibilityService
             ->getVisibleFields($this->model, $section->fields)
+            ->filter(fn (CustomField $field) => $field->typeData->infolistEntry !== null)
             ->map($createField);
 
         if ($this->withoutSections) {
