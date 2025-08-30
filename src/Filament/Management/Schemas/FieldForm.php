@@ -418,10 +418,7 @@ class FieldForm implements FormInterface
                                 ),
                                 'lookup' => __(
                                     'custom-fields::custom-fields.field.form.options_lookup_type.lookup'
-                                ),
-                                'built-in' => __(
-                                    'custom-fields::custom-fields.field.form.options_lookup_type.built-in'
-                                ),
+                                )
                             ])
                             ->afterStateHydrated(function (
                                 Select $component,

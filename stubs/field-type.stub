@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace {{ namespace }};
 
 use Closure;
-use Filament\Forms\Components\TextInput;
+{{ formComponentImport }}
 use Filament\Infolists\Components\TextEntry;
 use Filament\Tables\Columns\TextColumn;
 use Relaticle\CustomFields\Enums\ValidationRule;
@@ -15,31 +15,32 @@ use Relaticle\CustomFields\Models\CustomField;
 
 /**
  * {{ fieldLabel }} field type
- * TODO: Add description of what this field type does
+ {{ choiceFieldComment }}
  */
 class {{ class }} extends BaseFieldType
 {
     public function configure(): FieldTypeConfigurator
     {
-        return FieldTypeConfigurator::text() // TODO: Choose appropriate configurator: text(), numeric(), boolean(), singleChoice(), multiChoice(), etc.
+        return FieldTypeConfigurator::{{ configurator }}
             ->key('{{ fieldKey }}')
             ->label('{{ fieldLabel }}')
-            ->icon('heroicon-o-pencil') // TODO: Choose appropriate Heroicon
-            ->formComponent(TextInput::class) // TODO: Replace with your form component or closure
+            ->icon('heroicon-o-pencil'){{ withoutUserOptions }}
+            ->formComponent($this->getFormComponent())
             ->tableColumn($this->getTableColumn())
             ->infolistEntry($this->getInfolistEntry())
-            ->priority(100) // TODO: Set priority (lower numbers appear first)
+            ->priority(100)
             ->validationRules([
                 ValidationRule::REQUIRED,
-                // TODO: Add validation rules as needed
             ])
             ->searchable()
             ->sortable();
-            // TODO: Add other capabilities as needed:
-            // ->filterable()
-            // ->encryptable()
-            // ->withArbitraryValues() // For choice fields that accept new options
-            // ->withoutUserOptions() // For choice fields with dynamic/component-provided options
+    }
+
+    private function getFormComponent(): Closure
+    {
+        return function (CustomField $customField) {
+            {{ formComponent }}
+        };
     }
 
     private function getTableColumn(): Closure
