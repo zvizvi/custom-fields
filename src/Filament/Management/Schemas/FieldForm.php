@@ -69,7 +69,7 @@ class FieldForm implements FormInterface
                 $fieldTypeInstance = app(FieldTypeManager::class)
                     ->getFieldTypeInstance($fieldType);
 
-                return $fieldTypeInstance?->configure()->acceptsArbitraryValues() ?? false;
+                return $fieldTypeInstance?->data->acceptsArbitraryValues ?? false;
             })
             ->hiddenLabel()
             ->defaultItems(1)
@@ -82,7 +82,6 @@ class FieldForm implements FormInterface
                 fn (Get $get): bool => $get('options_lookup_type') === 'options'
                     && $get('type') !== null
                     && CustomFieldsType::getFieldType($get('type'))->dataType->isChoiceField()
-                    && ! CustomFieldsType::getFieldType($get('type'))->providesBuiltInOptions
             )
             ->mutateRelationshipDataBeforeCreateUsing(function (
                 array $data
@@ -407,7 +406,6 @@ class FieldForm implements FormInterface
                             ->visible(
                                 fn (Get $get): bool => $get('type') !== null
                                     && CustomFieldsType::getFieldType($get('type'))->dataType->isChoiceField()
-                                    && ! CustomFieldsType::getFieldType($get('type'))->providesBuiltInOptions
                             )
                             ->disabled(
                                 fn (
@@ -433,14 +431,9 @@ class FieldForm implements FormInterface
                                 Get $get
                             ): void {
                                 if (blank($state)) {
-                                    $fieldType = $get('type');
-                                    if ($fieldType && CustomFieldsType::getFieldType($fieldType)->providesBuiltInOptions) {
-                                        $optionsLookupType = 'built-in';
-                                    } else {
-                                        $optionsLookupType = $record?->lookup_type
-                                            ? 'lookup'
-                                            : 'options';
-                                    }
+                                    $optionsLookupType = $record?->lookup_type
+                                        ? 'lookup'
+                                        : 'options';
 
                                     $component->state($optionsLookupType);
                                 }

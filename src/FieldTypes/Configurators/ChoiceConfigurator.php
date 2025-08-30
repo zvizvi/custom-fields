@@ -22,16 +22,6 @@ class ChoiceConfigurator extends FieldTypeConfigurator
     }
 
     /**
-     * Enable built-in options for this choice field
-     */
-    public function withBuiltInOptions(bool $provides = true): self
-    {
-        parent::withBuiltInOptions();
-
-        return $this;
-    }
-
-    /**
      * Allow users to create new options on the fly
      */
     public function allowArbitraryValues(): self

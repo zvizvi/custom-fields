@@ -28,7 +28,7 @@ final readonly class LookupResolver
         $fieldTypeManager = app(FieldTypeManager::class);
         $fieldTypeInstance = $fieldTypeManager->getFieldTypeInstance($customField->type);
 
-        if ($fieldTypeInstance && $fieldTypeInstance->configure()->acceptsArbitraryValues()) {
+        if ($fieldTypeInstance && $fieldTypeInstance->getData()->acceptsArbitraryValues) {
             return collect($values);
         }
 

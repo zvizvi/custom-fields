@@ -5,23 +5,41 @@ declare(strict_types=1);
 namespace Relaticle\CustomFields\FieldTypes;
 
 use Relaticle\CustomFields\Contracts\FieldTypeDefinitionInterface;
+use Relaticle\CustomFields\Data\FieldTypeData;
 
 /**
  * Abstract base class for Custom Fields field types
  * Provides sensible defaults and supports both class-based and inline component definitions
+ *
+ * @property-read FieldTypeData $data Field type configuration data with full type hints
  */
 abstract class BaseFieldType implements FieldTypeDefinitionInterface
 {
+    private ?FieldTypeData $_data = null;
+
     abstract public function configure(): FieldTypeConfigurator;
 
     /**
-     * Get the built-in options for this field type.
-     * Only called when providesBuiltInOptions() returns true.
-     *
-     * @return array<string, string>
+     * Get field type data with proper type hints and caching
      */
-    public function getBuiltInOptions(): array
+    public function getData(): FieldTypeData
     {
-        return [];
+        if ($this->_data === null) {
+            $this->_data = $this->configure()->data();
+        }
+
+        return $this->_data;
+    }
+
+    /**
+     * Magic getter for clean property access: $fieldType->data
+     */
+    public function __get(string $property): mixed
+    {
+        if ($property === 'data') {
+            return $this->getData();
+        }
+
+        throw new \InvalidArgumentException("Property {$property} does not exist");
     }
 }

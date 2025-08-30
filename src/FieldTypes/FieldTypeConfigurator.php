@@ -48,8 +48,6 @@ class FieldTypeConfigurator
 
     private bool $acceptsArbitraryValues = false;
 
-    private bool $providesBuiltInOptions = false;
-
     public function __construct(FieldDataType $dataType)
     {
         $this->dataType = $dataType;
@@ -283,16 +281,6 @@ class FieldTypeConfigurator
         return $this;
     }
 
-    /**
-     * Configure whether field provides built-in options (like predefined colors)
-     */
-    public function withBuiltInOptions(bool $provides = true): self
-    {
-        $this->providesBuiltInOptions = $provides;
-
-        return $this;
-    }
-
     // ========== Export Configuration ==========
 
     /**
@@ -415,14 +403,6 @@ class FieldTypeConfigurator
         return $this->acceptsArbitraryValues;
     }
 
-    /**
-     * Check if field provides built-in options
-     */
-    public function providesBuiltInOptions(): bool
-    {
-        return $this->providesBuiltInOptions;
-    }
-
     public function data(): FieldTypeData
     {
         return new FieldTypeData(
@@ -440,7 +420,6 @@ class FieldTypeConfigurator
             filterable: $this->filterable,
             encryptable: $this->encryptable,
             acceptsArbitraryValues: $this->acceptsArbitraryValues,
-            providesBuiltInOptions: $this->providesBuiltInOptions,
             validationRules: $this->validationRules
         );
     }
