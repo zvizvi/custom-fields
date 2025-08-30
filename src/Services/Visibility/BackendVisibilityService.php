@@ -266,7 +266,7 @@ final readonly class BackendVisibilityService
 
     /**
      * Normalize field options for visibility dropdown usage.
-     * Converts various option formats to name => name pairs.
+     * Preserves original keys (IDs) while showing display values (names).
      *
      * @param array<string|int, mixed> $options
      * @return array<string, string>
@@ -288,9 +288,9 @@ final readonly class BackendVisibilityService
                 default => (string) $key
             };
             
-            // For visibility rules, we use display value as both key and value
-            // This ensures consistent matching in visibility conditions
-            $normalized[$displayValue] = $displayValue;
+            // Preserve original key (ID) and use display value (name) as option text
+            // This allows visibility conditions to compare against actual stored values
+            $normalized[(string) $key] = $displayValue;
         }
         
         return $normalized;

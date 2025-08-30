@@ -4,75 +4,59 @@ declare(strict_types=1);
 
 namespace {{ namespace }};
 
-use Relaticle\CustomFields\Enums\FieldDataType;
+use Closure;
+use Filament\Forms\Components\TextInput;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Tables\Columns\TextColumn;
 use Relaticle\CustomFields\Enums\ValidationRule;
 use Relaticle\CustomFields\FieldTypes\BaseFieldType;
+use Relaticle\CustomFields\FieldTypes\FieldTypeConfigurator;
+use Relaticle\CustomFields\Models\CustomField;
 
+/**
+ * {{ fieldLabel }} field type
+ * TODO: Add description of what this field type does
+ */
 class {{ class }} extends BaseFieldType
 {
-
-    public function getKey(): string
+    public function configure(): FieldTypeConfigurator
     {
-        return '{{ fieldKey }}';
+        return FieldTypeConfigurator::text() // TODO: Choose appropriate configurator: text(), numeric(), boolean(), singleChoice(), multiChoice(), etc.
+            ->key('{{ fieldKey }}')
+            ->label('{{ fieldLabel }}')
+            ->icon('heroicon-o-pencil') // TODO: Choose appropriate Heroicon
+            ->formComponent(TextInput::class) // TODO: Replace with your form component or closure
+            ->tableColumn($this->getTableColumn())
+            ->infolistEntry($this->getInfolistEntry())
+            ->priority(100) // TODO: Set priority (lower numbers appear first)
+            ->validationRules([
+                ValidationRule::REQUIRED,
+                // TODO: Add validation rules as needed
+            ])
+            ->searchable()
+            ->sortable();
+            // TODO: Add other capabilities as needed:
+            // ->filterable()
+            // ->encryptable()
+            // ->withArbitraryValues() // For choice fields that accept new options
+            // ->withoutUserOptions() // For choice fields with dynamic/component-provided options
     }
 
-    public function getLabel(): string
+    private function getTableColumn(): Closure
     {
-        return '{{ fieldLabel }}';
+        return function (CustomField $customField) {
+            return TextColumn::make($customField->getFieldName())
+                ->label($customField->name)
+                ->sortable()
+                ->searchable();
+        };
     }
 
-    public function getIcon(): string
+    private function getInfolistEntry(): Closure
     {
-        // TODO: Replace with appropriate MDI icon
-        return 'mdi-form-textbox';
+        return function (CustomField $customField) {
+            return TextEntry::make($customField->getFieldName())
+                ->label($customField->name);
+        };
     }
-
-    public function getDataType(): FieldDataType
-    {
-        // TODO: Choose appropriate data type (TEXT, INTEGER, BOOLEAN, JSON, etc.)
-        return FieldDataType::TEXT;
-    }
-
-    public function getFormComponent(): string
-    {
-        // TODO: Create and reference your form component class
-        return \Filament\Forms\Components\TextInput::class;
-    }
-
-    // TODO: Override table column if needed (defaults to TextColumn)
-    // public function getTableColumn(): string
-    // {
-    //     return \Filament\Tables\Columns\TextColumn::class;
-    // }
-
-    // TODO: Override infolist entry if needed (defaults to TextEntry)
-    // public function getInfolistEntry(): string
-    // {
-    //     return \Filament\Infolists\Components\TextEntry::class;
-    // }
-
-    public function getPriority(): int
-    {
-        // TODO: Set priority (lower numbers appear first in admin)
-        return 100;
-    }
-
-    public function allowedValidationRules(): array
-    {
-        // TODO: Define which validation rules this field type supports
-        return [
-            ValidationRule::REQUIRED,
-            // Add more validation rules as needed
-        ];
-    }
-
-    // TODO: Override any methods from BaseFieldType if needed:
-    // - isSearchable(): bool (defaults to true)
-    // - isSortable(): bool (defaults to true)
-    // - isFilterable(): bool (defaults to false)
-    // - isEncryptable(): bool (defaults to false)
-    // - acceptsArbitraryValues(): bool (defaults to false)
-    // - getTableFilter(): ?string (defaults to null)
-    // - getDataType(): FieldDataType (defaults to TEXT)
-    // - getPriority(): int (defaults to 500)
 }

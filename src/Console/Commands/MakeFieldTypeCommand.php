@@ -153,10 +153,14 @@ class MakeFieldTypeCommand extends GeneratorCommand
         // Show next steps
         $this->newLine();
         $this->line('<comment>Next steps:</comment>');
-        $this->line('1. Register your field type in a service provider');
-        $this->line('2. Create corresponding form component, table column, and infolist entry classes');
-        $this->line('3. Update the field type class with proper component class references');
-        $this->line('4. Add validation rules and configure field properties as needed');
+        $this->line('1. Update the configure() method:');
+        $this->line('   - Choose the appropriate configurator (text, numeric, singleChoice, etc.)');
+        $this->line('   - Set the correct icon from Heroicons');
+        $this->line('   - Configure form component (class or closure)');
+        $this->line('   - Add validation rules and field capabilities');
+        $this->line('2. Customize table column and infolist entry closures as needed');
+        $this->line('3. Register your field type in a service provider');
+        $this->line('4. Test the field type in your application');
 
         return true;
     }
