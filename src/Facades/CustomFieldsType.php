@@ -5,13 +5,12 @@ declare(strict_types=1);
 namespace Relaticle\CustomFields\Facades;
 
 use Closure;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Facade;
-use Relaticle\CustomFields\Data\FieldTypeData;
+use Relaticle\CustomFields\Collections\FieldTypeCollection;
 use Relaticle\CustomFields\FieldSystem\FieldManager;
 
 /**
- * @method static Collection<string, FieldTypeData> toCollection()
+ * @method static FieldTypeCollection toCollection()
  *
  * @see FieldManager
  */

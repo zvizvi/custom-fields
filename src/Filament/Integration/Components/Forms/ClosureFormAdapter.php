@@ -6,6 +6,7 @@ namespace Relaticle\CustomFields\Filament\Integration\Components\Forms;
 
 use Closure;
 use Filament\Forms\Components\Field;
+use Filament\Forms\Components\Select;
 use Relaticle\CustomFields\Filament\Integration\Base\AbstractFormComponent;
 use Relaticle\CustomFields\Filament\Integration\Concerns\Forms\ConfiguresColorOptions;
 use Relaticle\CustomFields\Filament\Integration\Concerns\Forms\ConfiguresLookups;
@@ -70,7 +71,7 @@ final readonly class ClosureFormAdapter extends AbstractFormComponent
     {
         if (method_exists($field, 'options')) {
             // Only apply if field doesn't already have options configured
-            $existingOptions = $field->getOptions();
+            $existingOptions = method_exists($field, 'getOptions') ? $field->getOptions() : null;
             if (empty($existingOptions)) {
                 $options = $this->getCustomFieldOptions($customField);
                 $field->options($options);

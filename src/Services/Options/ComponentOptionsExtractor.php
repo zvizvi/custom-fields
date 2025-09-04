@@ -71,14 +71,9 @@ final class ComponentOptionsExtractor
      */
     private function extractFromComponentClass(): array
     {
-        try {
-            // This would require instantiating the component class
-            // For now, return empty array as component classes typically use database options
-            return [];
-
-        } catch (Exception $exception) {
-            return [];
-        }
+        // This would require instantiating the component class
+        // For now, return empty array as component classes typically use database options
+        return [];
     }
 
     /**
