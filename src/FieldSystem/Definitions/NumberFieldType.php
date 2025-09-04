@@ -2,9 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Relaticle\CustomFields\FieldTypes;
+namespace Relaticle\CustomFields\FieldSystem\Definitions;
 
 use Relaticle\CustomFields\Enums\ValidationRule;
+use Relaticle\CustomFields\FieldSystem\BaseFieldType;
+use Relaticle\CustomFields\FieldSystem\FieldSchema;
 use Relaticle\CustomFields\Filament\Integration\Components\Forms\NumberComponent;
 use Relaticle\CustomFields\Filament\Integration\Components\Infolists\TextEntry;
 use Relaticle\CustomFields\Filament\Integration\Components\Tables\Columns\TextColumn;
@@ -15,9 +17,9 @@ use Relaticle\CustomFields\Filament\Integration\Components\Tables\Columns\TextCo
  */
 class NumberFieldType extends BaseFieldType
 {
-    public function configure(): FieldTypeConfigurator
+    public function configure(): FieldSchema
     {
-        return FieldTypeConfigurator::numeric()
+        return FieldSchema::numeric()
             ->key('number')
             ->label('Number')
             ->icon('mdi-numeric')
@@ -25,7 +27,7 @@ class NumberFieldType extends BaseFieldType
             ->tableColumn(TextColumn::class)
             ->infolistEntry(TextEntry::class)
             ->priority(20)
-            ->validationRules([
+            ->availableValidationRules([
                 ValidationRule::REQUIRED,
                 ValidationRule::NUMERIC,
                 ValidationRule::INTEGER,

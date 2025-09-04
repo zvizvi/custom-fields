@@ -2,9 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Relaticle\CustomFields\FieldTypes;
+namespace Relaticle\CustomFields\FieldSystem\Definitions;
 
 use Relaticle\CustomFields\Enums\ValidationRule;
+use Relaticle\CustomFields\FieldSystem\BaseFieldType;
+use Relaticle\CustomFields\FieldSystem\FieldSchema;
 use Relaticle\CustomFields\Filament\Integration\Components\Forms\LinkComponent;
 use Relaticle\CustomFields\Filament\Integration\Components\Infolists\TextEntry;
 use Relaticle\CustomFields\Filament\Integration\Components\Tables\Columns\TextColumn;
@@ -15,9 +17,9 @@ use Relaticle\CustomFields\Filament\Integration\Components\Tables\Columns\TextCo
  */
 class LinkFieldType extends BaseFieldType
 {
-    public function configure(): FieldTypeConfigurator
+    public function configure(): FieldSchema
     {
-        return FieldTypeConfigurator::text()
+        return FieldSchema::text()
             ->key('link')
             ->label('Link')
             ->icon('mdi-link')
@@ -25,7 +27,7 @@ class LinkFieldType extends BaseFieldType
             ->tableColumn(TextColumn::class)
             ->infolistEntry(TextEntry::class)
             ->priority(60)
-            ->validationRules([
+            ->availableValidationRules([
                 ValidationRule::REQUIRED,
                 ValidationRule::URL,
                 ValidationRule::STARTS_WITH,

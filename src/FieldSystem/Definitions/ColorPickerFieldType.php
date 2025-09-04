@@ -2,9 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Relaticle\CustomFields\FieldTypes;
+namespace Relaticle\CustomFields\FieldSystem\Definitions;
 
 use Relaticle\CustomFields\Enums\ValidationRule;
+use Relaticle\CustomFields\FieldSystem\BaseFieldType;
+use Relaticle\CustomFields\FieldSystem\FieldSchema;
 use Relaticle\CustomFields\Filament\Integration\Components\Forms\ColorPickerComponent;
 use Relaticle\CustomFields\Filament\Integration\Components\Infolists\ColorEntry;
 use Relaticle\CustomFields\Filament\Integration\Components\Tables\Columns\ColorColumn;
@@ -15,9 +17,9 @@ use Relaticle\CustomFields\Filament\Integration\Components\Tables\Columns\ColorC
  */
 class ColorPickerFieldType extends BaseFieldType
 {
-    public function configure(): FieldTypeConfigurator
+    public function configure(): FieldSchema
     {
-        return FieldTypeConfigurator::text()
+        return FieldSchema::text()
             ->key('color-picker')
             ->label('Color Picker')
             ->icon('mdi-palette')
@@ -25,7 +27,7 @@ class ColorPickerFieldType extends BaseFieldType
             ->tableColumn(ColorColumn::class)
             ->infolistEntry(ColorEntry::class)
             ->priority(90)
-            ->validationRules([
+            ->availableValidationRules([
                 ValidationRule::REQUIRED,
                 ValidationRule::STARTS_WITH,
             ]);

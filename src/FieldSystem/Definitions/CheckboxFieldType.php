@@ -2,9 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Relaticle\CustomFields\FieldTypes;
+namespace Relaticle\CustomFields\FieldSystem\Definitions;
 
 use Relaticle\CustomFields\Enums\ValidationRule;
+use Relaticle\CustomFields\FieldSystem\BaseFieldType;
+use Relaticle\CustomFields\FieldSystem\FieldSchema;
 use Relaticle\CustomFields\Filament\Integration\Components\Forms\CheckboxComponent;
 use Relaticle\CustomFields\Filament\Integration\Components\Infolists\BooleanEntry;
 use Relaticle\CustomFields\Filament\Integration\Components\Tables\Columns\IconColumn;
@@ -15,9 +17,9 @@ use Relaticle\CustomFields\Filament\Integration\Components\Tables\Columns\IconCo
  */
 class CheckboxFieldType extends BaseFieldType
 {
-    public function configure(): FieldTypeConfigurator
+    public function configure(): FieldSchema
     {
-        return FieldTypeConfigurator::boolean()
+        return FieldSchema::boolean()
             ->key('checkbox')
             ->label('Checkbox')
             ->icon('mdi-checkbox-marked')
@@ -25,7 +27,7 @@ class CheckboxFieldType extends BaseFieldType
             ->tableColumn(IconColumn::class)
             ->infolistEntry(BooleanEntry::class)
             ->priority(50)
-            ->validationRules([
+            ->availableValidationRules([
                 ValidationRule::REQUIRED,
                 ValidationRule::BOOLEAN,
                 ValidationRule::ACCEPTED,

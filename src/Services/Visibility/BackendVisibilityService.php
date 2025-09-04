@@ -7,9 +7,12 @@ namespace Relaticle\CustomFields\Services\Visibility;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Relaticle\CustomFields\CustomFields;
+use Relaticle\CustomFields\Facades\CustomFieldsType;
+use Relaticle\CustomFields\Facades\Entities;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Services\Options\ComponentOptionsExtractor;
+use Throwable;
 
 /**
  * Backend Visibility Service
@@ -223,9 +226,10 @@ final readonly class BackendVisibilityService
         }
 
         // Priority 1: Check for component-provided options (dynamic extraction)
-        $fieldTypeData = \Relaticle\CustomFields\Facades\CustomFieldsType::getFieldType($field->type);
+        $fieldTypeData = CustomFieldsType::getFieldType($field->type);
         if ($fieldTypeData?->withoutUserOptions) {
             $options = $this->optionsExtractor->extractOptionsFromFieldType($field->type, $field);
+
             return $this->normalizeOptionsForVisibility($options);
         }
 
@@ -268,17 +272,17 @@ final readonly class BackendVisibilityService
      * Normalize field options for visibility dropdown usage.
      * Preserves original keys (IDs) while showing display values (names).
      *
-     * @param array<string|int, mixed> $options
+     * @param  array<string|int, mixed>  $options
      * @return array<string, string>
      */
     private function normalizeOptionsForVisibility(array $options): array
     {
-        if (empty($options)) {
+        if ($options === []) {
             return [];
         }
-        
+
         $normalized = [];
-        
+
         foreach ($options as $key => $value) {
             // Determine the display value
             $displayValue = match (true) {
@@ -287,12 +291,12 @@ final readonly class BackendVisibilityService
                 is_scalar($value) => (string) $value,
                 default => (string) $key
             };
-            
+
             // Preserve original key (ID) and use display value (name) as option text
             // This allows visibility conditions to compare against actual stored values
             $normalized[(string) $key] = $displayValue;
         }
-        
+
         return $normalized;
     }
 
@@ -304,20 +308,20 @@ final readonly class BackendVisibilityService
     private function getLookupOptions(string $lookupType): array
     {
         try {
-            $entity = \Relaticle\CustomFields\Facades\Entities::getEntity($lookupType);
-            
-            if (!$entity) {
+            $entity = Entities::getEntity($lookupType);
+
+            if (! $entity) {
                 return [];
             }
-            
+
             $primaryAttribute = $entity->getPrimaryAttribute();
-            
+
             return $entity->newQuery()
                 ->limit(50)
                 ->pluck($primaryAttribute, $primaryAttribute)
                 ->toArray();
-                
-        } catch (\Throwable $e) {
+
+        } catch (Throwable $throwable) {
             // Log error in production, return empty array
             return [];
         }

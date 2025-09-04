@@ -2,9 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Relaticle\CustomFields\FieldTypes;
+namespace Relaticle\CustomFields\FieldSystem\Definitions;
 
 use Relaticle\CustomFields\Enums\ValidationRule;
+use Relaticle\CustomFields\FieldSystem\BaseFieldType;
+use Relaticle\CustomFields\FieldSystem\FieldSchema;
 use Relaticle\CustomFields\Filament\Integration\Components\Forms\CheckboxListComponent;
 use Relaticle\CustomFields\Filament\Integration\Components\Infolists\MultiChoiceEntry;
 use Relaticle\CustomFields\Filament\Integration\Components\Tables\Columns\MultiChoiceColumn;
@@ -16,9 +18,9 @@ use Relaticle\CustomFields\Filament\Integration\Components\Tables\Filters\Select
  */
 class CheckboxListFieldType extends BaseFieldType
 {
-    public function configure(): FieldTypeConfigurator
+    public function configure(): FieldSchema
     {
-        return FieldTypeConfigurator::multiChoice()
+        return FieldSchema::multiChoice()
             ->key('checkbox-list')
             ->label('Checkbox List')
             ->icon('mdi-checkbox-multiple-marked')
@@ -27,7 +29,7 @@ class CheckboxListFieldType extends BaseFieldType
             ->tableFilter(SelectFilter::class)
             ->infolistEntry(MultiChoiceEntry::class)
             ->priority(55)
-            ->validationRules([
+            ->availableValidationRules([
                 ValidationRule::REQUIRED,
                 ValidationRule::ARRAY,
                 ValidationRule::MIN,

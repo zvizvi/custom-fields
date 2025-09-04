@@ -2,9 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Relaticle\CustomFields\FieldTypes;
+namespace Relaticle\CustomFields\FieldSystem\Definitions;
 
 use Relaticle\CustomFields\Enums\ValidationRule;
+use Relaticle\CustomFields\FieldSystem\BaseFieldType;
+use Relaticle\CustomFields\FieldSystem\FieldSchema;
 use Relaticle\CustomFields\Filament\Integration\Components\Forms\MarkdownEditorComponent;
 use Relaticle\CustomFields\Filament\Integration\Components\Infolists\HtmlEntry;
 use Relaticle\CustomFields\Filament\Integration\Components\Tables\Columns\TextColumn;
@@ -15,9 +17,9 @@ use Relaticle\CustomFields\Filament\Integration\Components\Tables\Columns\TextCo
  */
 class MarkdownEditorFieldType extends BaseFieldType
 {
-    public function configure(): FieldTypeConfigurator
+    public function configure(): FieldSchema
     {
-        return FieldTypeConfigurator::text()
+        return FieldSchema::text()
             ->key('markdown-editor')
             ->label('Markdown Editor')
             ->icon('mdi-language-markdown')
@@ -25,7 +27,7 @@ class MarkdownEditorFieldType extends BaseFieldType
             ->tableColumn(TextColumn::class)
             ->infolistEntry(HtmlEntry::class)
             ->priority(85)
-            ->validationRules([
+            ->availableValidationRules([
                 ValidationRule::REQUIRED,
                 ValidationRule::MIN,
                 ValidationRule::MAX,

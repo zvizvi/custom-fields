@@ -2,9 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Relaticle\CustomFields\FieldTypes;
+namespace Relaticle\CustomFields\FieldSystem\Definitions;
 
 use Relaticle\CustomFields\Enums\ValidationRule;
+use Relaticle\CustomFields\FieldSystem\BaseFieldType;
+use Relaticle\CustomFields\FieldSystem\FieldSchema;
 use Relaticle\CustomFields\Filament\Integration\Components\Forms\TextareaFormComponent;
 use Relaticle\CustomFields\Filament\Integration\Components\Infolists\TextEntry;
 use Relaticle\CustomFields\Filament\Integration\Components\Tables\Columns\TextColumn;
@@ -15,9 +17,9 @@ use Relaticle\CustomFields\Filament\Integration\Components\Tables\Columns\TextCo
  */
 final class TextareaFieldType extends BaseFieldType
 {
-    public function configure(): FieldTypeConfigurator
+    public function configure(): FieldSchema
     {
-        return FieldTypeConfigurator::text()
+        return FieldSchema::text()
             ->key('textarea')
             ->label('Textarea')
             ->icon('mdi-form-textarea')
@@ -25,7 +27,7 @@ final class TextareaFieldType extends BaseFieldType
             ->tableColumn(TextColumn::class)
             ->infolistEntry(TextEntry::class)
             ->priority(15)
-            ->validationRules([
+            ->availableValidationRules([
                 ValidationRule::REQUIRED,
                 ValidationRule::MIN,
                 ValidationRule::MAX,

@@ -8,7 +8,8 @@ use Closure;
 use Exception;
 use Filament\Forms\Components\Field;
 use ReflectionObject;
-use Relaticle\CustomFields\FieldTypes\FieldTypeManager;
+use Relaticle\CustomFields\Contracts\FieldTypeDefinitionInterface;
+use Relaticle\CustomFields\FieldSystem\FieldManager;
 use Relaticle\CustomFields\Models\CustomField;
 
 /**
@@ -20,7 +21,7 @@ use Relaticle\CustomFields\Models\CustomField;
 final class ComponentOptionsExtractor
 {
     public function __construct(
-        private FieldTypeManager $fieldTypeManager
+        private FieldManager $fieldTypeManager
     ) {}
 
     /**
@@ -32,7 +33,7 @@ final class ComponentOptionsExtractor
     {
         $fieldTypeInstance = $this->fieldTypeManager->getFieldTypeInstance($fieldTypeKey);
 
-        if (! $fieldTypeInstance) {
+        if (! $fieldTypeInstance instanceof FieldTypeDefinitionInterface) {
             return [];
         }
 
@@ -40,7 +41,7 @@ final class ComponentOptionsExtractor
 
         return match (true) {
             $formComponent instanceof Closure => $this->extractFromClosure($formComponent, $field),
-            is_string($formComponent) => $this->extractFromComponentClass($formComponent, $field),
+            is_string($formComponent) => $this->extractFromComponentClass(),
             default => []
         };
     }
@@ -59,7 +60,7 @@ final class ComponentOptionsExtractor
 
             return $this->extractFromComponent($component);
 
-        } catch (Exception $e) {
+        } catch (Exception $exception) {
             // If extraction fails, return empty array
             return [];
         }
@@ -68,14 +69,14 @@ final class ComponentOptionsExtractor
     /**
      * Extract options from a component class
      */
-    private function extractFromComponentClass(string $componentClass, ?CustomField $field): array
+    private function extractFromComponentClass(): array
     {
         try {
             // This would require instantiating the component class
             // For now, return empty array as component classes typically use database options
             return [];
 
-        } catch (Exception $e) {
+        } catch (Exception $exception) {
             return [];
         }
     }
@@ -89,7 +90,7 @@ final class ComponentOptionsExtractor
             // Method 1: Try getOptions() method (standard Filament pattern)
             if (method_exists($component, 'getOptions')) {
                 $options = $component->getOptions();
-                if (is_array($options) && ! empty($options)) {
+                if (is_array($options) && $options !== []) {
                     return $options;
                 }
             }
@@ -102,7 +103,7 @@ final class ComponentOptionsExtractor
                 $optionsProperty->setAccessible(true);
                 $options = $optionsProperty->getValue($component);
 
-                if (is_array($options) && ! empty($options)) {
+                if (is_array($options) && $options !== []) {
                     return $options;
                 }
             }
@@ -114,7 +115,7 @@ final class ComponentOptionsExtractor
 
             return [];
 
-        } catch (Exception $e) {
+        } catch (Exception $exception) {
             return [];
         }
     }
@@ -152,7 +153,7 @@ final class ComponentOptionsExtractor
 
             return [];
 
-        } catch (Exception $e) {
+        } catch (Exception $exception) {
             return [];
         }
     }

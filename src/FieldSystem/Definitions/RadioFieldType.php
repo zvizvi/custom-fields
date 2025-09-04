@@ -2,9 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Relaticle\CustomFields\FieldTypes;
+namespace Relaticle\CustomFields\FieldSystem\Definitions;
 
 use Relaticle\CustomFields\Enums\ValidationRule;
+use Relaticle\CustomFields\FieldSystem\BaseFieldType;
+use Relaticle\CustomFields\FieldSystem\FieldSchema;
 use Relaticle\CustomFields\Filament\Integration\Components\Forms\RadioComponent;
 use Relaticle\CustomFields\Filament\Integration\Components\Infolists\SingleChoiceEntry;
 use Relaticle\CustomFields\Filament\Integration\Components\Tables\Columns\SingleChoiceColumn;
@@ -16,9 +18,9 @@ use Relaticle\CustomFields\Filament\Integration\Components\Tables\Filters\Select
  */
 class RadioFieldType extends BaseFieldType
 {
-    public function configure(): FieldTypeConfigurator
+    public function configure(): FieldSchema
     {
-        return FieldTypeConfigurator::singleChoice()
+        return FieldSchema::singleChoice()
             ->key('radio')
             ->label('Radio')
             ->icon('mdi-radiobox-marked')
@@ -27,7 +29,7 @@ class RadioFieldType extends BaseFieldType
             ->tableFilter(SelectFilter::class)
             ->infolistEntry(SingleChoiceEntry::class)
             ->priority(45)
-            ->validationRules([
+            ->availableValidationRules([
                 ValidationRule::REQUIRED,
                 ValidationRule::IN,
                 ValidationRule::NOT_IN,

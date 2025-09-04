@@ -2,17 +2,18 @@
 
 declare(strict_types=1);
 
-namespace Relaticle\CustomFields\FieldTypes;
+namespace Relaticle\CustomFields\FieldSystem;
 
 use Closure;
 use Relaticle\CustomFields\Data\FieldTypeData;
 use Relaticle\CustomFields\Enums\FieldDataType;
+use Relaticle\CustomFields\Enums\ValidationRule;
 
 /**
- * Fluent configurator for field type capabilities and behaviors.
+ * Schema builder for defining field type capabilities and behaviors.
  * Provides a chainable API for configuring field type features.
  */
-class FieldTypeConfigurator
+class FieldSchema
 {
     private FieldDataType $dataType;
 
@@ -35,7 +36,9 @@ class FieldTypeConfigurator
     // Field properties
     private int $priority = 500;
 
-    private array $validationRules = [];
+    private array $availableValidationRules = [];
+
+    private array $defaultValidationRules = [];
 
     // Capabilities
     private bool $searchable = true;
@@ -49,7 +52,6 @@ class FieldTypeConfigurator
     private bool $acceptsArbitraryValues = false;
 
     protected bool $withoutUserOptions = false;
-
 
     public function __construct(FieldDataType $dataType)
     {
@@ -69,25 +71,25 @@ class FieldTypeConfigurator
     /**
      * Configure for text-based fields (STRING, TEXT)
      */
-    public static function text(): Configurators\TextConfigurator
+    public static function text(): self
     {
-        return new Configurators\TextConfigurator;
+        return new self(FieldDataType::TEXT);
     }
 
     /**
      * Configure for string fields (shorter text)
      */
-    public static function string(): Configurators\TextConfigurator
+    public static function string(): self
     {
-        return new Configurators\TextConfigurator;
+        return new self(FieldDataType::STRING);
     }
 
     /**
      * Configure for numeric fields
      */
-    public static function numeric(): Configurators\NumericConfigurator
+    public static function numeric(): self
     {
-        return new Configurators\NumericConfigurator;
+        return new self(FieldDataType::NUMERIC);
     }
 
     /**
@@ -117,25 +119,25 @@ class FieldTypeConfigurator
     /**
      * Configure for boolean fields
      */
-    public static function boolean(): Configurators\BooleanConfigurator
+    public static function boolean(): self
     {
-        return new Configurators\BooleanConfigurator;
+        return new self(FieldDataType::BOOLEAN);
     }
 
     /**
      * Configure for single choice fields (select, radio, etc.)
      */
-    public static function singleChoice(): Configurators\SingleChoiceConfigurator
+    public static function singleChoice(): self
     {
-        return new Configurators\SingleChoiceConfigurator;
+        return new self(FieldDataType::SINGLE_CHOICE);
     }
 
     /**
      * Configure for multi-choice fields (checkboxes, multi-select, etc.)
      */
-    public static function multiChoice(): Configurators\MultiChoiceConfigurator
+    public static function multiChoice(): self
     {
-        return new Configurators\MultiChoiceConfigurator;
+        return new self(FieldDataType::MULTI_CHOICE);
     }
 
     // ========== Field Identity Configuration Methods ==========
@@ -223,11 +225,24 @@ class FieldTypeConfigurator
     }
 
     /**
-     * Set the validation rules for this field type
+     * Set available validation rules for this field type (user selectable)
      */
-    public function validationRules(array $rules): self
+    public function availableValidationRules(array $rules): self
     {
-        $this->validationRules = $rules;
+        $this->availableValidationRules = $rules;
+
+        return $this;
+    }
+
+    /**
+     * Set default validation rules that are always applied
+     */
+    public function defaultValidationRules(array $rules): self
+    {
+        $this->defaultValidationRules = array_map(
+            fn ($rule) => $rule instanceof ValidationRule ? $rule->value : $rule,
+            $rules
+        );
 
         return $this;
     }
@@ -284,6 +299,46 @@ class FieldTypeConfigurator
         return $this;
     }
 
+    // ========== Data Type Specific Methods (from DataTypeConfigurators) ==========
+
+    /**
+     * Enable encryption for this field (text fields)
+     */
+    public function encrypted(): self
+    {
+        $this->encryptable();
+
+        return $this;
+    }
+
+    /**
+     * Configure as a long text field (textarea)
+     */
+    public function longText(): self
+    {
+        return $this;
+    }
+
+    /**
+     * Allow users to create new options on the fly (choice fields)
+     */
+    public function allowArbitraryValues(): self
+    {
+        $this->withArbitraryValues();
+
+        return $this;
+    }
+
+    /**
+     * Field doesn't need user-configured options (choice fields)
+     * This disables database options UI and enables dynamic extraction from components
+     */
+    public function withoutUserOptions(): self
+    {
+        $this->withoutUserOptions = true;
+
+        return $this;
+    }
 
     // ========== Export Configuration ==========
 
@@ -360,11 +415,19 @@ class FieldTypeConfigurator
     }
 
     /**
-     * Get the validation rules
+     * Get the available validation rules (user selectable)
      */
-    public function getValidationRules(): array
+    public function getAvailableValidationRules(): array
     {
-        return $this->validationRules;
+        return $this->availableValidationRules;
+    }
+
+    /**
+     * Get the default validation rules (always applied)
+     */
+    public function getDefaultValidationRules(): array
+    {
+        return $this->defaultValidationRules;
     }
 
     /**
@@ -407,6 +470,68 @@ class FieldTypeConfigurator
         return $this->acceptsArbitraryValues;
     }
 
+    // ========== Import/Export Configuration ==========
+
+    private ?string $importExample = null;
+
+    private ?Closure $importTransformer = null;
+
+    private ?Closure $exportTransformer = null;
+
+    /**
+     * Set import example value for templates
+     */
+    public function importExample(string $example): self
+    {
+        $this->importExample = $example;
+
+        return $this;
+    }
+
+    /**
+     * Set custom import column transformer
+     */
+    public function importTransformer(Closure $transformer): self
+    {
+        $this->importTransformer = $transformer;
+
+        return $this;
+    }
+
+    /**
+     * Set custom export value transformer
+     */
+    public function exportTransformer(Closure $transformer): self
+    {
+        $this->exportTransformer = $transformer;
+
+        return $this;
+    }
+
+    /**
+     * Get import example
+     */
+    public function getImportExample(): ?string
+    {
+        return $this->importExample;
+    }
+
+    /**
+     * Get import transformer
+     */
+    public function getImportTransformer(): ?Closure
+    {
+        return $this->importTransformer;
+    }
+
+    /**
+     * Get export transformer
+     */
+    public function getExportTransformer(): ?Closure
+    {
+        return $this->exportTransformer;
+    }
+
     public function data(): FieldTypeData
     {
         return new FieldTypeData(
@@ -423,9 +548,9 @@ class FieldTypeConfigurator
             sortable: $this->sortable,
             filterable: $this->filterable,
             encryptable: $this->encryptable,
-            acceptsArbitraryValues: $this->acceptsArbitraryValues,
-            validationRules: $this->validationRules,
             withoutUserOptions: $this->withoutUserOptions,
+            acceptsArbitraryValues: $this->acceptsArbitraryValues,
+            validationRules: $this->availableValidationRules,
         );
     }
 }

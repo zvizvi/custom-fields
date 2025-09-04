@@ -30,7 +30,7 @@ final class TableBuilder extends BaseBuilder
 
         return $this->getFilteredSections()
             ->flatMap(fn ($section) => $section->fields)
-            ->filter(fn (CustomField $field) => $field->typeData->tableColumn !== null)
+            ->filter(fn (CustomField $field): bool => $field->typeData->tableColumn !== null)
             ->map(function (CustomField $field) use ($fieldColumnFactory, $backendVisibilityService, $allFields) {
                 $column = $fieldColumnFactory->create($field);
 

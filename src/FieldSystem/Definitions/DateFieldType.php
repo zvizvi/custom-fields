@@ -2,9 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Relaticle\CustomFields\FieldTypes;
+namespace Relaticle\CustomFields\FieldSystem\Definitions;
 
 use Relaticle\CustomFields\Enums\ValidationRule;
+use Relaticle\CustomFields\FieldSystem\BaseFieldType;
+use Relaticle\CustomFields\FieldSystem\FieldSchema;
 use Relaticle\CustomFields\Filament\Integration\Components\Forms\DateComponent;
 use Relaticle\CustomFields\Filament\Integration\Components\Infolists\DateTimeEntry;
 use Relaticle\CustomFields\Filament\Integration\Components\Tables\Columns\DateTimeColumn;
@@ -15,9 +17,9 @@ use Relaticle\CustomFields\Filament\Integration\Components\Tables\Columns\DateTi
  */
 class DateFieldType extends BaseFieldType
 {
-    public function configure(): FieldTypeConfigurator
+    public function configure(): FieldSchema
     {
-        return FieldTypeConfigurator::date()
+        return FieldSchema::date()
             ->key('date')
             ->label('Date')
             ->icon('mdi-calendar')
@@ -25,7 +27,7 @@ class DateFieldType extends BaseFieldType
             ->tableColumn(DateTimeColumn::class)
             ->infolistEntry(DateTimeEntry::class)
             ->priority(30)
-            ->validationRules([
+            ->availableValidationRules([
                 ValidationRule::REQUIRED,
                 ValidationRule::AFTER,
                 ValidationRule::AFTER_OR_EQUAL,

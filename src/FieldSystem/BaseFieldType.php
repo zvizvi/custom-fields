@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Relaticle\CustomFields\FieldTypes;
+namespace Relaticle\CustomFields\FieldSystem;
 
+use InvalidArgumentException;
 use Relaticle\CustomFields\Contracts\FieldTypeDefinitionInterface;
 use Relaticle\CustomFields\Data\FieldTypeData;
 
@@ -17,14 +18,14 @@ abstract class BaseFieldType implements FieldTypeDefinitionInterface
 {
     private ?FieldTypeData $_data = null;
 
-    abstract public function configure(): FieldTypeConfigurator;
+    abstract public function configure(): FieldSchema;
 
     /**
      * Get field type data with proper type hints and caching
      */
     public function getData(): FieldTypeData
     {
-        if ($this->_data === null) {
+        if (! $this->_data instanceof FieldTypeData) {
             $this->_data = $this->configure()->data();
         }
 
@@ -40,6 +41,6 @@ abstract class BaseFieldType implements FieldTypeDefinitionInterface
             return $this->getData();
         }
 
-        throw new \InvalidArgumentException("Property {$property} does not exist");
+        throw new InvalidArgumentException(sprintf('Property %s does not exist', $property));
     }
 }

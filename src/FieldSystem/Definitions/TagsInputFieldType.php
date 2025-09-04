@@ -2,12 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Relaticle\CustomFields\FieldTypes;
+namespace Relaticle\CustomFields\FieldSystem\Definitions;
 
-use Filament\Actions\Imports\ImportColumn;
-use Relaticle\CustomFields\Contracts\FieldImportExportInterface;
 use Relaticle\CustomFields\Enums\ValidationRule;
-use Relaticle\CustomFields\FieldTypes\Concerns\HasImportExportDefaults;
+use Relaticle\CustomFields\FieldSystem\BaseFieldType;
+use Relaticle\CustomFields\FieldSystem\FieldSchema;
 use Relaticle\CustomFields\Filament\Integration\Components\Forms\TagsInputComponent;
 use Relaticle\CustomFields\Filament\Integration\Components\Infolists\MultiChoiceEntry;
 use Relaticle\CustomFields\Filament\Integration\Components\Tables\Columns\MultiChoiceColumn;
@@ -16,13 +15,11 @@ use Relaticle\CustomFields\Filament\Integration\Components\Tables\Columns\MultiC
  * ABOUTME: Field type definition for Tags Input fields
  * ABOUTME: Provides Tags Input functionality with appropriate validation rules
  */
-final class TagsInputFieldType extends BaseFieldType implements FieldImportExportInterface
+final class TagsInputFieldType extends BaseFieldType
 {
-    use HasImportExportDefaults;
-
-    public function configure(): FieldTypeConfigurator
+    public function configure(): FieldSchema
     {
-        return FieldTypeConfigurator::multiChoice()
+        return FieldSchema::multiChoice()
             ->key('tags-input')
             ->label('Tags Input')
             ->icon('mdi-tag-multiple')
@@ -30,30 +27,17 @@ final class TagsInputFieldType extends BaseFieldType implements FieldImportExpor
             ->tableColumn(MultiChoiceColumn::class)
             ->infolistEntry(MultiChoiceEntry::class)
             ->priority(70)
-            ->validationRules([
+            ->availableValidationRules([
                 ValidationRule::REQUIRED,
                 ValidationRule::ARRAY,
                 ValidationRule::MIN,
                 ValidationRule::MAX,
                 ValidationRule::DISTINCT,
             ])
-            ->withArbitraryValues();
-    }
-
-    /**
-     * Provide a custom example for tags input fields.
-     */
-    public function getImportExample(): string
-    {
-        return 'tag1, tag2, tag3';
-    }
-
-    /**
-     * Configure import column to accept arbitrary values without validation.
-     * Tags input should accept any values, not just predefined options.
-     */
-    public function configureImportColumn(ImportColumn $column): void
-    {
-        $column->array(separator: ',');
+            ->withArbitraryValues()
+            ->importExample('tag1, tag2, tag3')
+            ->importTransformer(function ($value) {
+                return array_map('trim', explode(',', $value));
+            });
     }
 }

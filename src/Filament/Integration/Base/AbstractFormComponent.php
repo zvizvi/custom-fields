@@ -8,6 +8,7 @@ use Filament\Forms\Components\Field;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Relaticle\CustomFields\Contracts\FormComponentInterface;
+use Relaticle\CustomFields\FieldSystem\SystemConfig;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Services\ValidationService;
 use Relaticle\CustomFields\Services\Visibility\CoreVisibilityLogicService;
@@ -122,6 +123,47 @@ abstract readonly class AbstractFormComponent implements FormComponentInterface
         $jsExpression !== '0'
             ? $field->live()->visibleJs($jsExpression)
             : $field;
+    }
+
+    /**
+     * Get configuration settings for the current field type
+     */
+    protected function getConfigurationSettings(string $fieldType): array
+    {
+        $fieldTypeConfiguration = config('custom-fields.field_type_configuration');
+
+        if (! $fieldTypeConfiguration instanceof SystemConfig) {
+            return [];
+        }
+
+        $configuredFieldType = $fieldTypeConfiguration->getFieldTypes()->get($fieldType);
+
+        return $configuredFieldType?->getSettings() ?? [];
+    }
+
+    /**
+     * Apply settings dynamically to any Filament component
+     */
+    protected function applySettingsToComponent(Field $component, array $settings): Field
+    {
+        foreach ($settings as $method => $value) {
+            if ($value === null) {
+                continue;
+            }
+
+            if (! method_exists($component, $method)) {
+                continue;
+            }
+
+            // For boolean methods, only call if true
+            if (is_bool($value) && ! $value) {
+                continue;
+            }
+
+            $component->$method($value);
+        }
+
+        return $component;
     }
 
     /**

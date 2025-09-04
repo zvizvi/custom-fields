@@ -139,20 +139,21 @@ class MakeFieldTypeCommand extends GeneratorCommand
     protected function getDataType(): FieldDataType
     {
         $typeOption = $this->option('type');
-        
+
         if ($typeOption) {
             $dataType = FieldDataType::tryFrom($typeOption);
             if ($dataType) {
                 return $dataType;
             }
-            $this->warn("Invalid data type '{$typeOption}'. Showing available options...");
+
+            $this->warn(sprintf("Invalid data type '%s'. Showing available options...", $typeOption));
         }
 
         $options = [
             'string' => 'String - Short text, identifiers, URLs (max 255 chars)',
             'text' => 'Text - Long text, rich content, markdown (unlimited)',
             'numeric' => 'Numeric - Whole numbers, counts, IDs',
-            'float' => 'Float - Decimal numbers, currency, measurements', 
+            'float' => 'Float - Decimal numbers, currency, measurements',
             'date' => 'Date - Date picker (YYYY-MM-DD)',
             'date_time' => 'DateTime - Date and time picker',
             'boolean' => 'Boolean - True/false, checkboxes, toggles',

@@ -46,7 +46,7 @@ final readonly class ClosureFormAdapter extends AbstractFormComponent
         $field = ($this->closure)($customField);
 
         // Apply built-in features automatically for choice fields
-        if ($customField->isChoiceField() && !$customField->typeData->withoutUserOptions) {
+        if ($customField->isChoiceField() && ! $customField->typeData->withoutUserOptions) {
             $field = $this->applyUserDefinedOptions($field, $customField);
         }
 
@@ -57,7 +57,7 @@ final readonly class ClosureFormAdapter extends AbstractFormComponent
 
         // Apply color options if enabled
         if ($this->hasColorOptionsEnabled($customField)) {
-            $field = $this->applyColorOptions($field, $customField);
+            return $this->applyColorOptions($field, $customField);
         }
 
         return $field;
@@ -87,6 +87,7 @@ final readonly class ClosureFormAdapter extends AbstractFormComponent
     {
         if (method_exists($field, 'options') && $field instanceof Select) {
             $coloredOptions = $this->getSelectColoredOptions($customField);
+
             return $field
                 ->native(false)
                 ->allowHtml()

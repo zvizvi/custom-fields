@@ -8,7 +8,7 @@ use Filament\Facades\Filament;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Collection;
 use Relaticle\CustomFields\Exceptions\MissingRecordTitleAttributeException;
-use Relaticle\CustomFields\FieldTypes\FieldTypeManager;
+use Relaticle\CustomFields\FieldSystem\FieldManager;
 use Relaticle\CustomFields\Models\CustomField;
 use Throwable;
 
@@ -25,7 +25,7 @@ final readonly class LookupResolver
     public function resolveLookupValues(array $values, CustomField $customField): Collection
     {
         // Check if the field type accepts arbitrary values (like tags-input)
-        $fieldTypeManager = app(FieldTypeManager::class);
+        $fieldTypeManager = app(FieldManager::class);
         $fieldTypeInstance = $fieldTypeManager->getFieldTypeInstance($customField->type);
 
         if ($fieldTypeInstance && $fieldTypeInstance->getData()->acceptsArbitraryValues) {

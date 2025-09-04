@@ -6,6 +6,7 @@ namespace Relaticle\CustomFields\Services;
 
 use Relaticle\CustomFields\Data\ValidationRuleData;
 use Relaticle\CustomFields\Enums\ValidationRule;
+use Relaticle\CustomFields\FieldSystem\FieldManager;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldValue;
 use Relaticle\CustomFields\Support\DatabaseFieldConstraints;
@@ -32,12 +33,15 @@ final class ValidationService
         // Convert user rules to Laravel validator format
         $userRules = $this->convertUserRulesToValidatorFormat($customField->validation_rules, $customField);
 
+        // Get field type default rules (always applied for data integrity)
+        $fieldTypeDefaultRules = $this->getFieldTypeDefaultRules($customField->type);
+
         // Get database constraint rules based on storage column
         $isEncrypted = $customField->settings->encrypted ?? false;
         $databaseRules = $this->getDatabaseValidationRules($customField->type, $isEncrypted);
 
-        // Determine which rules take precedence
-        return $this->mergeValidationRules($userRules, $databaseRules, $customField->type);
+        // Merge all rule types: field defaults + user rules + database constraints
+        return $this->mergeAllValidationRules($fieldTypeDefaultRules, $userRules, $databaseRules, $customField->type);
     }
 
     /**
@@ -110,32 +114,6 @@ final class ValidationService
     }
 
     /**
-     * Merge user-defined rules with database constraint rules, applying appropriate precedence logic.
-     * Ensures that user-defined rules that are stricter than database constraints are preserved.
-     *
-     * @param  array<int, string>  $userRules  User-defined validation rules
-     * @param  array<int, string>  $databaseRules  Database constraint validation rules
-     * @param  string  $fieldType  The field type
-     * @return array<int, string> Merged validation rules
-     */
-    private function mergeValidationRules(array $userRules, array $databaseRules, string $fieldType): array
-    {
-        // Get constraints for the database column used by this field type
-        $columnName = CustomFieldValue::getValueColumn($fieldType);
-        $dbConstraints = DatabaseFieldConstraints::getConstraintsForColumn($columnName);
-
-        // If we have constraints, use the constraint-aware merge function
-        if ($dbConstraints !== null && $dbConstraints !== []) {
-            // Important: we pass userRules first to ensure they take precedence
-            // when they're stricter than system constraints
-            return DatabaseFieldConstraints::mergeConstraintsWithRules($dbConstraints, $userRules);
-        }
-
-        // Otherwise, simply combine the rules, with user rules taking precedence
-        return $this->combineRules($userRules, $databaseRules);
-    }
-
-    /**
      * Combine two sets of rules, removing duplicates but preserving rule precedence.
      *
      * @param  array<int, string>  $primaryRules  Rules that take precedence
@@ -177,5 +155,71 @@ final class ValidationService
         return array_map(function (string $name) use ($nameToIdMap): string {
             return (string) ($nameToIdMap[$name] ?? $name);
         }, $optionNames);
+    }
+
+    /**
+     * Get default validation rules that should always be applied for specific field types.
+     * These ensure data integrity and proper field behavior regardless of user configuration.
+     *
+     * Rules are retrieved from:
+     * 1. Field type configuration (highest priority)
+     * 2. Field type definition's defaultValidationRules
+     *
+     * @param  string  $fieldType  The field type
+     * @return array<int, string> Array of default validation rules
+     */
+    private function getFieldTypeDefaultRules(string $fieldType): array
+    {
+        // Get from field type configuration first (highest priority)
+        $config = config('custom-fields.field_type_configuration');
+        if ($config && method_exists($config, 'getFieldTypes')) {
+            $configuredFieldType = $config->getFieldTypes()->get($fieldType);
+            if ($configuredFieldType) {
+                return $configuredFieldType->getDefaultValidationRules();
+            }
+        }
+
+        // Get from field type definition's defaultValidationRules
+        $fieldTypeManager = app(FieldManager::class);
+        $fieldTypeInstance = $fieldTypeManager->getFieldTypeInstance($fieldType);
+
+        if ($fieldTypeInstance) {
+            $configurator = $fieldTypeInstance->configure();
+
+            return $configurator->getDefaultValidationRules();
+        }
+
+        return [];
+    }
+
+    /**
+     * Merge field type defaults, user rules, and database constraints with proper precedence.
+     * Field type defaults are always applied, user rules can add additional constraints,
+     * database constraints provide system-level limits.
+     *
+     * @param  array<int, string>  $fieldTypeDefaults  Field type default rules
+     * @param  array<int, string>  $userRules  User-defined validation rules
+     * @param  array<int, string>  $databaseRules  Database constraint validation rules
+     * @param  string  $fieldType  The field type
+     * @return array<int, string> Merged validation rules
+     */
+    private function mergeAllValidationRules(array $fieldTypeDefaults, array $userRules, array $databaseRules, string $fieldType): array
+    {
+        // Start with field type defaults (always applied)
+        $mergedRules = $fieldTypeDefaults;
+
+        // Add user rules (can override or supplement defaults)
+        $mergedRules = $this->combineRules($mergedRules, $userRules);
+
+        // Apply database constraint rules using existing logic
+        $columnName = CustomFieldValue::getValueColumn($fieldType);
+        $dbConstraints = DatabaseFieldConstraints::getConstraintsForColumn($columnName);
+
+        if ($dbConstraints !== null && $dbConstraints !== []) {
+            return DatabaseFieldConstraints::mergeConstraintsWithRules($dbConstraints, $mergedRules);
+        }
+
+        // Otherwise, simply combine with database rules
+        return $this->combineRules($mergedRules, $databaseRules);
     }
 }

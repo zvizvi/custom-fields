@@ -15,7 +15,7 @@ use Relaticle\CustomFields\Contracts\FieldImportExportInterface;
 use Relaticle\CustomFields\Data\ValidationRuleData;
 use Relaticle\CustomFields\Enums\FieldDataType;
 use Relaticle\CustomFields\Facades\Entities;
-use Relaticle\CustomFields\FieldTypes\FieldTypeManager;
+use Relaticle\CustomFields\FieldSystem\FieldManager;
 use Relaticle\CustomFields\Models\CustomField;
 use Throwable;
 
@@ -56,7 +56,7 @@ final class ImportColumnConfigurator
      */
     private function configureViaFieldType(ImportColumn $column, CustomField $customField): bool
     {
-        $fieldTypeManager = app(FieldTypeManager::class);
+        $fieldTypeManager = app(FieldManager::class);
         $fieldTypeInstance = $fieldTypeManager->getFieldTypeInstance($customField->type);
 
         if (! $fieldTypeInstance instanceof FieldImportExportInterface) {
