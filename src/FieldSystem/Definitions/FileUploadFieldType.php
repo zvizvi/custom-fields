@@ -20,7 +20,7 @@ class FileUploadFieldType extends BaseFieldType
     public function configure(): FieldSchema
     {
         return FieldSchema::string()
-            ->key('file_upload')
+            ->key('file-upload')
             ->label('File Upload')
             ->icon('heroicon-o-paper-clip')
             ->formComponent(FileUploadComponent::class)

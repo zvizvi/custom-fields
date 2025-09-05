@@ -47,7 +47,7 @@ return [
         ->cache(enabled: true, ttl: 3600)
         ->fieldTypes([
             // Example: Configure file upload field type with Filament-compatible settings
-            FieldSettings::for('file_upload')
+            FieldSettings::for('file-upload')
                 ->label('File Upload')
                 ->icon('heroicon-o-paper-clip')
                 ->priority(17)
