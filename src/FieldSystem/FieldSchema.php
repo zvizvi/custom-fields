@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace Relaticle\CustomFields\FieldSystem;
 
 use Closure;
+use InvalidArgumentException;
 use Relaticle\CustomFields\Data\FieldTypeData;
 use Relaticle\CustomFields\Enums\FieldDataType;
 use Relaticle\CustomFields\Enums\ValidationRule;
+use Spatie\LaravelData\Data;
 
 /**
  * Schema builder for defining field type capabilities and behaviors.
@@ -25,13 +27,13 @@ class FieldSchema
     private string $icon = '';
 
     // Component definitions
-    private string|Closure|null $formComponent = null;
+    private string | Closure | null $formComponent = null;
 
-    private string|Closure|null $tableColumn = null;
+    private string | Closure | null $tableColumn = null;
 
-    private string|Closure|null $tableFilter = null;
+    private string | Closure | null $tableFilter = null;
 
-    private string|Closure|null $infolistEntry = null;
+    private string | Closure | null $infolistEntry = null;
 
     // Field properties
     private int $priority = 500;
@@ -52,6 +54,16 @@ class FieldSchema
     private bool $acceptsArbitraryValues = false;
 
     protected bool $withoutUserOptions = false;
+
+    private ?string $settingsDataClass = null;
+
+    private string | Closure | null $settingsSchema = null;
+
+    private ?string $importExample = null;
+
+    private ?Closure $importTransformer = null;
+
+    private ?Closure $exportTransformer = null;
 
     public function __construct(FieldDataType $dataType)
     {
@@ -177,7 +189,7 @@ class FieldSchema
     /**
      * Set the form component for this field type
      */
-    public function formComponent(string|Closure $component): self
+    public function formComponent(string | Closure $component): self
     {
         $this->formComponent = $component;
 
@@ -187,7 +199,7 @@ class FieldSchema
     /**
      * Set the table column for this field type
      */
-    public function tableColumn(string|Closure $column): self
+    public function tableColumn(string | Closure $column): self
     {
         $this->tableColumn = $column;
 
@@ -197,7 +209,7 @@ class FieldSchema
     /**
      * Set the table filter for this field type
      */
-    public function tableFilter(string|Closure $filter): self
+    public function tableFilter(string | Closure $filter): self
     {
         $this->tableFilter = $filter;
 
@@ -207,7 +219,7 @@ class FieldSchema
     /**
      * Set the infolist entry for this field type
      */
-    public function infolistEntry(string|Closure $entry): self
+    public function infolistEntry(string | Closure $entry): self
     {
         $this->infolistEntry = $entry;
 
@@ -377,33 +389,9 @@ class FieldSchema
     /**
      * Get the form component
      */
-    public function getFormComponent(): string|Closure|null
+    public function getFormComponent(): string | Closure | null
     {
         return $this->formComponent;
-    }
-
-    /**
-     * Get the table column
-     */
-    public function getTableColumn(): string|Closure|null
-    {
-        return $this->tableColumn;
-    }
-
-    /**
-     * Get the table filter
-     */
-    public function getTableFilter(): string|Closure|null
-    {
-        return $this->tableFilter;
-    }
-
-    /**
-     * Get the infolist entry
-     */
-    public function getInfolistEntry(): string|Closure|null
-    {
-        return $this->infolistEntry;
     }
 
     /**
@@ -470,13 +458,17 @@ class FieldSchema
         return $this->acceptsArbitraryValues;
     }
 
-    // ========== Import/Export Configuration ==========
+    public function withSettings(string $dataClass, string | Closure $schema): self
+    {
+        if (! is_subclass_of($dataClass, Data::class)) {
+            throw new InvalidArgumentException('Settings data class must extend ' . Data::class);
+        }
 
-    private ?string $importExample = null;
+        $this->settingsDataClass = $dataClass;
+        $this->settingsSchema = $schema;
 
-    private ?Closure $importTransformer = null;
-
-    private ?Closure $exportTransformer = null;
+        return $this;
+    }
 
     /**
      * Set import example value for templates
@@ -551,6 +543,8 @@ class FieldSchema
             withoutUserOptions: $this->withoutUserOptions,
             acceptsArbitraryValues: $this->acceptsArbitraryValues,
             validationRules: $this->availableValidationRules,
+            settingsDataClass: $this->settingsDataClass,
+            settingsSchema: $this->settingsSchema
         );
     }
 }

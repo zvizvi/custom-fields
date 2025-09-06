@@ -20,6 +20,7 @@ class CustomFieldSettingsData extends Data
         public bool $encrypted = false,
         public bool $enable_option_colors = false,
         public VisibilityData $visibility = new VisibilityData,
+        public array $additional = [],
     ) {
         if ($this->list_toggleable_hidden === null) {
             $this->list_toggleable_hidden = Utils::isTableColumnsToggleableHiddenByDefault();
