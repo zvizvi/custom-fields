@@ -9,7 +9,7 @@ use Exception;
 use Filament\Forms\Components\Field;
 use ReflectionObject;
 use Relaticle\CustomFields\Contracts\FieldTypeDefinitionInterface;
-use Relaticle\CustomFields\FieldSystem\FieldManager;
+use Relaticle\CustomFields\FieldTypeSystem\FieldManager;
 use Relaticle\CustomFields\Models\CustomField;
 
 /**

@@ -9,7 +9,7 @@ namespace Relaticle\CustomFields\Contracts;
 
 use Closure;
 use Relaticle\CustomFields\Data\EntityConfigurationData;
-use Relaticle\CustomFields\Entities\EntityCollection;
+use Relaticle\CustomFields\EntitySystem\EntityCollection;
 
 interface EntityManagerInterface
 {

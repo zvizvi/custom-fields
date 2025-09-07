@@ -8,7 +8,7 @@ use Filament\Facades\Filament;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Collection;
 use Relaticle\CustomFields\Exceptions\MissingRecordTitleAttributeException;
-use Relaticle\CustomFields\FieldSystem\FieldManager;
+use Relaticle\CustomFields\FieldTypeSystem\FieldManager;
 use Relaticle\CustomFields\Models\CustomField;
 use Throwable;
 

@@ -7,7 +7,7 @@ namespace Relaticle\CustomFields\Facades;
 use Closure;
 use Illuminate\Support\Facades\Facade;
 use Relaticle\CustomFields\Collections\FieldTypeCollection;
-use Relaticle\CustomFields\FieldSystem\FieldManager;
+use Relaticle\CustomFields\FieldTypeSystem\FieldManager;
 
 /**
  * @method static FieldTypeCollection toCollection()

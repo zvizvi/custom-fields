@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Relaticle\CustomFields\Contracts;
 
 use Relaticle\CustomFields\Data\FieldTypeData;
-use Relaticle\CustomFields\FieldSystem\BaseFieldType;
-use Relaticle\CustomFields\FieldSystem\FieldSchema;
+use Relaticle\CustomFields\FieldTypeSystem\BaseFieldType;
+use Relaticle\CustomFields\FieldTypeSystem\FieldSchema;
 
 /**
  * Contract for defining custom field types that can be registered dynamically.

@@ -1,11 +1,11 @@
 <?php
 
-use Relaticle\CustomFields\Entities\Configuration\EntityConfiguration;
-use Relaticle\CustomFields\Entities\Configuration\EntityModel;
-use Relaticle\CustomFields\Enums\EntityFeature;
+declare(strict_types=1);
+
+use Relaticle\CustomFields\EntitySystem\EntityConfigurator;
 use Relaticle\CustomFields\Enums\ValidationRule;
-use Relaticle\CustomFields\FieldSystem\FieldSettings;
-use Relaticle\CustomFields\FieldSystem\SystemConfig;
+use Relaticle\CustomFields\FieldTypeSystem\FieldSettings;
+use Relaticle\CustomFields\FieldTypeSystem\FieldTypeConfigurator;
 
 return [
     /*
@@ -17,7 +17,7 @@ return [
     | clean, type-safe fluent builder interface.
     |
     */
-    'entity_configuration' => EntityConfiguration::configure()
+    'entity_configuration' => EntityConfigurator::configure()
         ->discover(app_path('Models'))
         ->cache(true)
         ->models([
@@ -39,7 +39,7 @@ return [
     | This provides advanced control over validation, security, and behavior.
     |
     */
-    'field_type_configuration' => SystemConfig::configure()
+    'field_type_configuration' => FieldTypeConfigurator::configure()
         // Control which field types are available globally
         ->enabled([]) // Empty = all enabled, or specify: ['text', 'email', 'select']
         ->disabled(['rich-editor']) // Disable specific field types

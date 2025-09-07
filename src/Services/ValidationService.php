@@ -6,7 +6,7 @@ namespace Relaticle\CustomFields\Services;
 
 use Relaticle\CustomFields\Data\ValidationRuleData;
 use Relaticle\CustomFields\Enums\ValidationRule;
-use Relaticle\CustomFields\FieldSystem\FieldManager;
+use Relaticle\CustomFields\FieldTypeSystem\FieldManager;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldValue;
 use Relaticle\CustomFields\Support\DatabaseFieldConstraints;
