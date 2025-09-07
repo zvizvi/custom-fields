@@ -62,7 +62,7 @@ class PostResource extends Resource
                 Tables\Columns\TextColumn::make('author.name')
                     ->sortable()
                     ->searchable(),
-                    
+
                 ...CustomFields::table()->forModel(Post::class)->columns(),
             ])
             ->filters([

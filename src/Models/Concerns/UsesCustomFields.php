@@ -29,7 +29,7 @@ trait UsesCustomFields
         }
 
         parent::__construct($attributes);
-        
+
         // Handle custom_fields immediately if present in attributes
         $this->handleCustomFields();
     }
