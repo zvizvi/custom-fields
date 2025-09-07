@@ -6,8 +6,9 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use Relaticle\CustomFields\CustomFields;
+use Relaticle\CustomFields\Enums\CustomFieldsFeature;
+use Relaticle\CustomFields\FeatureSystem\FeatureManager;
 use Relaticle\CustomFields\Models\CustomField;
-use Relaticle\CustomFields\Support\Utils;
 
 return new class extends Migration
 {
@@ -21,7 +22,7 @@ return new class extends Migration
 
             $table->id();
 
-            if (Utils::isTenantEnabled()) {
+            if (FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_MULTI_TENANCY)) {
                 $table->foreignId(config('custom-fields.database.column_names.tenant_foreign_key'))->nullable()->index();
                 $uniqueColumns[] = config('custom-fields.database.column_names.tenant_foreign_key');
             }
@@ -43,7 +44,7 @@ return new class extends Migration
 
             $table->unique($uniqueColumns);
 
-            if (Utils::isTenantEnabled()) {
+            if (FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_MULTI_TENANCY)) {
                 $table->index([config('custom-fields.database.column_names.tenant_foreign_key'), 'entity_type', 'active'], 'custom_field_sections_tenant_entity_active_idx');
             } else {
                 $table->index(['entity_type', 'active'], 'custom_field_sections_entity_active_idx');
@@ -63,7 +64,7 @@ return new class extends Migration
             $table->unsignedBigInteger('custom_field_section_id')->nullable();
             $table->string('width')->nullable();
 
-            if (Utils::isTenantEnabled()) {
+            if (FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_MULTI_TENANCY)) {
                 $table->foreignId(config('custom-fields.database.column_names.tenant_foreign_key'))->nullable()->index();
                 $uniqueColumns[] = config('custom-fields.database.column_names.tenant_foreign_key');
             }
@@ -83,7 +84,7 @@ return new class extends Migration
 
             $table->unique($uniqueColumns);
 
-            if (Utils::isTenantEnabled()) {
+            if (FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_MULTI_TENANCY)) {
                 $table->index([config('custom-fields.database.column_names.tenant_foreign_key'), 'entity_type', 'active'], 'custom_fields_tenant_entity_active_idx');
             } else {
                 $table->index(['entity_type', 'active'], 'custom_fields_entity_active_idx');
@@ -100,7 +101,7 @@ return new class extends Migration
 
             $table->id();
 
-            if (Utils::isTenantEnabled()) {
+            if (FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_MULTI_TENANCY)) {
                 $table->foreignId(config('custom-fields.database.column_names.tenant_foreign_key'))->nullable()->index();
                 $uniqueColumns[] = config('custom-fields.database.column_names.tenant_foreign_key');
             }
@@ -126,7 +127,7 @@ return new class extends Migration
 
             $table->id();
 
-            if (Utils::isTenantEnabled()) {
+            if (FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_MULTI_TENANCY)) {
                 $table->foreignId(config('custom-fields.database.column_names.tenant_foreign_key'))->nullable()->index();
                 $uniqueColumns[] = config('custom-fields.database.column_names.tenant_foreign_key');
             }
@@ -147,7 +148,7 @@ return new class extends Migration
 
             $table->unique($uniqueColumns, 'custom_field_values_entity_type_unique');
 
-            if (Utils::isTenantEnabled()) {
+            if (FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_MULTI_TENANCY)) {
                 $table->index([config('custom-fields.database.column_names.tenant_foreign_key'), 'entity_type', 'entity_id'], 'custom_field_values_tenant_entity_idx');
             } else {
                 $table->index(['entity_type', 'entity_id'], 'custom_field_values_entity_idx');

@@ -132,7 +132,15 @@ class EntityServiceProvider extends ServiceProvider
         $entityConfiguration = config('custom-fields.entity_configuration');
 
         if ($entityConfiguration instanceof EntityConfigurationInterface) {
-            return $entityConfiguration->build();
+            return [
+                'auto_discover_entities' => $entityConfiguration->getAutoDiscover(),
+                'entity_discovery_paths' => $entityConfiguration->getDiscoveryPaths(),
+                'entity_discovery_namespaces' => $entityConfiguration->getDiscoveryNamespaces(),
+                'excluded_models' => $entityConfiguration->getExcludedModels(),
+                'cache_entities' => $entityConfiguration->getCacheEnabled(),
+                'cache_ttl' => $entityConfiguration->getCacheTtl(),
+                'entities' => $entityConfiguration->getEntities(),
+            ];
         }
 
         // Return sensible defaults if no configuration is provided

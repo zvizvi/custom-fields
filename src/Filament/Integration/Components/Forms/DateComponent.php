@@ -8,16 +8,15 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Field;
 use Relaticle\CustomFields\Filament\Integration\Base\AbstractFormComponent;
 use Relaticle\CustomFields\Models\CustomField;
-use Relaticle\CustomFields\Support\FieldTypeUtils;
 
 final readonly class DateComponent extends AbstractFormComponent
 {
     public function create(CustomField $customField): Field
     {
         return DatePicker::make($customField->getFieldName())
-            ->native(FieldTypeUtils::isDatePickerNative())
-            ->format(FieldTypeUtils::getDateFormat())
-            ->displayFormat(FieldTypeUtils::getDateFormat())
-            ->placeholder(FieldTypeUtils::getDateFormat());
+            ->native(false)
+            ->format('Y-m-d')
+            ->displayFormat('Y-m-d')
+            ->placeholder('YYYY-MM-DD');
     }
 }

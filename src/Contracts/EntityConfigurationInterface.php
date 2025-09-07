@@ -13,5 +13,5 @@ interface EntityConfigurationInterface
     /**
      * Build the final configuration array
      */
-    public function build(): array;
+    public static function configure(): self;
 }

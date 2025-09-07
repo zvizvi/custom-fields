@@ -8,13 +8,13 @@ use Filament\Forms\Components\Field;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Relaticle\CustomFields\Contracts\FormComponentInterface;
+use Relaticle\CustomFields\Enums\CustomFieldsFeature;
+use Relaticle\CustomFields\FeatureSystem\FeatureManager;
 use Relaticle\CustomFields\FieldTypeSystem\FieldTypeConfigurator;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Services\ValidationService;
 use Relaticle\CustomFields\Services\Visibility\CoreVisibilityLogicService;
 use Relaticle\CustomFields\Services\Visibility\FrontendVisibilityService;
-use Relaticle\CustomFields\Support\FieldTypeUtils;
-use Relaticle\CustomFields\Support\Utils;
 
 /**
  * Abstract base class for form field components.
@@ -62,14 +62,14 @@ abstract readonly class AbstractFormComponent implements FormComponentInterface
                 )
             )
             ->dehydrated(
-                fn (mixed $state): bool => Utils::isConditionalVisibilityFeatureEnabled() &&
+                fn (mixed $state): bool => FeatureManager::isEnabled(CustomFieldsFeature::FIELD_CONDITIONAL_VISIBILITY) &&
                     ($this->coreVisibilityLogic->shouldAlwaysSave($customField) || filled($state))
             )
             ->required($this->validationService->isRequired($customField))
             ->rules($this->validationService->getValidationRules($customField))
             ->columnSpan($customField->width->getSpanValue())
             ->when(
-                Utils::isConditionalVisibilityFeatureEnabled() &&
+                FeatureManager::isEnabled(CustomFieldsFeature::FIELD_CONDITIONAL_VISIBILITY) &&
                 $this->hasVisibilityConditions($customField),
                 fn (Field $field): Field => $this->applyVisibility(
                     $field,
@@ -78,7 +78,7 @@ abstract readonly class AbstractFormComponent implements FormComponentInterface
                 )
             )
             ->when(
-                Utils::isConditionalVisibilityFeatureEnabled() &&
+                FeatureManager::isEnabled(CustomFieldsFeature::FIELD_CONDITIONAL_VISIBILITY) &&
                 filled($dependentFieldCodes),
                 fn (Field $field): Field => $field->live()
             );
@@ -96,8 +96,8 @@ abstract readonly class AbstractFormComponent implements FormComponentInterface
             return $value instanceof Carbon
                 ? $value->format(
                     $customField->isDateField()
-                        ? FieldTypeUtils::getDateFormat()
-                        : FieldTypeUtils::getDateTimeFormat()
+                        ? 'Y-m-d'
+                        : 'Y-m-d H:i:s'
                 )
                 : $value;
         });

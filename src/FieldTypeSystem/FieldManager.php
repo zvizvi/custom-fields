@@ -108,20 +108,13 @@ final class FieldManager
         $fieldTypeConfiguration = config('custom-fields.field_type_configuration');
 
         if ($fieldTypeConfiguration instanceof FieldTypeConfigurator) {
-            // Let the new configuration system handle enabled/disabled filtering
-            // This will be applied later in toCollection() method
-        } else {
-            // Fallback to old configuration system if new one not configured
-            $enabled = config('custom-fields.field_types.enabled', []);
-            $disabled = config('custom-fields.field_types.disabled', []);
-
-            if (! empty($enabled)) {
-                $allFieldTypes = array_filter($allFieldTypes, fn ($class): bool => in_array((new $class)->getKey(), $enabled));
-            }
-
-            if (! empty($disabled)) {
-                $allFieldTypes = array_filter($allFieldTypes, fn ($class): bool => ! in_array((new $class)->getKey(), $disabled));
-            }
+            // Filter field types based on configuration
+            $allFieldTypes = array_filter($allFieldTypes, function ($class) use ($fieldTypeConfiguration): bool {
+                $instance = new $class;
+                $config = $instance->configure();
+                $data = $config->data();
+                return $fieldTypeConfiguration->isFieldTypeAllowed($data->key);
+            });
         }
 
         $this->cachedFieldTypes = $allFieldTypes;
@@ -152,27 +145,11 @@ final class FieldManager
     public function toCollection(): FieldTypeCollection
     {
         $fieldTypes = [];
-        $fieldTypeConfiguration = config('custom-fields.field_type_configuration');
 
         foreach ($this->getFieldTypes() as $fieldTypeClass) {
             /** @var FieldTypeDefinitionInterface $fieldType */
             $fieldType = new $fieldTypeClass;
             $config = $fieldType->configure();
-
-            // Get the field type key from configurator data
-            $preliminaryData = $config->data();
-
-            // Skip if field type is disabled by new configuration system
-            if ($fieldTypeConfiguration instanceof FieldTypeConfigurator) {
-                $configuredFieldTypes = $fieldTypeConfiguration->getFieldTypes();
-                // Check if field type is globally disabled
-                if (! $configuredFieldTypes->has($preliminaryData->key) && ! $this->isFieldTypeAllowedByConfiguration($preliminaryData->key, $fieldTypeConfiguration)) {
-                    continue;
-                }
-            }
-
-            // Apply configuration overrides if they exist
-            $this->applyConfigurationOverrides($config, $preliminaryData->key);
 
             $data = $config->data();
 
@@ -183,50 +160,5 @@ final class FieldManager
         }
 
         return FieldTypeCollection::make($fieldTypes)->sortBy('priority', SORT_NATURAL)->values();
-    }
-
-    private function isFieldTypeAllowedByConfiguration(string $fieldTypeKey, FieldTypeConfigurator $config): bool
-    {
-        return $config->isFieldTypeAllowed($fieldTypeKey);
-    }
-
-    /**
-     * Apply configuration overrides from field_type_configuration to field type instances
-     */
-    private function applyConfigurationOverrides($configurator, string $fieldTypeKey): void
-    {
-        $fieldTypeConfiguration = config('custom-fields.field_type_configuration');
-
-        if (! $fieldTypeConfiguration instanceof FieldTypeConfigurator) {
-            return;
-        }
-
-        $configuredFieldTypes = $fieldTypeConfiguration->getFieldTypes();
-        $configuredFieldType = $configuredFieldTypes->get($fieldTypeKey);
-
-        if (! $configuredFieldType instanceof FieldSettings) {
-            return;
-        }
-
-        // Apply configuration overrides to core configurable properties
-        if ($configuredFieldType->getLabel() !== null) {
-            $configurator->label($configuredFieldType->getLabel());
-        }
-
-        if ($configuredFieldType->getIcon() !== null) {
-            $configurator->icon($configuredFieldType->getIcon());
-        }
-
-        if ($configuredFieldType->getPriority() !== null) {
-            $configurator->priority($configuredFieldType->getPriority());
-        }
-
-        if ($configuredFieldType->getDefaultValidationRules() !== []) {
-            $configurator->defaultValidationRules($configuredFieldType->getDefaultValidationRules());
-        }
-
-        if ($configuredFieldType->getAvailableValidationRules() !== []) {
-            $configurator->availableValidationRules($configuredFieldType->getAvailableValidationRules());
-        }
     }
 }

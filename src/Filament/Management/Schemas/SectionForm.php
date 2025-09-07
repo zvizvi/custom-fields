@@ -16,7 +16,8 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Unique;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Enums\CustomFieldSectionType;
-use Relaticle\CustomFields\Support\Utils;
+use Relaticle\CustomFields\Enums\CustomFieldsFeature;
+use Relaticle\CustomFields\FeatureSystem\FeatureManager;
 
 class SectionForm implements FormInterface, SectionFormInterface
 {
@@ -49,7 +50,7 @@ class SectionForm implements FormInterface, SectionFormInterface
                         ignoreRecord: true,
                         modifyRuleUsing: fn (Unique $rule, Get $get) => $rule
                             ->when(
-                                Utils::isTenantEnabled(),
+                                FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_MULTI_TENANCY),
                                 fn (Unique $rule) => $rule->where(
                                     config(
                                         'custom-fields.database.column_names.tenant_foreign_key'
@@ -91,7 +92,7 @@ class SectionForm implements FormInterface, SectionFormInterface
                         ignoreRecord: true,
                         modifyRuleUsing: fn (Unique $rule, Get $get) => $rule
                             ->when(
-                                Utils::isTenantEnabled(),
+                                FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_MULTI_TENANCY),
                                 fn (Unique $rule) => $rule->where(
                                     config(
                                         'custom-fields.database.column_names.tenant_foreign_key'

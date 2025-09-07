@@ -170,15 +170,6 @@ final class ValidationService
      */
     private function getFieldTypeDefaultRules(string $fieldType): array
     {
-        // Get from field type configuration first (highest priority)
-        $config = config('custom-fields.field_type_configuration');
-        if ($config && method_exists($config, 'getFieldTypes')) {
-            $configuredFieldType = $config->getFieldTypes()->get($fieldType);
-            if ($configuredFieldType) {
-                return $configuredFieldType->getDefaultValidationRules();
-            }
-        }
-
         // Get from field type definition's defaultValidationRules
         $fieldTypeManager = app(FieldManager::class);
         $fieldTypeInstance = $fieldTypeManager->getFieldTypeInstance($fieldType);

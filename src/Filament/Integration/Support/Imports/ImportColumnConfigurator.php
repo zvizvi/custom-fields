@@ -11,7 +11,6 @@ use Carbon\Carbon;
 use Exception;
 use Filament\Actions\Imports\Exceptions\RowImportFailedException;
 use Filament\Actions\Imports\ImportColumn;
-use Relaticle\CustomFields\Contracts\FieldImportExportInterface;
 use Relaticle\CustomFields\Data\ValidationRuleData;
 use Relaticle\CustomFields\Enums\FieldDataType;
 use Relaticle\CustomFields\Facades\Entities;
@@ -58,10 +57,6 @@ final class ImportColumnConfigurator
     {
         $fieldTypeManager = app(FieldManager::class);
         $fieldTypeInstance = $fieldTypeManager->getFieldTypeInstance($customField->type);
-
-        if (! $fieldTypeInstance instanceof FieldImportExportInterface) {
-            return false;
-        }
 
         // Let the field type configure itself
         $fieldTypeInstance->configureImportColumn($column);

@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Filament\Integration\Concerns\Forms;
 
+use Relaticle\CustomFields\Enums\CustomFieldsFeature;
+use Relaticle\CustomFields\FeatureSystem\FeatureManager;
 use Relaticle\CustomFields\Models\CustomField;
-use Relaticle\CustomFields\Support\Utils;
 
 /**
  * Trait for configuring color options in form components.
@@ -25,7 +26,7 @@ trait ConfiguresColorOptions
      */
     protected function hasColorOptionsEnabled(CustomField $customField): bool
     {
-        return Utils::isSelectOptionColorsFeatureEnabled()
+        return FeatureManager::isEnabled(CustomFieldsFeature::FIELD_OPTION_COLORS)
             && $customField->settings->enable_option_colors;
     }
 

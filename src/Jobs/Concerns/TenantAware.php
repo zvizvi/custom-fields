@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Jobs\Concerns;
 
+use Relaticle\CustomFields\Enums\CustomFieldsFeature;
+use Relaticle\CustomFields\FeatureSystem\FeatureManager;
 use Relaticle\CustomFields\Services\TenantContextService;
-use Relaticle\CustomFields\Support\Utils;
 
 trait TenantAware
 {
@@ -29,7 +30,7 @@ trait TenantAware
      */
     public function handleWithTenantContext(): void
     {
-        if (Utils::isTenantEnabled() && $this->tenantId !== null) {
+        if (FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_MULTI_TENANCY) && $this->tenantId !== null) {
             TenantContextService::withTenant($this->tenantId, function (): void {
                 $this->handle();
             });
@@ -43,7 +44,7 @@ trait TenantAware
      */
     public function __construct()
     {
-        if (Utils::isTenantEnabled()) {
+        if (FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_MULTI_TENANCY)) {
             $this->tenantId = TenantContextService::getCurrentTenantId();
         }
     }

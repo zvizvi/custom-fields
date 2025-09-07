@@ -7,7 +7,7 @@ namespace Relaticle\CustomFields\Support;
 use ReflectionClass;
 use ReflectionException;
 
-class Utils
+final class Utils
 {
     public static function getResourceCluster(): ?string
     {
@@ -19,11 +19,6 @@ class Utils
         return config('custom-fields.management.slug', 'custom-fields');
     }
 
-    public static function isResourceNavigationRegistered(): bool
-    {
-        return config('custom-fields.management.enabled', true);
-    }
-
     public static function getResourceNavigationSort(): ?int
     {
         return config('custom-fields.management.navigation_sort', -1);
@@ -32,54 +27,6 @@ class Utils
     public static function isResourceNavigationGroupEnabled(): bool
     {
         return config('custom-fields.management.navigation_group_enabled', true);
-    }
-
-    public static function isTableColumnsEnabled(): bool
-    {
-        return config('custom-fields.resource.table.columns', true);
-    }
-
-    public static function isTableColumnsToggleableEnabled(): bool
-    {
-        return config('custom-fields.resource.table.columns_toggleable', true);
-    }
-
-    public static function isTableColumnsToggleableHiddenByDefault(): bool
-    {
-        return true;
-    }
-
-    public static function isTableColumnsToggleableUserControlEnabled(): bool
-    {
-        return true;
-    }
-
-    public static function isTableFiltersEnabled(): bool
-    {
-        return config('custom-fields.resource.table.filters', true);
-    }
-
-    public static function isTenantEnabled(): bool
-    {
-        return config('custom-fields.tenant_aware', false);
-    }
-
-    public static function isConditionalVisibilityFeatureEnabled(): bool
-    {
-        return config('custom-fields.features.conditional_visibility', false);
-    }
-
-    public static function isValuesEncryptionFeatureEnabled(): bool
-    {
-        return config('custom-fields.features.encryption', false);
-    }
-
-    /**
-     * Check if the option colors feature is enabled.
-     */
-    public static function isSelectOptionColorsFeatureEnabled(): bool
-    {
-        return config('custom-fields.features.select_option_colors', false);
     }
 
     /**

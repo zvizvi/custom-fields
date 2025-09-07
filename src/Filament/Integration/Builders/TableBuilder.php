@@ -8,17 +8,18 @@ declare(strict_types=1);
 namespace Relaticle\CustomFields\Filament\Integration\Builders;
 
 use Illuminate\Support\Collection;
+use Relaticle\CustomFields\Enums\CustomFieldsFeature;
+use Relaticle\CustomFields\FeatureSystem\FeatureManager;
 use Relaticle\CustomFields\Filament\Integration\Factories\FieldColumnFactory;
 use Relaticle\CustomFields\Filament\Integration\Factories\FieldFilterFactory;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Services\Visibility\BackendVisibilityService;
-use Relaticle\CustomFields\Support\Utils;
 
 final class TableBuilder extends BaseBuilder
 {
     public function columns(): Collection
     {
-        if (! Utils::isTableColumnsEnabled()) {
+        if (! FeatureManager::isEnabled(CustomFieldsFeature::UI_TABLE_COLUMNS)) {
             return collect();
         }
 
@@ -54,7 +55,7 @@ final class TableBuilder extends BaseBuilder
 
     public function filters(): Collection
     {
-        if (! Utils::isTableFiltersEnabled()) {
+        if (! FeatureManager::isEnabled(CustomFieldsFeature::UI_TABLE_FILTERS)) {
             return collect();
         }
 

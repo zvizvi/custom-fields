@@ -14,31 +14,21 @@ use Illuminate\Support\Collection;
 use InvalidArgumentException;
 use Relaticle\CustomFields\Enums\EntityFeature;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
-use Spatie\LaravelData\Attributes\Validation\ArrayType;
-use Spatie\LaravelData\Attributes\Validation\Min;
-use Spatie\LaravelData\Attributes\Validation\Required;
 use Spatie\LaravelData\Data;
 
 final class EntityConfigurationData extends Data
 {
     public function __construct(
-        #[Required]
         public string $modelClass,
-        #[Required]
         public string $alias,
-        #[Required]
         public string $labelSingular,
-        #[Required]
         public string $labelPlural,
         public mixed $icon = 'heroicon-o-document',
         public string $primaryAttribute = 'id',
-        #[ArrayType]
         public array $searchAttributes = [],
         public ?string $resourceClass = null,
         public ?Collection $features = null,
-        #[Min(0)]
         public int $priority = 999,
-        #[ArrayType]
         public array $metadata = [],
     ) {
         $this->features ??= collect([
@@ -241,6 +231,27 @@ final class EntityConfigurationData extends Data
                     ? $resource::getNavigationGroup()
                     : null,
             ],
+        );
+    }
+
+    /**
+     * Recreate object from var_export() for Laravel config:cache
+     * Uses direct constructor instead of ::from() to avoid Laravel Data config dependency
+     */
+    public static function __set_state(array $properties): self
+    {
+        return new self(
+            modelClass: $properties['modelClass'],
+            alias: $properties['alias'],
+            labelSingular: $properties['labelSingular'],
+            labelPlural: $properties['labelPlural'],
+            icon: $properties['icon'] ?? 'heroicon-o-document',
+            primaryAttribute: $properties['primaryAttribute'] ?? 'id',
+            searchAttributes: $properties['searchAttributes'] ?? [],
+            resourceClass: $properties['resourceClass'] ?? null,
+            features: $properties['features'] ?? collect(),
+            priority: $properties['priority'] ?? 999,
+            metadata: $properties['metadata'] ?? []
         );
     }
 }

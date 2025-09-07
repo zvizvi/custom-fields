@@ -8,15 +8,14 @@ use Filament\Infolists\Components\Entry;
 use Filament\Infolists\Components\TextEntry;
 use Relaticle\CustomFields\Filament\Integration\Base\AbstractInfolistEntry;
 use Relaticle\CustomFields\Models\CustomField;
-use Relaticle\CustomFields\Support\FieldTypeUtils;
 
 final class DateTimeEntry extends AbstractInfolistEntry
 {
     public function make(CustomField $customField): Entry
     {
         return TextEntry::make($customField->getFieldName())
-            ->dateTime(FieldTypeUtils::getDateTimeFormat())
-            ->placeholder(FieldTypeUtils::getDateTimeFormat())
+            ->dateTime('Y-m-d H:i:s')
+            ->placeholder('Y-m-d H:i:s')
             ->label($customField->name)
             ->state(fn ($record) => $record->getCustomFieldValue($customField));
     }
