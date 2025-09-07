@@ -139,7 +139,6 @@ final class EntityConfigurator implements EntityConfigurationInterface
         return $this;
     }
 
-
     /**
      * Build the entities array from configured entity arrays
      */
@@ -216,7 +215,7 @@ final class EntityConfigurator implements EntityConfigurationInterface
     public static function __set_state(array $properties): self
     {
         $instance = new self;
-        
+
         foreach ($properties as $property => $value) {
             $instance->$property = $value;
         }

@@ -125,12 +125,11 @@ final class FieldTypeConfigurator
     public static function __set_state(array $properties): self
     {
         $instance = new self;
-        
+
         foreach ($properties as $property => $value) {
             $instance->$property = $value;
         }
 
         return $instance;
     }
-
 }

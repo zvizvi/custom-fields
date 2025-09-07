@@ -313,7 +313,7 @@ class CustomFieldsMigrator implements CustomsFieldsMigrators
         try {
             return CustomFieldsType::getFieldType($this->customFieldData->type)->dataType->isChoiceField();
 
-        }catch (Throwable) {
+        } catch (Throwable) {
             dd($this->customFieldData, $this->customFieldData->type);
         }
     }

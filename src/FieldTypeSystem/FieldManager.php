@@ -113,6 +113,7 @@ final class FieldManager
                 $instance = new $class;
                 $config = $instance->configure();
                 $data = $config->data();
+
                 return $fieldTypeConfiguration->isFieldTypeAllowed($data->key);
             });
         }

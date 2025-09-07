@@ -17,7 +17,7 @@ final class FeatureManager
     public static function isEnabled(CustomFieldsFeature $feature): bool
     {
         $config = config('custom-fields.features');
-        
+
         return $config->isEnabled($feature);
     }
 }
