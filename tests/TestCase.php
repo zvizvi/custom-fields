@@ -23,8 +23,8 @@ use Orchestra\Testbench\TestCase as BaseTestCase;
 use Override;
 use Postare\BladeMdi\BladeMdiServiceProvider;
 use Relaticle\CustomFields\CustomFieldsServiceProvider;
-use Relaticle\CustomFields\Entities\Configuration\EntityConfiguration;
-use Relaticle\CustomFields\Entities\Configuration\EntityModel;
+use Relaticle\CustomFields\EntitySystem\EntityConfigurator;
+use Relaticle\CustomFields\EntitySystem\EntityModel;
 use Relaticle\CustomFields\Enums\EntityFeature;
 use Relaticle\CustomFields\Tests\database\factories\UserFactory;
 use Relaticle\CustomFields\Tests\Fixtures\Models\Post;
@@ -113,7 +113,7 @@ class TestCase extends BaseTestCase
 
         // Entity configuration for tests using the new builder
         config()->set('custom-fields.entity_configuration',
-            EntityConfiguration::configure()
+            EntityConfigurator::configure()
                 ->autoDiscover(false)
                 ->models([
                     EntityModel::for(Post::class)

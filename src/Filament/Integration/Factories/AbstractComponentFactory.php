@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Filament\Integration\Factories;
 
+use Closure;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Container\Container;
 use InvalidArgumentException;
@@ -40,6 +41,7 @@ abstract class AbstractComponentFactory
 
     /**
      * Create component instance for given field.
+     * Supports both traditional class-based components and modern inline Closure components.
      *
      * @throws BindingResolutionException
      * @throws InvalidArgumentException
@@ -53,29 +55,34 @@ abstract class AbstractComponentFactory
             throw new InvalidArgumentException('Unknown field type: '.$customField->type);
         }
 
-        // Get the component class dynamically based on the component key
-        $componentClass = match ($componentKey) {
+        // Get the component definition dynamically based on the component key
+        $componentDefinition = match ($componentKey) {
             'form_component' => $customFieldType->formComponent,
             'table_column' => $customFieldType->tableColumn,
             'infolist_entry' => $customFieldType->infolistEntry,
             default => throw new InvalidArgumentException('Invalid component key: '.$componentKey)
         };
 
-        if (! $componentClass || ! class_exists($componentClass)) {
+        if ($componentDefinition === null) {
+            throw new InvalidArgumentException(sprintf('Field type "%s" does not support %s', $customField->type, $componentKey));
+        }
+
+        // Handle traditional component class
+        if (! class_exists($componentDefinition)) {
             throw new InvalidArgumentException(sprintf('Component class not found for %s of type %s', $componentKey, $customField->type));
         }
 
-        if (! isset($this->instanceCache[$componentClass])) {
-            $component = $this->container->make($componentClass);
+        if (! isset($this->instanceCache[$componentDefinition])) {
+            $component = $this->container->make($componentDefinition);
 
             if (! $component instanceof $expectedInterface) {
-                throw new RuntimeException(sprintf('Component class %s must implement %s', $componentClass, $expectedInterface));
+                throw new RuntimeException(sprintf('Component class %s must implement %s', $componentDefinition, $expectedInterface));
             }
 
-            $this->instanceCache[$componentClass] = $component;
+            $this->instanceCache[$componentDefinition] = $component;
         }
 
-        return $this->instanceCache[$componentClass];
+        return $this->instanceCache[$componentDefinition];
     }
 
     /**

@@ -17,7 +17,7 @@ use Relaticle\CustomFields\Filament\Integration\CustomFieldsManager;
  * @method static ImporterBuilder importer()
  * @method static ExporterBuilder exporter()
  *
- * @see FieldTypeManager
+ * @see CustomFieldsManager
  */
 class CustomFields extends Facade
 {

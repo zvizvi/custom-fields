@@ -8,7 +8,6 @@ use Closure;
 use Filament\Tables\Columns\Column as BaseColumn;
 use Filament\Tables\Columns\TextColumn as BaseTextColumn;
 use Relaticle\CustomFields\Filament\Integration\Base\AbstractTableColumn;
-use Relaticle\CustomFields\Filament\Integration\Concerns\Forms\ConfiguresFieldName;
 use Relaticle\CustomFields\Filament\Integration\Concerns\Tables\ConfiguresColumnLabel;
 use Relaticle\CustomFields\Filament\Integration\Concerns\Tables\ConfiguresSearchable;
 use Relaticle\CustomFields\Filament\Integration\Concerns\Tables\ConfiguresSortable;
@@ -18,7 +17,6 @@ use Relaticle\CustomFields\Support\FieldTypeUtils;
 class DateTimeColumn extends AbstractTableColumn
 {
     use ConfiguresColumnLabel;
-    use ConfiguresFieldName;
     use ConfiguresSearchable;
     use ConfiguresSortable;
 
@@ -26,7 +24,7 @@ class DateTimeColumn extends AbstractTableColumn
 
     public function make(CustomField $customField): BaseColumn
     {
-        $column = BaseTextColumn::make($this->getFieldName($customField));
+        $column = BaseTextColumn::make($customField->getFieldName());
 
         $this->configureLabel($column, $customField);
         $this->configureSortable($column, $customField);

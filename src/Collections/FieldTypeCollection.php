@@ -34,4 +34,9 @@ final class FieldTypeCollection extends Collection
     {
         return $this->filter(fn (FieldTypeData $fieldType): bool => $fieldType->dataType === $dataType);
     }
+
+    public function acceptsArbitraryValues(): static
+    {
+        return $this->filter(fn (FieldTypeData $fieldType): bool => $fieldType->acceptsArbitraryValues);
+    }
 }

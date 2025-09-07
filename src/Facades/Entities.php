@@ -10,8 +10,8 @@ namespace Relaticle\CustomFields\Facades;
 use Closure;
 use Illuminate\Support\Facades\Facade;
 use Relaticle\CustomFields\Data\EntityConfigurationData;
-use Relaticle\CustomFields\Entities\EntityCollection;
-use Relaticle\CustomFields\Entities\EntityManager;
+use Relaticle\CustomFields\EntitySystem\EntityCollection;
+use Relaticle\CustomFields\EntitySystem\EntityManager;
 
 /**
  * @method static EntityCollection getEntities()

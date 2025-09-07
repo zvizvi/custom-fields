@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Relaticle\CustomFields\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Relaticle\CustomFields\Contracts\EntityConfigurationInterface;
 use Relaticle\CustomFields\Contracts\EntityManagerInterface;
 use Relaticle\CustomFields\Data\EntityConfigurationData;
-use Relaticle\CustomFields\Entities\Configuration\Contracts\EntityConfigurationInterface;
-use Relaticle\CustomFields\Entities\EntityManager;
+use Relaticle\CustomFields\EntitySystem\EntityManager;
 use Relaticle\CustomFields\Enums\EntityFeature;
 
 class EntityServiceProvider extends ServiceProvider

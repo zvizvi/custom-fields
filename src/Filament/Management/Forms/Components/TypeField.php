@@ -26,7 +26,6 @@ class TypeField extends Select
             ->noSearchResultsMessage(__('No field types found'))
             ->searchingMessage(__('Searching...'))
             ->getSearchResultsUsing(fn (string $search): array => $this->getSearchResults($search))
-            ->gridContainer()
             ->options(fn (): array => $this->getAllFormattedOptions());
     }
 

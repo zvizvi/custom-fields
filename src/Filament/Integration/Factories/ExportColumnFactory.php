@@ -20,7 +20,7 @@ final readonly class ExportColumnFactory
 
     public function create(CustomField $customField): ExportColumn
     {
-        return ExportColumn::make('custom_fields.'.$customField->code)
+        return ExportColumn::make($customField->getFieldName())
             ->label($customField->name)
             ->state(function ($record) use ($customField) {
                 return $this->valueResolver->resolve(

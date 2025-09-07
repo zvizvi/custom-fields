@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Filament\Integration\Factories;
 
+use Closure;
 use Filament\Tables\Columns\Column;
+use InvalidArgumentException;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Support\Utils;
 
@@ -12,9 +14,22 @@ final class FieldColumnFactory
 {
     public function create(CustomField $customField): Column
     {
-        $component = app($customField->typeData->tableColumn);
+        $tableColumnDefinition = $customField->typeData->tableColumn;
 
-        return $component->make($customField)
+        if ($tableColumnDefinition === null) {
+            throw new InvalidArgumentException(sprintf("Field type '%s' does not support table columns.", $customField->type));
+        }
+
+        // Handle inline component (Closure)
+        if ($tableColumnDefinition instanceof Closure) {
+            $column = $tableColumnDefinition($customField);
+        } else {
+            // Handle traditional component class
+            $component = app($tableColumnDefinition);
+            $column = $component->make($customField);
+        }
+
+        return $column
             ->toggleable(
                 condition: Utils::isTableColumnsToggleableEnabled(),
                 isToggledHiddenByDefault: $customField->settings->list_toggleable_hidden

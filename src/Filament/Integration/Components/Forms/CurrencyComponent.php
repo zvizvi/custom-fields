@@ -14,7 +14,7 @@ final readonly class CurrencyComponent extends AbstractFormComponent
 {
     public function create(CustomField $customField): Field
     {
-        return TextInput::make($this->getFieldName($customField))
+        return TextInput::make($customField->getFieldName())
             ->prefix('$')
             ->numeric()
             ->inputMode('decimal')

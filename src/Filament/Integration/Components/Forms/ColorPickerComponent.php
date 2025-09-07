@@ -13,6 +13,6 @@ final readonly class ColorPickerComponent extends AbstractFormComponent
 {
     public function create(CustomField $customField): Field
     {
-        return ColorPicker::make($this->getFieldName($customField));
+        return ColorPicker::make($customField->getFieldName());
     }
 }

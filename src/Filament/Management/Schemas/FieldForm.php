@@ -25,7 +25,6 @@ use Illuminate\Validation\Rules\Unique;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Facades\CustomFieldsType;
 use Relaticle\CustomFields\Facades\Entities;
-use Relaticle\CustomFields\FieldTypes\FieldTypeManager;
 use Relaticle\CustomFields\Filament\Management\Forms\Components\CustomFieldValidationComponent;
 use Relaticle\CustomFields\Filament\Management\Forms\Components\TypeField;
 use Relaticle\CustomFields\Filament\Management\Forms\Components\VisibilityComponent;
@@ -66,10 +65,7 @@ class FieldForm implements FormInterface
                     return false;
                 }
 
-                $fieldTypeInstance = app(FieldTypeManager::class)
-                    ->getFieldTypeInstance($fieldType);
-
-                return $fieldTypeInstance?->acceptsArbitraryValues() ?? false;
+                return CustomFieldsType::toCollection()->acceptsArbitraryValues()->pluck('key')->toArray();
             })
             ->hiddenLabel()
             ->defaultItems(1)
@@ -82,6 +78,7 @@ class FieldForm implements FormInterface
                 fn (Get $get): bool => $get('options_lookup_type') === 'options'
                     && $get('type') !== null
                     && CustomFieldsType::getFieldType($get('type'))->dataType->isChoiceField()
+                    && ! CustomFieldsType::getFieldType($get('type'))->withoutUserOptions
             )
             ->mutateRelationshipDataBeforeCreateUsing(function (
                 array $data
@@ -406,6 +403,7 @@ class FieldForm implements FormInterface
                             ->visible(
                                 fn (Get $get): bool => $get('type') !== null
                                     && CustomFieldsType::getFieldType($get('type'))->dataType->isChoiceField()
+                                    && ! CustomFieldsType::getFieldType($get('type'))->withoutUserOptions
                             )
                             ->disabled(
                                 fn (
@@ -424,12 +422,14 @@ class FieldForm implements FormInterface
                             ->afterStateHydrated(function (
                                 Select $component,
                                 $state,
-                                $record
+                                $record,
+                                Get $get
                             ): void {
                                 if (blank($state)) {
                                     $optionsLookupType = $record?->lookup_type
                                         ? 'lookup'
                                         : 'options';
+
                                     $component->state($optionsLookupType);
                                 }
                             })

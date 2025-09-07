@@ -7,7 +7,6 @@ namespace Relaticle\CustomFields\Filament\Integration\Components\Tables\Columns;
 use Filament\Tables\Columns\Column as BaseColumn;
 use Filament\Tables\Columns\TextColumn as BaseTextColumn;
 use Relaticle\CustomFields\Filament\Integration\Base\AbstractTableColumn;
-use Relaticle\CustomFields\Filament\Integration\Concerns\Forms\ConfiguresFieldName;
 use Relaticle\CustomFields\Filament\Integration\Concerns\Shared\ConfiguresBadgeColors;
 use Relaticle\CustomFields\Filament\Integration\Concerns\Tables\ConfiguresColumnLabel;
 use Relaticle\CustomFields\Filament\Integration\Concerns\Tables\ConfiguresSortable;
@@ -19,14 +18,13 @@ final class SingleChoiceColumn extends AbstractTableColumn
 {
     use ConfiguresBadgeColors;
     use ConfiguresColumnLabel;
-    use ConfiguresFieldName;
     use ConfiguresSortable;
 
     public function __construct(public LookupSingleValueResolver $valueResolver) {}
 
     public function make(CustomField $customField): BaseColumn
     {
-        $column = BaseTextColumn::make($this->getFieldName($customField));
+        $column = BaseTextColumn::make($customField->getFieldName());
 
         $this->configureLabel($column, $customField);
         $this->configureSortable($column, $customField);

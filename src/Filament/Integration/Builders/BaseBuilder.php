@@ -100,7 +100,13 @@ abstract class BaseBuilder
             }])
             ->get();
 
-        $filteredSections = $sections->filter(fn (CustomFieldSection $section) => $section->fields->isNotEmpty());
+        $filteredSections = $sections
+            ->map(function (CustomFieldSection $section): CustomFieldSection {
+                $section->setRelation('fields', $section->fields->filter(fn ($field): bool => $field->typeData !== null));
+
+                return $section;
+            })
+            ->filter(fn (CustomFieldSection $section) => $section->fields->isNotEmpty());
 
         $sectionsCache[$cacheKey] = $filteredSections;
 

@@ -5,21 +5,20 @@ declare(strict_types=1);
 namespace Relaticle\CustomFields\Facades;
 
 use Closure;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Facade;
-use Relaticle\CustomFields\Data\FieldTypeData;
-use Relaticle\CustomFields\FieldTypes\FieldTypeManager;
+use Relaticle\CustomFields\Collections\FieldTypeCollection;
+use Relaticle\CustomFields\FieldTypeSystem\FieldManager;
 
 /**
- * @method static Collection<string, FieldTypeData> toCollection()
+ * @method static FieldTypeCollection toCollection()
  *
- * @see FieldTypeManager
+ * @see FieldManager
  */
 class CustomFieldsType extends Facade
 {
     protected static function getFacadeAccessor(): string
     {
-        return FieldTypeManager::class;
+        return FieldManager::class;
     }
 
     /**
@@ -27,7 +26,7 @@ class CustomFieldsType extends Facade
      */
     public static function register(array|Closure $fieldTypes): void
     {
-        static::resolved(function (FieldTypeManager $fieldTypeManager) use ($fieldTypes): void {
+        static::resolved(function (FieldManager $fieldTypeManager) use ($fieldTypes): void {
             $fieldTypeManager->register($fieldTypes);
         });
     }

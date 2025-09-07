@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Filament\Integration\Factories;
 
+use Closure;
 use Illuminate\Contracts\Container\BindingResolutionException;
+use InvalidArgumentException;
 use Relaticle\CustomFields\Models\CustomField;
 
 final class FieldFilterFactory
@@ -14,7 +16,19 @@ final class FieldFilterFactory
      */
     public function create(CustomField $customField)
     {
-        $component = app($customField->typeData->tableFilter);
+        $tableFilterDefinition = $customField->typeData->tableFilter;
+
+        if ($tableFilterDefinition === null) {
+            throw new InvalidArgumentException(sprintf("Field type '%s' does not support table filters.", $customField->type));
+        }
+
+        // Handle inline component (Closure)
+        if ($tableFilterDefinition instanceof Closure) {
+            return $tableFilterDefinition($customField);
+        }
+
+        // Handle traditional component class
+        $component = app($tableFilterDefinition);
 
         return $component->make($customField);
     }

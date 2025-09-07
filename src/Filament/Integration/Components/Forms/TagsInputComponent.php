@@ -16,7 +16,7 @@ final readonly class TagsInputComponent extends AbstractFormComponent
 
     public function create(CustomField $customField): Field
     {
-        $field = TagsInput::make($this->getFieldName($customField));
+        $field = TagsInput::make($customField->getFieldName());
 
         // Get suggestions from lookup or field options
         $suggestions = $this->getFieldOptions($customField);

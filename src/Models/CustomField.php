@@ -165,4 +165,9 @@ class CustomField extends Model
     {
         return CustomFields::newValueModel()::getValueColumn($this->type);
     }
+
+    public function getFieldName(): string
+    {
+        return 'custom_fields.'.$this->code;
+    }
 }

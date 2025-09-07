@@ -1,8 +1,11 @@
 <?php
 
-use Relaticle\CustomFields\Entities\Configuration\EntityConfiguration;
-use Relaticle\CustomFields\Entities\Configuration\EntityModel;
-use Relaticle\CustomFields\Enums\EntityFeature;
+declare(strict_types=1);
+
+use Relaticle\CustomFields\EntitySystem\EntityConfigurator;
+use Relaticle\CustomFields\Enums\ValidationRule;
+use Relaticle\CustomFields\FieldTypeSystem\FieldSettings;
+use Relaticle\CustomFields\FieldTypeSystem\FieldTypeConfigurator;
 
 return [
     /*
@@ -14,7 +17,7 @@ return [
     | clean, type-safe fluent builder interface.
     |
     */
-    'entity_configuration' => EntityConfiguration::configure()
+    'entity_configuration' => EntityConfigurator::configure()
         ->discover(app_path('Models'))
         ->cache(true)
         ->models([
@@ -29,6 +32,56 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Advanced Field Type Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Configure field types using the powerful fluent builder API.
+    | This provides advanced control over validation, security, and behavior.
+    |
+    */
+    'field_type_configuration' => FieldTypeConfigurator::configure()
+        // Control which field types are available globally
+        ->enabled([]) // Empty = all enabled, or specify: ['text', 'email', 'select']
+        ->disabled(['rich-editor']) // Disable specific field types
+        ->discover(true)
+        ->cache(enabled: true, ttl: 3600)
+        ->fieldTypes([
+            // Example: Configure file upload field type with Filament-compatible settings
+            FieldSettings::for('file-upload')
+                ->label('File Upload')
+                ->icon('heroicon-o-paper-clip')
+                ->priority(17)
+                ->defaultValidationRules([ValidationRule::FILE])
+                ->availableValidationRules([
+                    ValidationRule::REQUIRED,
+                    ValidationRule::FILE,
+                    ValidationRule::MIMES,
+                    ValidationRule::MIMETYPES,
+                    ValidationRule::MAX,
+                ])
+                ->settings([
+                    // Direct Filament FileUpload method calls - any method can be used
+                    'disk' => 'public',
+                    'directory' => 'uploads/custom-fields',
+                    'maxSize' => 10240, // 10MB
+                    'acceptedFileTypes' => [
+                        'application/pdf',
+                        'application/msword',
+                        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                        //                        'image/jpeg',
+                        //                        'image/png',
+                    ],
+                    'multiple' => false,
+                    'maxFiles' => 1,
+                    'previewable' => true,
+                    'downloadable' => true,
+                    'openable' => true,
+                    'preserveFilenames' => false, // Security: don't preserve original names
+                ]),
+        ]),
+
+    /*
+    |--------------------------------------------------------------------------
     | Features Configuration
     |--------------------------------------------------------------------------
     |
@@ -39,38 +92,6 @@ return [
         'conditional_visibility' => true,
         'encryption' => true,
         'select_option_colors' => true,
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Field Types Configuration
-    |--------------------------------------------------------------------------
-    |
-    | Configure which field types are available and their behavior.
-    |
-    */
-    'field_types' => [
-        'enabled' => [
-            // Empty array = all field types enabled (default)
-            // Specify field type keys to allow only those types:
-            // 'text', 'textarea', 'select', 'checkbox', 'number', 'date'
-        ],
-        'disabled' => [
-            // Specify field type keys to disable:
-            // 'rich_editor', 'markdown_editor'
-        ],
-        'configuration' => [
-            'date' => [
-                'native' => false,
-                'format' => 'Y-m-d',
-                'display_format' => null,
-            ],
-            'date_time' => [
-                'native' => false,
-                'format' => 'Y-m-d H:i:s',
-                'display_format' => null,
-            ],
-        ],
     ],
 
     /*

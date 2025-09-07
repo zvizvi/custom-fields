@@ -7,8 +7,12 @@ namespace Relaticle\CustomFields\Services\Visibility;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Relaticle\CustomFields\CustomFields;
+use Relaticle\CustomFields\Facades\CustomFieldsType;
+use Relaticle\CustomFields\Facades\Entities;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 use Relaticle\CustomFields\Models\CustomField;
+use Relaticle\CustomFields\Services\Options\ComponentOptionsExtractor;
+use Throwable;
 
 /**
  * Backend Visibility Service
@@ -23,6 +27,7 @@ final readonly class BackendVisibilityService
 {
     public function __construct(
         private CoreVisibilityLogicService $coreLogic,
+        private ComponentOptionsExtractor $optionsExtractor,
     ) {}
 
     /**
@@ -203,6 +208,7 @@ final readonly class BackendVisibilityService
 
     /**
      * Get field options for optionable fields.
+     * Universal method that handles field type options, lookup options, and database options.
      *
      * @return array<string, string>
      */
@@ -219,6 +225,20 @@ final readonly class BackendVisibilityService
             return [];
         }
 
+        // Priority 1: Check for component-provided options (dynamic extraction)
+        $fieldTypeData = CustomFieldsType::getFieldType($field->type);
+        if ($fieldTypeData?->withoutUserOptions) {
+            $options = $this->optionsExtractor->extractOptionsFromFieldType($field->type, $field);
+
+            return $this->normalizeOptionsForVisibility($options);
+        }
+
+        // Priority 2: Handle lookup types (existing functionality)
+        if ($field->lookup_type) {
+            return $this->getLookupOptions($field->lookup_type);
+        }
+
+        // Priority 3: Fallback to database options (existing functionality)
         return $field
             ->options()
             ->orderBy('sort_order')
@@ -246,5 +266,64 @@ final readonly class BackendVisibilityService
         }
 
         return $this->coreLogic->getFieldMetadata($field);
+    }
+
+    /**
+     * Normalize field options for visibility dropdown usage.
+     * Preserves original keys (IDs) while showing display values (names).
+     *
+     * @param  array<string|int, mixed>  $options
+     * @return array<string, string>
+     */
+    private function normalizeOptionsForVisibility(array $options): array
+    {
+        if ($options === []) {
+            return [];
+        }
+
+        $normalized = [];
+
+        foreach ($options as $key => $value) {
+            // Determine the display value
+            $displayValue = match (true) {
+                is_string($value) => $value,
+                is_object($value) && method_exists($value, '__toString') => (string) $value,
+                is_scalar($value) => (string) $value,
+                default => (string) $key
+            };
+
+            // Preserve original key (ID) and use display value (name) as option text
+            // This allows visibility conditions to compare against actual stored values
+            $normalized[(string) $key] = $displayValue;
+        }
+
+        return $normalized;
+    }
+
+    /**
+     * Get lookup options from entity management system.
+     *
+     * @return array<string, string>
+     */
+    private function getLookupOptions(string $lookupType): array
+    {
+        try {
+            $entity = Entities::getEntity($lookupType);
+
+            if (! $entity) {
+                return [];
+            }
+
+            $primaryAttribute = $entity->getPrimaryAttribute();
+
+            return $entity->newQuery()
+                ->limit(50)
+                ->pluck($primaryAttribute, $primaryAttribute)
+                ->toArray();
+
+        } catch (Throwable $throwable) {
+            // Log error in production, return empty array
+            return [];
+        }
     }
 }
