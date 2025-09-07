@@ -3,8 +3,6 @@
 declare(strict_types=1);
 
 use Relaticle\CustomFields\EntitySystem\EntityConfigurator;
-use Relaticle\CustomFields\Enums\ValidationRule;
-use Relaticle\CustomFields\FieldTypeSystem\FieldSettings;
 use Relaticle\CustomFields\FieldTypeSystem\FieldTypeConfigurator;
 
 return [
@@ -42,42 +40,33 @@ return [
     'field_type_configuration' => FieldTypeConfigurator::configure()
         // Control which field types are available globally
         ->enabled([]) // Empty = all enabled, or specify: ['text', 'email', 'select']
-        ->disabled(['rich-editor']) // Disable specific field types
+        ->disabled(['rich-editor', 'file-upload']) // Disable specific field types
         ->discover(true)
         ->cache(enabled: true, ttl: 3600)
         ->fieldTypes([
             // Example: Configure file upload field type with Filament-compatible settings
-            FieldSettings::for('file-upload')
-                ->label('File Upload')
-                ->icon('heroicon-o-paper-clip')
-                ->priority(17)
-                ->defaultValidationRules([ValidationRule::FILE])
-                ->availableValidationRules([
-                    ValidationRule::REQUIRED,
-                    ValidationRule::FILE,
-                    ValidationRule::MIMES,
-                    ValidationRule::MIMETYPES,
-                    ValidationRule::MAX,
-                ])
-                ->settings([
-                    // Direct Filament FileUpload method calls - any method can be used
-                    'disk' => 'public',
-                    'directory' => 'uploads/custom-fields',
-                    'maxSize' => 10240, // 10MB
-                    'acceptedFileTypes' => [
-                        'application/pdf',
-                        'application/msword',
-                        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                        //                        'image/jpeg',
-                        //                        'image/png',
-                    ],
-                    'multiple' => false,
-                    'maxFiles' => 1,
-                    'previewable' => true,
-                    'downloadable' => true,
-                    'openable' => true,
-                    'preserveFilenames' => false, // Security: don't preserve original names
-                ]),
+            //            Relaticle\CustomFields\FieldTypeSystem\FieldSettings::for('file-upload')
+            //                ->label('File Upload')
+            //                ->icon('heroicon-o-paper-clip')
+            //                ->priority(17)
+            //                ->defaultValidationRules([ValidationRule::FILE])
+            //                ->availableValidationRules([
+            //                    Relaticle\CustomFields\Enums\ValidationRule::REQUIRED,
+            //                    Relaticle\CustomFields\Enums\ValidationRule::MAX,
+            //                ])
+            //                ->settings([
+            //                    // Direct Filament FileUpload method calls - any method can be used
+            //                    'disk' => 'public',
+            //                    'directory' => 'uploads/custom-fields',
+            //                    'maxSize' => 10240, // 10MB
+            //                    'acceptedFileTypes' => [
+            //                        'application/pdf',
+            //                        // 'image/png',
+            //                    ],
+            //                    'multiple' => false,
+            //                    'maxFiles' => 1,
+            //                    'preserveFilenames' => false, // Security: don't preserve original names
+            //                ]),
         ]),
 
     /*
