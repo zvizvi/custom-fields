@@ -10,9 +10,9 @@
 
 A powerful Laravel/Filament plugin for adding dynamic custom fields to any Eloquent model without database migrations.
 
-## ✨ Features
+## Features
 
-- **18+ Field Types** - Text, number, date, select, rich editor, and more
+- **20+ Field Types** - Text, date, select, file upload, rich editor, and more
 - **Conditional Visibility** - Show/hide fields based on other field values
 - **Multi-tenancy** - Complete tenant isolation and context management
 - **Filament Integration** - Forms, tables, infolists, and admin interface
@@ -20,12 +20,12 @@ A powerful Laravel/Filament plugin for adding dynamic custom fields to any Eloqu
 - **Security** - Optional field encryption and type-safe validation
 - **Extensible** - Custom field types and automatic discovery
 
-## 🔧 Requirements
+## Requirements
 
 - PHP 8.3+
 - Laravel via Filament 4.0+
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Integrating Custom Fields Plugin into a panel
 
@@ -73,15 +73,15 @@ public function form(Schema $schema): Form
 }
 ```
 
-## 📚 Documentation
+## Documentation
 
 For complete installation instructions, configuration options, and examples, visit our [documentation](https://custom-fields.relaticle.com/).
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome! Please see our [contributing guide](https://custom-fields.relaticle.com/help-support/contributing) in the documentation.
 
-## 📄 Licensing
+## Licensing
 
 This plugin is dual-licensed: Open Source (AGPL-3.0) for open source projects, and Commercial License for closed-source projects.
 
