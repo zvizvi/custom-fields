@@ -83,8 +83,8 @@ Contributions are welcome! Please see our contributing guide in the documentatio
 
 ## 📄 Licensing
 
-This plugin is dual-licensed: **Open Source (AGPL-3.0)** for open source projects, and **Commercial License** for closed-source projects.
+This plugin is dual-licensed: Open Source (AGPL-3.0) for open source projects, and Commercial License for closed-source projects.
 
-**AGPL-3.0 requires your entire application to be open source.** For private/closed-source projects, you need a commercial license.
+AGPL-3.0 requires your entire application to be open source. For private/closed-source projects, you need a commercial license.
 
-See our documentation for licensing details.  
+Please take a look at our documentation for licensing details.  
