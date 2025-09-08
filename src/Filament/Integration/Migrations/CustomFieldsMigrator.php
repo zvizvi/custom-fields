@@ -269,7 +269,7 @@ class CustomFieldsMigrator implements CustomsFieldsMigrators
     ): void {
         $customField->options()->createMany(
             collect($options)
-                ->map(function ($value, $key) {
+                ->map(function (mixed $value, mixed $key) {
                     $data = [
                         'name' => $value,
                         'sort_order' => $key,
@@ -300,7 +300,7 @@ class CustomFieldsMigrator implements CustomsFieldsMigrators
             ->where('code', $code)
             ->when(
                 FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_MULTI_TENANCY) && $tenantId,
-                fn ($query) => $query->where(
+                fn (mixed $query) => $query->where(
                     config('custom-fields.database.column_names.tenant_foreign_key'),
                     $tenantId
                 )

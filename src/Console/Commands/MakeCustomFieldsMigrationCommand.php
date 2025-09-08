@@ -37,8 +37,11 @@ class MakeCustomFieldsMigrationCommand extends GeneratorCommand
 
     /**
      * Get the destination class path.
+     *
+     * @param string $name
+     * @return string
      */
-    protected function getPath($name): string
+    protected function getPath(string $name): string
     {
         $path = $this->option('path') ?? config('custom-fields.database.migrations_path', database_path('custom-fields'));
 
@@ -69,16 +72,21 @@ class MakeCustomFieldsMigrationCommand extends GeneratorCommand
 
     /**
      * Get the default namespace for the class.
+     *
+     * @param  string  $rootNamespace
      */
-    protected function getDefaultNamespace($rootNamespace): string
+    protected function getDefaultNamespace(string $rootNamespace): string
     {
         return '';
     }
 
     /**
      * Build the class with the given name.
+     *
+     * @param string $name
+     * @return string
      */
-    protected function buildClass($name): string
+    protected function buildClass(string $name): string
     {
         $stub = $this->files->get($this->getStub());
 
@@ -87,8 +95,12 @@ class MakeCustomFieldsMigrationCommand extends GeneratorCommand
 
     /**
      * Replace the class name for the given stub.
+     *
+     * @param string $stub
+     * @param string $name
+     * @return string
      */
-    protected function replaceClass($stub, $name): string
+    protected function replaceClass(string $stub, string $name): string
     {
         return str_replace(['{{ class }}', '{{class}}'], class_basename($name), $stub);
     }

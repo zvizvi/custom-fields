@@ -41,7 +41,7 @@ final class ManageCustomFieldSection extends Component implements HasActions, Ha
     }
 
     #[On('field-width-updated')]
-    public function fieldWidthUpdated(int|string $fieldId, $width): void
+    public function fieldWidthUpdated(int|string $fieldId, int $width): void
     {
         // Update the width
         $model = CustomFields::newCustomFieldModel();

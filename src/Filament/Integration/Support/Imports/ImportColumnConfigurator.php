@@ -15,6 +15,7 @@ use Relaticle\CustomFields\Data\ValidationRuleData;
 use Relaticle\CustomFields\Enums\FieldDataType;
 use Relaticle\CustomFields\Facades\Entities;
 use Relaticle\CustomFields\Models\CustomField;
+use Relaticle\CustomFields\Models\CustomFieldOption;
 use Throwable;
 
 /**
@@ -89,7 +90,7 @@ final class ImportColumnConfigurator
      */
     private function configureLookup(ImportColumn $column, CustomField $customField, bool $multiple): void
     {
-        $column->castStateUsing(function ($state) use ($customField, $multiple): array|null|int {
+        $column->castStateUsing(function (mixed $state) use ($customField, $multiple): array|null|int {
             if (blank($state)) {
                 return $multiple ? [] : null;
             }
@@ -182,7 +183,7 @@ final class ImportColumnConfigurator
      */
     private function configureChoices(ImportColumn $column, CustomField $customField, bool $multiple): void
     {
-        $column->castStateUsing(function ($state) use ($customField, $multiple): array|null|int {
+        $column->castStateUsing(function (mixed $state) use ($customField, $multiple): array|null|int {
             if (blank($state)) {
                 return $multiple ? [] : null;
             }
@@ -215,7 +216,7 @@ final class ImportColumnConfigurator
         // Try case-insensitive match
         if (! $choice) {
             $choice = $customField->options->first(
-                fn ($opt): bool => strtolower((string) $opt->name) === strtolower($value)
+                fn (CustomFieldOption $opt): bool => strtolower((string) $opt->name) === strtolower($value)
             );
         }
 
@@ -267,7 +268,7 @@ final class ImportColumnConfigurator
      */
     private function configureDate(ImportColumn $column): void
     {
-        $column->castStateUsing(function ($state): ?string {
+        $column->castStateUsing(function (mixed $state): ?string {
             if (blank($state)) {
                 return null;
             }
@@ -291,7 +292,7 @@ final class ImportColumnConfigurator
      */
     private function configureDateTime(ImportColumn $column): void
     {
-        $column->castStateUsing(function ($state): ?string {
+        $column->castStateUsing(function (mixed $state): ?string {
             if (blank($state)) {
                 return null;
             }
@@ -382,7 +383,7 @@ final class ImportColumnConfigurator
         // Apply validation rules
         $this->applyValidationRules($column, $customField);
 
-        $column->fillRecordUsing(function ($state, $record) use ($customField): void {
+        $column->fillRecordUsing(function (mixed $state, mixed $record) use ($customField): void {
             ImportDataStorage::set($record, $customField->code, $state);
         });
 

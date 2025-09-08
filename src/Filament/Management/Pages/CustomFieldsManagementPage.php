@@ -11,6 +11,7 @@ use Filament\Pages\Page;
 use Filament\Panel;
 use Filament\Support\Enums\Size;
 use Filament\Support\Enums\Width;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
@@ -54,7 +55,7 @@ class CustomFieldsManagementPage extends Page
             ->withDeactivated()
             ->forEntityType($this->currentEntityType)
             ->with([
-                'fields' => function ($query): void {
+                'fields' => function (HasMany $query): void {
                     $query->forMorphEntity($this->currentEntityType)
                         ->orderBy('sort_order');
                 },

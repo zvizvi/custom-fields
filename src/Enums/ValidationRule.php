@@ -231,7 +231,7 @@ enum ValidationRule: string implements HasLabel
             self::DATE_FORMAT, self::REQUIRED_IF, self::REQUIRED_UNLESS, self::PROHIBITED_IF, self::PROHIBITED_UNLESS, self::ACCEPTED_IF, self::DECLINED_IF, self::MIMES, self::MIMETYPES, self::GT, self::GTE, self::LT, self::LTE => ['required', 'string'],
             self::AFTER, self::AFTER_OR_EQUAL, self::BEFORE, self::BEFORE_OR_EQUAL, self::DATE_EQUALS => [
                 'required',
-                function ($attribute, $value, $fail): void {
+                function (string $attribute, mixed $value, Closure $fail): void {
                     // Accept valid date string or special values like 'today', 'tomorrow', etc.
                     if (! in_array($value, ['today', 'tomorrow', 'yesterday'], true) && Carbon::hasFormat($value, 'Y-m-d') === false) {
                         $fail(__('custom-fields::custom-fields.validation.invalid_date_format'));
@@ -247,7 +247,7 @@ enum ValidationRule: string implements HasLabel
             // Regex rules
             self::REGEX, self::NOT_REGEX => [
                 'required', 'string',
-                function ($attribute, string $value, $fail): void {
+                function (string $attribute, string $value, Closure $fail): void {
                     try {
                         preg_match('/'.$value.'/', 'test');
                     } catch (Exception) {
@@ -259,7 +259,7 @@ enum ValidationRule: string implements HasLabel
             // Database rules
             self::EXISTS, self::UNIQUE => [
                 'required', 'string',
-                function ($attribute, $value, $fail): void {
+                function (string $attribute, mixed $value, Closure $fail): void {
                     if (in_array(preg_match('/^\w+(\.\w+)?$/', $value), [0, false], true)) {
                         $fail(__('custom-fields::custom-fields.validation.invalid_table_format'));
                     }

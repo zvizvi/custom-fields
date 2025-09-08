@@ -132,8 +132,8 @@ class FieldForm implements FormInterface
                             ->live()
                             ->afterStateHydrated(function (
                                 Select $component,
-                                $state,
-                                $record
+                                mixed $state,
+                                ?CustomField $record
                             ): void {
                                 if (blank($state)) {
                                     $component->state(
@@ -340,7 +340,7 @@ class FieldForm implements FormInterface
                                     )
                                     ->afterStateHydrated(function (
                                         Toggle $component,
-                                        $state
+                                        mixed $state
                                     ): void {
                                         if (is_null($state)) {
                                             $component->state(false);
@@ -421,8 +421,8 @@ class FieldForm implements FormInterface
                             ])
                             ->afterStateHydrated(function (
                                 Select $component,
-                                $state,
-                                $record,
+                                mixed $state,
+                                ?CustomField $record,
                                 Get $get
                             ): void {
                                 if (blank($state)) {
@@ -437,7 +437,7 @@ class FieldForm implements FormInterface
                                 Select $component,
                                 ?string $state,
                                 Set $set,
-                                $record
+                                ?CustomField $record
                             ): void {
                                 if ($state === 'options') {
                                     $set('lookup_type', null, true, true);

@@ -52,7 +52,7 @@ final class VisibilityComponent extends Component
                 ->required()
                 ->afterStateHydrated(function (
                     Select $component,
-                    $state
+                    mixed $state
                 ): void {
                     $component->state($state ?? VisibilityMode::ALWAYS_VISIBLE);
                 })
@@ -125,7 +125,7 @@ final class VisibilityComponent extends Component
                 ->visible(fn (Get $get): bool => $this->shouldShowSingleSelect($get))
                 ->placeholder(fn (Get $get): string => $this->getPlaceholder($get))
                 ->afterStateHydrated(fn (Select $component, Get $get): Select => $component->state($get('value')))
-                ->afterStateUpdated(fn ($state, Set $set): mixed => $set('value', $state))
+                ->afterStateUpdated(fn (mixed $state, Set $set): mixed => $set('value', $state))
                 ->columnSpan(5),
 
             // Multiple select for multi-choice fields
@@ -156,7 +156,7 @@ final class VisibilityComponent extends Component
                 ->placeholder(fn (Get $get): string => $this->getPlaceholder($get))
                 ->visible(fn (Get $get): bool => $this->shouldShowTextInput($get))
                 ->afterStateHydrated(fn (TextInput $component, Get $get): TextInput => $component->state($get('value') ?? ''))
-                ->afterStateUpdated(fn ($state, Set $set): mixed => $set('value', $state))
+                ->afterStateUpdated(fn (mixed $state, Set $set): mixed => $set('value', $state))
                 ->columnSpan(5),
         ];
     }
@@ -307,7 +307,7 @@ final class VisibilityComponent extends Component
         return rescue(function () use ($entityType, $currentFieldCode) {
             return CustomFields::customFieldModel()::query()
                 ->forMorphEntity($entityType)
-                ->when($currentFieldCode, fn ($query) => $query->where('code', '!=', $currentFieldCode))
+                ->when($currentFieldCode, fn (mixed $query) => $query->where('code', '!=', $currentFieldCode))
                 ->orderBy('name')
                 ->pluck('name', 'code')
                 ->toArray();

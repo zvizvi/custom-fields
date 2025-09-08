@@ -15,7 +15,7 @@ class ActivableScope implements Scope
      *
      * @var string[]
      */
-    protected $extensions = ['active', 'WithDeactivated', 'WithoutDeactivated'];
+    protected array $extensions = ['active', 'WithDeactivated', 'WithoutDeactivated'];
 
     /**
      * Apply the scope to a given Eloquent query builder.

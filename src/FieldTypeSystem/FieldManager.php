@@ -109,7 +109,8 @@ final class FieldManager
 
         if ($fieldTypeConfiguration instanceof FieldTypeConfigurator) {
             // Filter field types based on configuration
-            $allFieldTypes = array_filter($allFieldTypes, function ($class) use ($fieldTypeConfiguration): bool {
+            $allFieldTypes = array_filter($allFieldTypes, function (string $class) use ($fieldTypeConfiguration): bool {
+                /** @var FieldTypeDefinitionInterface $instance */
                 $instance = new $class;
                 $config = $instance->configure();
                 $data = $config->data();

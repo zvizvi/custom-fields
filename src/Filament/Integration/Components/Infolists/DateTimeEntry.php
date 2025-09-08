@@ -17,6 +17,6 @@ final class DateTimeEntry extends AbstractInfolistEntry
             ->dateTime('Y-m-d H:i:s')
             ->placeholder('Y-m-d H:i:s')
             ->label($customField->name)
-            ->state(fn ($record) => $record->getCustomFieldValue($customField));
+            ->state(fn (mixed $record) => $record->getCustomFieldValue($customField));
     }
 }

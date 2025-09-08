@@ -7,11 +7,14 @@ namespace Relaticle\CustomFields\Filament\Integration\Builders;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
 use InvalidArgumentException;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
+use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldSection;
+use Relaticle\CustomFields\QueryBuilders\CustomFieldQueryBuilder;
 
 abstract class BaseBuilder
 {
@@ -89,12 +92,12 @@ abstract class BaseBuilder
 
         /** @var Collection<int, CustomFieldSection> $sections */
         $sections = $this->sections
-            ->with(['fields' => function ($query): void {
+            ->with(['fields' => function (HasMany $query): void {
                 $query
-                    ->when($this instanceof TableBuilder, fn ($q) => $q->visibleInList())
-                    ->when($this instanceof InfolistBuilder, fn ($q) => $q->visibleInView())
-                    ->when($this->only !== [], fn ($q) => $q->whereIn('code', $this->only))
-                    ->when($this->except !== [], fn ($q) => $q->whereNotIn('code', $this->except))
+                    ->when($this instanceof TableBuilder, fn (CustomFieldQueryBuilder $q): CustomFieldQueryBuilder => $q->visibleInList())
+                    ->when($this instanceof InfolistBuilder, fn (CustomFieldQueryBuilder $q): CustomFieldQueryBuilder => $q->visibleInView())
+                    ->when($this->only !== [], fn (CustomFieldQueryBuilder $q) => $q->whereIn('code', $this->only))
+                    ->when($this->except !== [], fn (CustomFieldQueryBuilder $q) => $q->whereNotIn('code', $this->except))
                     ->with('options')
                     ->orderBy('sort_order');
             }])
@@ -102,7 +105,7 @@ abstract class BaseBuilder
 
         $filteredSections = $sections
             ->map(function (CustomFieldSection $section): CustomFieldSection {
-                $section->setRelation('fields', $section->fields->filter(fn ($field): bool => $field->typeData !== null));
+                $section->setRelation('fields', $section->fields->filter(fn (CustomField $field): bool => $field->typeData !== null));
 
                 return $section;
             })

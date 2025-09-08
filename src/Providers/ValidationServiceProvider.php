@@ -11,6 +11,6 @@ class ValidationServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        $this->app->singleton(ValidationService::class, fn ($app): ValidationService => new ValidationService);
+        $this->app->singleton(ValidationService::class, fn (mixed $app): ValidationService => new ValidationService);
     }
 }

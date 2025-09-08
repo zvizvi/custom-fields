@@ -16,6 +16,6 @@ final class HtmlEntry extends AbstractInfolistEntry
         return BaseTextEntry::make($customField->getFieldName())
             ->html()
             ->label($customField->name)
-            ->state(fn ($record) => $record->getCustomFieldValue($customField));
+            ->state(fn (mixed $record) => $record->getCustomFieldValue($customField));
     }
 }

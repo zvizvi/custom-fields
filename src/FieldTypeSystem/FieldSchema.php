@@ -252,7 +252,7 @@ class FieldSchema
     public function defaultValidationRules(array $rules): self
     {
         $this->defaultValidationRules = array_map(
-            fn ($rule) => $rule instanceof ValidationRule ? $rule->value : $rule,
+            fn (ValidationRule|string $rule): string => $rule instanceof ValidationRule ? $rule->value : $rule,
             $rules
         );
 

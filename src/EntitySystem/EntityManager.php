@@ -196,7 +196,7 @@ final class EntityManager implements EntityManagerInterface
                     // Single entity configuration - convert string features to enums
                     if (isset($value['features']) && is_array($value['features'])) {
                         $value['features'] = collect($value['features'])->map(
-                            fn ($feature) => is_string($feature) ? EntityFeature::from($feature) : $feature
+                            fn (mixed $feature) => is_string($feature) ? EntityFeature::from($feature) : $feature
                         );
                     }
 

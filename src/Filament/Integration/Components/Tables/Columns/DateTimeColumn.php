@@ -29,7 +29,7 @@ class DateTimeColumn extends AbstractTableColumn
         $this->configureSortable($column, $customField);
         $this->configureSearchable($column, $customField);
 
-        $column->getStateUsing(function ($record) use ($customField) {
+        $column->getStateUsing(function (mixed $record) use ($customField) {
             $value = $record->getCustomFieldValue($customField);
 
             if ($this->locale instanceof Closure) {

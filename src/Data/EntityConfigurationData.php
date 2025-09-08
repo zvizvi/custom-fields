@@ -155,7 +155,7 @@ final class EntityConfigurationData extends Data
 
     public function getFeatures(): array
     {
-        return $this->features?->map(fn ($f) => $f->value)->toArray() ?? [];
+        return $this->features?->map(fn (EntityFeature $f) => $f->value)->toArray() ?? [];
     }
 
     public function getPriority(): int

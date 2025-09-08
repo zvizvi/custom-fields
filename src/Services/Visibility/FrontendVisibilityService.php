@@ -11,6 +11,7 @@ use Relaticle\CustomFields\Enums\VisibilityLogic;
 use Relaticle\CustomFields\Enums\VisibilityMode;
 use Relaticle\CustomFields\Enums\VisibilityOperator;
 use Relaticle\CustomFields\Models\CustomField;
+use Relaticle\CustomFields\Models\CustomFieldOption;
 
 /**
  * Frontend Visibility Service
@@ -50,7 +51,7 @@ final readonly class FrontendVisibilityService
             $this->buildFieldConditions($field, $allFields),
         ])
             ->filter()
-            ->map(fn ($condition): string => sprintf('(%s)', $condition));
+            ->map(fn (string $condition): string => sprintf('(%s)', $condition));
 
         return $conditions->isNotEmpty() ? $conditions->implode(' && ') : null;
     }
@@ -75,13 +76,13 @@ final readonly class FrontendVisibilityService
 
         $jsConditions = collect($conditions)
             ->filter(
-                fn ($condition) => $allFields->contains(
+                fn (VisibilityConditionData $condition): bool => $allFields->contains(
                     'code',
                     $condition->field_code
                 )
             )
             ->map(
-                fn ($condition): ?string => $this->buildCondition(
+                fn (VisibilityConditionData $condition): ?string => $this->buildCondition(
                     $condition,
                     $mode,
                     $allFields
@@ -115,17 +116,15 @@ final readonly class FrontendVisibilityService
         }
 
         $parentConditions = collect($dependentFields)
-            ->map(fn ($code) => $allFields->firstWhere('code', $code))
+            ->map(fn (string $code): ?CustomField => $allFields->firstWhere('code', $code))
             ->filter()
             ->filter(
-                fn (
-                    $parentField
-                ): bool => $this->coreLogic->hasVisibilityConditions(
+                fn (CustomField $parentField): bool => $this->coreLogic->hasVisibilityConditions(
                     $parentField
                 )
             )
             ->map(
-                fn ($parentField): ?string => $this->buildFieldConditions(
+                fn (CustomField $parentField): ?string => $this->buildFieldConditions(
                     $parentField,
                     $allFields
                 )
@@ -205,7 +204,7 @@ final readonly class FrontendVisibilityService
                     $value,
                     $targetField
                 ),
-                fn ($expr): string => sprintf('!(%s)', $expr)
+                fn (?string $expr): string => sprintf('!(%s)', $expr)
             ),
             VisibilityOperator::GREATER_THAN => $this->buildNumericComparison(
                 $fieldValue,
@@ -433,7 +432,7 @@ final readonly class FrontendVisibilityService
         return $targetField->isMultiChoiceField()
             ? collect($value)
                 ->map(
-                    fn ($v): mixed => $this->convertOptionValue($v, $targetField)
+                    fn (mixed $v): mixed => $this->convertOptionValue($v, $targetField)
                 )
                 ->all()
             : $this->convertOptionValue(head($value), $targetField);
@@ -468,7 +467,7 @@ final readonly class FrontendVisibilityService
         return rescue(function () use ($value, $targetField) {
             if (is_string($value) && $targetField->options->isNotEmpty()) {
                 return $targetField->options->first(
-                    fn ($opt): bool => Str::lower(trim((string) $opt->name)) ===
+                    fn (CustomFieldOption $opt): bool => Str::lower(trim((string) $opt->name)) ===
                         Str::lower(trim($value))
                 )->id ?? $value;
             }
@@ -544,9 +543,9 @@ final readonly class FrontendVisibilityService
                 ? number_format((float) $value, 10, '.', '')
                 : (string) ((int) $value),
             is_array($value) => collect($value)
-                ->map(fn ($item): string => $this->formatJsValue($item))
+                ->map(fn (mixed $item): string => $this->formatJsValue($item))
                 ->pipe(
-                    fn ($collection): string => '['.
+                    fn (Collection $collection): string => '['.
                         $collection->implode(', ').
                         ']'
                 ),

@@ -26,6 +26,6 @@ final class MultiChoiceEntry extends AbstractInfolistEntry
 
         $entry = $this->applyBadgeColorsIfEnabled($entry, $customField);
 
-        return $entry->state(fn ($record): array => $this->valueResolver->resolve($record, $customField));
+        return $entry->state(fn (mixed $record): array => $this->valueResolver->resolve($record, $customField));
     }
 }

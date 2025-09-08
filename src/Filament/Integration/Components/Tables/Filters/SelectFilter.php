@@ -83,7 +83,7 @@ final class SelectFilter extends AbstractTableFilter
                     ]);
                 } else {
                     // Apply search constraints manually if no resource
-                    $query->where(function ($q) use ($search, $globalSearchableAttributes, $recordTitleAttribute): void {
+                    $query->where(function (Builder $q) use ($search, $globalSearchableAttributes, $recordTitleAttribute): void {
                         $searchAttributes = empty($globalSearchableAttributes) ? [$recordTitleAttribute] : $globalSearchableAttributes;
                         foreach ($searchAttributes as $attribute) {
                             $q->orWhere($attribute, 'like', sprintf('%%%s%%', $search));
@@ -95,7 +95,7 @@ final class SelectFilter extends AbstractTableFilter
                     ->pluck($recordTitleAttribute, 'id')
                     ->toArray();
             })
-            ->getOptionLabelUsing(fn ($value) => $entityInstance::query()->find($value)?->{$recordTitleAttribute})
+            ->getOptionLabelUsing(fn (mixed $value) => $entityInstance::query()->find($value)?->{$recordTitleAttribute})
             ->getOptionLabelsUsing(fn (array $values): array => $entityInstance::query()
                 ->whereIn('id', $values)
                 ->pluck($recordTitleAttribute, 'id')

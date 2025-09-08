@@ -59,7 +59,7 @@ final class EntityModel
             'primaryAttribute' => $primaryAttribute,
             'searchAttributes' => $searchAttributes !== [] ? $searchAttributes : self::guessSearchAttributes($primaryAttribute),
             'resourceClass' => $resourceClass,
-            'features' => array_map(fn ($feature) => $feature instanceof EntityFeature ? $feature->value : $feature, $features),
+            'features' => array_map(fn (mixed $feature) => $feature instanceof EntityFeature ? $feature->value : $feature, $features),
             'priority' => max(0, $priority),
             'metadata' => $metadata,
         ];

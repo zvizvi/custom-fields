@@ -6,16 +6,26 @@ namespace Relaticle\CustomFields\Livewire;
 
 use Illuminate\Contracts\View\View;
 use Livewire\Component;
+use Relaticle\CustomFields\Enums\CustomFieldWidth;
 
 class ManageCustomFieldWidth extends Component
 {
-    public $selectedWidth = 100;
+    /**
+     * @var int
+     */
+    public $selectedWidth = 100; // @pest-ignore-type
 
-    public $widthOptions = [
+    /**
+     * @var array<int, int>
+     */
+    public $widthOptions = [ // @pest-ignore-type
         25, 33, 50, 66, 75, 100,
     ];
 
-    public $widthMap = [
+    /**
+     * @var array<string, string>
+     */
+    public $widthMap = [ // @pest-ignore-type
         '25' => 'col-span-3',
         '33' => 'col-span-4',
         '50' => 'col-span-6',
@@ -24,9 +34,12 @@ class ManageCustomFieldWidth extends Component
         '100' => 'col-span-12',
     ];
 
-    public $fieldId;
+    /**
+     * @var int|string
+     */
+    public $fieldId; // @pest-ignore-type
 
-    public function mount($selectedWidth, $fieldId): void
+    public function mount(CustomFieldWidth $selectedWidth, int|string $fieldId): void
     {
         $this->selectedWidth = $selectedWidth;
         $this->fieldId = $fieldId;
