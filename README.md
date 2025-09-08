@@ -79,7 +79,7 @@ For complete installation instructions, configuration options, and examples, vis
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please see our contributing guide in the documentation.
+Contributions are welcome! Please see our [contributing guide](https://custom-fields.relaticle.com/help-support/contributing) in the documentation.
 
 ## 📄 Licensing
 
