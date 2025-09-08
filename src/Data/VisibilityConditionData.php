@@ -13,8 +13,8 @@ use Spatie\LaravelData\Mappers\SnakeCaseMapper;
 class VisibilityConditionData extends Data
 {
     public function __construct(
-        public string             $field_code,
+        public string $field_code,
         public VisibilityOperator $operator,
-        public mixed              $value,
+        public mixed $value,
     ) {}
 }

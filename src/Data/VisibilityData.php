@@ -19,11 +19,11 @@ class VisibilityData extends Data
      * @param  DataCollection<int, VisibilityConditionData>|null  $conditions
      */
     public function __construct(
-        public VisibilityMode  $mode = VisibilityMode::ALWAYS_VISIBLE,
+        public VisibilityMode $mode = VisibilityMode::ALWAYS_VISIBLE,
         public VisibilityLogic $logic = VisibilityLogic::ALL,
         #[DataCollectionOf(VisibilityConditionData::class)]
         public ?DataCollection $conditions = null,
-        public bool            $alwaysSave = false,
+        public bool $alwaysSave = false,
     ) {}
 
     public function requiresConditions(): bool

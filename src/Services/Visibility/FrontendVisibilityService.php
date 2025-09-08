@@ -144,8 +144,8 @@ final readonly class FrontendVisibilityService
      */
     private function buildCondition(
         VisibilityConditionData $condition,
-        VisibilityMode          $mode,
-        Collection              $allFields
+        VisibilityMode $mode,
+        Collection $allFields
     ): ?string {
 
         $targetField = $allFields->firstWhere('code', $condition->field_code);
@@ -171,9 +171,9 @@ final readonly class FrontendVisibilityService
      */
     private function buildOperatorExpression(
         VisibilityOperator $operator,
-        string             $fieldValue,
-        mixed              $value,
-        ?CustomField       $targetField
+        string $fieldValue,
+        mixed $value,
+        ?CustomField $targetField
     ): ?string {
         // Validate operator compatibility using core logic
         if (
