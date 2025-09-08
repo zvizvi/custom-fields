@@ -46,7 +46,7 @@ class MakeFieldTypeCommand extends GeneratorCommand
     /**
      * Get the default namespace for the class.
      */
-    protected function getDefaultNamespace(string $rootNamespace): string
+    protected function getDefaultNamespace($rootNamespace): string // @pest-ignore-type
     {
         return $rootNamespace.'\Filament\FieldTypes';
     }
@@ -54,7 +54,7 @@ class MakeFieldTypeCommand extends GeneratorCommand
     /**
      * Get the destination class path.
      */
-    protected function getPath(string $name): string
+    protected function getPath($name): string // @pest-ignore-type
     {
         $name = Str::replaceFirst($this->rootNamespace(), '', $name);
 
@@ -82,7 +82,7 @@ class MakeFieldTypeCommand extends GeneratorCommand
     /**
      * Build the class with the given name.
      */
-    protected function buildClass(string $name): string
+    protected function buildClass($name): string // @pest-ignore-type
     {
         $stub = $this->files->get($this->getStub());
 

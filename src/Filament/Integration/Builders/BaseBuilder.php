@@ -7,7 +7,6 @@ namespace Relaticle\CustomFields\Filament\Integration\Builders;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
 use InvalidArgumentException;
 use Relaticle\CustomFields\CustomFields;
@@ -18,7 +17,7 @@ use Relaticle\CustomFields\QueryBuilders\CustomFieldQueryBuilder;
 
 abstract class BaseBuilder
 {
-    protected Model&HasCustomFields $model;
+    protected Model & HasCustomFields $model;
 
     protected Builder $sections;
 
@@ -34,7 +33,7 @@ abstract class BaseBuilder
         return $this->forModel($model);
     }
 
-    public function forModel(Model|string $model): static
+    public function forModel(Model | string $model): static
     {
         if (is_string($model)) {
             $model = app($model);
@@ -83,8 +82,8 @@ abstract class BaseBuilder
         // Use a static cache within the request to prevent duplicate queries
         static $sectionsCache = [];
 
-        $cacheKey = get_class($this).':'.$this->model::class.':'.
-            md5(serialize($this->only).serialize($this->except));
+        $cacheKey = get_class($this) . ':' . $this->model::class . ':' .
+            md5(serialize($this->only) . serialize($this->except));
 
         if (isset($sectionsCache[$cacheKey])) {
             return $sectionsCache[$cacheKey];
@@ -92,12 +91,12 @@ abstract class BaseBuilder
 
         /** @var Collection<int, CustomFieldSection> $sections */
         $sections = $this->sections
-            ->with(['fields' => function (HasMany $query): void {
-                $query
-                    ->when($this instanceof TableBuilder, fn (CustomFieldQueryBuilder $q): CustomFieldQueryBuilder => $q->visibleInList())
-                    ->when($this instanceof InfolistBuilder, fn (CustomFieldQueryBuilder $q): CustomFieldQueryBuilder => $q->visibleInView())
-                    ->when($this->only !== [], fn (CustomFieldQueryBuilder $q) => $q->whereIn('code', $this->only))
-                    ->when($this->except !== [], fn (CustomFieldQueryBuilder $q) => $q->whereNotIn('code', $this->except))
+            ->with(['fields' => function (mixed $query): mixed {
+                return $query
+                    ->when($this instanceof TableBuilder, fn (CustomFieldQueryBuilder $q, bool $condition): CustomFieldQueryBuilder => $q->visibleInList())
+                    ->when($this instanceof InfolistBuilder, fn (CustomFieldQueryBuilder $q, bool $condition): CustomFieldQueryBuilder => $q->visibleInView())
+                    ->when($this->only !== [], fn (CustomFieldQueryBuilder $q, bool $condition): CustomFieldQueryBuilder => $q->whereIn('code', $this->only))
+                    ->when($this->except !== [], fn (CustomFieldQueryBuilder $q, bool $condition): CustomFieldQueryBuilder => $q->whereNotIn('code', $this->except))
                     ->with('options')
                     ->orderBy('sort_order');
             }])

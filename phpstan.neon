@@ -14,9 +14,5 @@ parameters:
     ignoreErrors:
         # Ignore unused trait warnings for library traits meant to be consumed by package users
         - identifier: trait.unused
-        # Ignore parameter type issues in console commands due to Laravel compatibility requirements  
-        - identifier: missingType.parameter
-          paths:
-              - src/Console/Commands/*
     parallel:
     		maximumNumberOfProcesses: 3
