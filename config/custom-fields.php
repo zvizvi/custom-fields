@@ -33,7 +33,7 @@ return [
     'field_type_configuration' => FieldTypeConfigurator::configure()
         // Control which field types are available globally
         ->enabled([]) // Empty = all enabled, or specify: ['text', 'email', 'select']
-        ->disabled(['rich-editor', 'file-upload']) // Disable specific field types
+        ->disabled(['file-upload']) // Disable specific field types
         ->discover(true)
         ->cache(enabled: false, ttl: 3400),
 
