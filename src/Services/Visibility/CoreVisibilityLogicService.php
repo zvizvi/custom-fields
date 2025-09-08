@@ -7,14 +7,14 @@ namespace Relaticle\CustomFields\Services\Visibility;
 use Illuminate\Support\Collection;
 use Relaticle\CustomFields\Data\VisibilityConditionData;
 use Relaticle\CustomFields\Data\VisibilityData;
-use Relaticle\CustomFields\Enums\Logic;
-use Relaticle\CustomFields\Enums\Mode;
-use Relaticle\CustomFields\Enums\Operator;
+use Relaticle\CustomFields\Enums\VisibilityLogic;
+use Relaticle\CustomFields\Enums\VisibilityMode;
+use Relaticle\CustomFields\Enums\VisibilityOperator;
 use Relaticle\CustomFields\Models\CustomField;
 use Spatie\LaravelData\DataCollection;
 
 /**
- * Core Visibility Logic Service - Single Source of Truth
+ * Core Visibility VisibilityLogic Service - Single Source of Truth
  *
  * This service contains the pure logic for visibility evaluation that is used
  * by both backend (PHP) and frontend (JavaScript) implementations.
@@ -115,22 +115,22 @@ final readonly class CoreVisibilityLogicService
      * Get visibility mode for a field.
      * Returns the mode (always_visible, show_when, hide_when).
      */
-    public function getVisibilityMode(CustomField $field): Mode
+    public function getVisibilityMode(CustomField $field): VisibilityMode
     {
         $visibility = $this->getVisibilityData($field);
 
-        return $visibility->mode ?? Mode::ALWAYS_VISIBLE;
+        return $visibility->mode ?? VisibilityMode::ALWAYS_VISIBLE;
     }
 
     /**
      * Get visibility logic for a field.
      * Returns the logic (all, any) for multiple conditions.
      */
-    public function getVisibilityLogic(CustomField $field): Logic
+    public function getVisibilityLogic(CustomField $field): VisibilityLogic
     {
         $visibility = $this->getVisibilityData($field);
 
-        return $visibility->logic ?? Logic::ALL;
+        return $visibility->logic ?? VisibilityLogic::ALL;
     }
 
     /**
@@ -194,7 +194,7 @@ final readonly class CoreVisibilityLogicService
      * Validate that operator is compatible with field type.
      * Ensures operators are used appropriately for different field types.
      */
-    public function isOperatorCompatible(Operator $operator, CustomField $field): bool
+    public function isOperatorCompatible(VisibilityOperator $operator, CustomField $field): bool
     {
         $typeData = $field->typeData;
         if (! $typeData) {
@@ -225,8 +225,8 @@ final readonly class CoreVisibilityLogicService
                 'has_multiple_values' => false,
                 'compatible_operators' => [],
                 'has_visibility_conditions' => false,
-                'visibility_mode' => Mode::ALWAYS_VISIBLE->value,
-                'visibility_logic' => Logic::ALL->value,
+                'visibility_mode' => VisibilityMode::ALWAYS_VISIBLE->value,
+                'visibility_logic' => VisibilityLogic::ALL->value,
                 'visibility_conditions' => [],
                 'dependent_fields' => [],
                 'always_save' => false,
@@ -253,27 +253,27 @@ final readonly class CoreVisibilityLogicService
      * Check if a condition requires the target field to be optionable.
      * Used to validate condition setup and provide appropriate error messages.
      */
-    public function conditionRequiresOptionableField(Operator $operator): bool
+    public function conditionRequiresOptionableField(VisibilityOperator $operator): bool
     {
         return in_array($operator, [
-            Operator::EQUALS,
-            Operator::NOT_EQUALS,
-            Operator::CONTAINS,
-            Operator::NOT_CONTAINS,
+            VisibilityOperator::EQUALS,
+            VisibilityOperator::NOT_EQUALS,
+            VisibilityOperator::CONTAINS,
+            VisibilityOperator::NOT_CONTAINS,
         ], true);
     }
 
     /**
      * Get the appropriate error message for invalid operator/field combinations.
      */
-    public function getOperatorValidationError(Operator $operator, CustomField $field): ?string
+    public function getOperatorValidationError(VisibilityOperator $operator, CustomField $field): ?string
     {
         if (! $this->isOperatorCompatible($operator, $field)) {
-            return sprintf("Operator '%s' is not compatible with field type '%s'", $operator->value, $field->type);
+            return sprintf("VisibilityOperator '%s' is not compatible with field type '%s'", $operator->value, $field->type);
         }
 
         if ($this->conditionRequiresOptionableField($operator) && ! $field->isChoiceField()) {
-            return sprintf("Operator '%s' can only be used with optionable fields (select, radio, etc.)", $operator->value);
+            return sprintf("VisibilityOperator '%s' can only be used with optionable fields (select, radio, etc.)", $operator->value);
         }
 
         return null;

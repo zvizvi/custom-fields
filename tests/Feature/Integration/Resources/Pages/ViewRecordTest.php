@@ -6,9 +6,9 @@ use Illuminate\Support\Str;
 use Relaticle\CustomFields\Data\CustomFieldSettingsData;
 use Relaticle\CustomFields\Data\VisibilityConditionData;
 use Relaticle\CustomFields\Data\VisibilityData;
-use Relaticle\CustomFields\Enums\Logic;
-use Relaticle\CustomFields\Enums\Mode;
-use Relaticle\CustomFields\Enums\Operator;
+use Relaticle\CustomFields\Enums\VisibilityLogic;
+use Relaticle\CustomFields\Enums\VisibilityMode;
+use Relaticle\CustomFields\Enums\VisibilityOperator;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldSection;
 use Relaticle\CustomFields\Tests\Fixtures\Models\Post;
@@ -106,12 +106,12 @@ describe('Conditional Visibility in Infolists', function (): void {
             'settings' => new CustomFieldSettingsData(
                 visible_in_view: true,
                 visibility: new VisibilityData(
-                    mode: Mode::SHOW_WHEN,
-                    logic: Logic::ALL,
+                    mode: VisibilityMode::SHOW_WHEN,
+                    logic: VisibilityLogic::ALL,
                     conditions: new DataCollection(VisibilityConditionData::class, [
                         new VisibilityConditionData(
                             field_code: 'status',
-                            operator: Operator::EQUALS,
+                            operator: VisibilityOperator::EQUALS,
                             value: 'published'
                         ),
                     ])
@@ -170,12 +170,12 @@ describe('Conditional Visibility in Infolists', function (): void {
             'settings' => new CustomFieldSettingsData(
                 visible_in_view: true,
                 visibility: new VisibilityData(
-                    mode: Mode::HIDE_WHEN,
-                    logic: Logic::ALL,
+                    mode: VisibilityMode::HIDE_WHEN,
+                    logic: VisibilityLogic::ALL,
                     conditions: new DataCollection(VisibilityConditionData::class, [
                         new VisibilityConditionData(
                             field_code: 'status',
-                            operator: Operator::EQUALS,
+                            operator: VisibilityOperator::EQUALS,
                             value: 'published'
                         ),
                     ])

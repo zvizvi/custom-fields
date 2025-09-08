@@ -16,8 +16,7 @@ it('configures and checks features correctly', function (): void {
         ->disable(
             CustomFieldsFeature::FIELD_ENCRYPTION,
             CustomFieldsFeature::SYSTEM_MULTI_TENANCY
-        )
-        ->build();
+        );
 
     config(['custom-fields.features' => $config]);
 
@@ -31,8 +30,7 @@ it('configures and checks features correctly', function (): void {
 it('handles feature enabling and disabling', function (): void {
     $config = FeatureConfigurator::configure()
         ->enable(CustomFieldsFeature::FIELD_ENCRYPTION)
-        ->disable(CustomFieldsFeature::FIELD_ENCRYPTION) // Should override
-        ->build();
+        ->disable(CustomFieldsFeature::FIELD_ENCRYPTION); // Should override
 
     config(['custom-fields.features' => $config]);
 

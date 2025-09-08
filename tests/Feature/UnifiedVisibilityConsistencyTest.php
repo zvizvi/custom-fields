@@ -3,9 +3,9 @@
 declare(strict_types=1);
 
 use Relaticle\CustomFields\Data\VisibilityData;
-use Relaticle\CustomFields\Enums\Logic;
-use Relaticle\CustomFields\Enums\Mode;
-use Relaticle\CustomFields\Enums\Operator;
+use Relaticle\CustomFields\Enums\VisibilityLogic;
+use Relaticle\CustomFields\Enums\VisibilityMode;
+use Relaticle\CustomFields\Enums\VisibilityOperator;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldSection;
 use Relaticle\CustomFields\Services\Visibility\BackendVisibilityService;
@@ -36,12 +36,12 @@ beforeEach(function (): void {
         'type' => 'text',
         'settings' => [
             'visibility' => [
-                'mode' => Mode::SHOW_WHEN,
-                'logic' => Logic::ALL,
+                'mode' => VisibilityMode::SHOW_WHEN,
+                'logic' => VisibilityLogic::ALL,
                 'conditions' => [
                     [
                         'field_code' => 'status',
-                        'operator' => Operator::EQUALS,
+                        'operator' => VisibilityOperator::EQUALS,
                         'value' => 'active',
                     ],
                 ],
@@ -58,12 +58,12 @@ beforeEach(function (): void {
         'type' => 'text',
         'settings' => [
             'visibility' => [
-                'mode' => Mode::HIDE_WHEN,
-                'logic' => Logic::ALL,
+                'mode' => VisibilityMode::HIDE_WHEN,
+                'logic' => VisibilityLogic::ALL,
                 'conditions' => [
                     [
                         'field_code' => 'status',
-                        'operator' => Operator::EQUALS,
+                        'operator' => VisibilityOperator::EQUALS,
                         'value' => 'disabled',
                     ],
                 ],
@@ -80,17 +80,17 @@ beforeEach(function (): void {
         'type' => 'text',
         'settings' => [
             'visibility' => [
-                'mode' => Mode::SHOW_WHEN,
-                'logic' => Logic::ANY,
+                'mode' => VisibilityMode::SHOW_WHEN,
+                'logic' => VisibilityLogic::ANY,
                 'conditions' => [
                     [
                         'field_code' => 'status',
-                        'operator' => Operator::EQUALS,
+                        'operator' => VisibilityOperator::EQUALS,
                         'value' => 'active',
                     ],
                     [
                         'field_code' => 'status',
-                        'operator' => Operator::EQUALS,
+                        'operator' => VisibilityOperator::EQUALS,
                         'value' => 'pending',
                     ],
                 ],
@@ -119,11 +119,11 @@ test('core logic service extracts visibility data consistently', function (): vo
     $alwaysVisibleData = $this->coreLogic->getVisibilityData($this->alwaysVisibleField);
 
     expect($conditionalVisibility)->toBeInstanceOf(VisibilityData::class)
-        ->and($conditionalVisibility->mode)->toBe(Mode::SHOW_WHEN)
-        ->and($conditionalVisibility->logic)->toBe(Logic::ALL)
+        ->and($conditionalVisibility->mode)->toBe(VisibilityMode::SHOW_WHEN)
+        ->and($conditionalVisibility->logic)->toBe(VisibilityLogic::ALL)
         ->and($conditionalVisibility->conditions)->toHaveCount(1)
         ->and($alwaysVisibleData)->toBeInstanceOf(VisibilityData::class)
-        ->and($alwaysVisibleData->mode)->toBe(Mode::ALWAYS_VISIBLE)
+        ->and($alwaysVisibleData->mode)->toBe(VisibilityMode::ALWAYS_VISIBLE)
         ->and($alwaysVisibleData->conditions)->toBeNull()
         ->and($this->coreLogic->hasVisibilityConditions($this->conditionalField))->toBeTrue()
         ->and($this->coreLogic->hasVisibilityConditions($this->alwaysVisibleField))->toBeFalse();
@@ -200,12 +200,12 @@ test('complex conditions work identically in backend and frontend', function ():
         'type' => 'text',
         'settings' => [
             'visibility' => [
-                'mode' => Mode::SHOW_WHEN,
-                'logic' => Logic::ALL,
+                'mode' => VisibilityMode::SHOW_WHEN,
+                'logic' => VisibilityLogic::ALL,
                 'conditions' => [
                     [
                         'field_code' => 'details',
-                        'operator' => Operator::IS_NOT_EMPTY,
+                        'operator' => VisibilityOperator::IS_NOT_EMPTY,
                         'value' => null,
                     ],
                 ],
@@ -254,14 +254,14 @@ test('operator compatibility and validation work correctly', function (): void {
     $selectField = $this->triggerField; // SELECT type
 
     // Test operator compatibility
-    expect($this->coreLogic->isOperatorCompatible(Operator::EQUALS, $textField))->toBeTrue()
-        ->and($this->coreLogic->isOperatorCompatible(Operator::CONTAINS, $textField))->toBeTrue()
-        ->and($this->coreLogic->isOperatorCompatible(Operator::IS_EMPTY, $textField))->toBeTrue()
-        ->and($this->coreLogic->isOperatorCompatible(Operator::EQUALS, $selectField))->toBeTrue()
-        ->and($this->coreLogic->isOperatorCompatible(Operator::NOT_EQUALS, $selectField))->toBeTrue()
-        ->and($this->coreLogic->isOperatorCompatible(Operator::CONTAINS, $selectField))->toBeFalse()
-        ->and($this->coreLogic->getOperatorValidationError(Operator::EQUALS, $textField))->toBeString()
-        ->and($this->coreLogic->getOperatorValidationError(Operator::IS_EMPTY, $textField))->toBeNull(); // SELECT fields don't support CONTAINS
+    expect($this->coreLogic->isOperatorCompatible(VisibilityOperator::EQUALS, $textField))->toBeTrue()
+        ->and($this->coreLogic->isOperatorCompatible(VisibilityOperator::CONTAINS, $textField))->toBeTrue()
+        ->and($this->coreLogic->isOperatorCompatible(VisibilityOperator::IS_EMPTY, $textField))->toBeTrue()
+        ->and($this->coreLogic->isOperatorCompatible(VisibilityOperator::EQUALS, $selectField))->toBeTrue()
+        ->and($this->coreLogic->isOperatorCompatible(VisibilityOperator::NOT_EQUALS, $selectField))->toBeTrue()
+        ->and($this->coreLogic->isOperatorCompatible(VisibilityOperator::CONTAINS, $selectField))->toBeFalse()
+        ->and($this->coreLogic->getOperatorValidationError(VisibilityOperator::EQUALS, $textField))->toBeString()
+        ->and($this->coreLogic->getOperatorValidationError(VisibilityOperator::IS_EMPTY, $textField))->toBeNull(); // SELECT fields don't support CONTAINS
 
     // Test validation error messages (note: current implementation incorrectly flags EQUALS as optionable-only)
 

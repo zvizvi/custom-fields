@@ -9,8 +9,8 @@ use Illuminate\Support\Carbon;
 use Relaticle\CustomFields\Data\CustomFieldSettingsData;
 use Relaticle\CustomFields\Data\VisibilityConditionData;
 use Relaticle\CustomFields\Data\VisibilityData;
-use Relaticle\CustomFields\Enums\Mode;
-use Relaticle\CustomFields\Enums\Operator;
+use Relaticle\CustomFields\Enums\VisibilityMode;
+use Relaticle\CustomFields\Enums\VisibilityOperator;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Tests\Fixtures\Models\User;
 use Spatie\LaravelData\DataCollection;
@@ -84,7 +84,7 @@ final class CustomFieldFactory extends Factory
                 array_map(
                     fn (array $condition) => new VisibilityConditionData(
                         field_code: $condition['field_code'],
-                        operator: Operator::from($condition['operator']),
+                        operator: VisibilityOperator::from($condition['operator']),
                         value: $condition['value']
                     ),
                     $conditions
@@ -105,7 +105,7 @@ final class CustomFieldFactory extends Factory
                     encrypted: $existingSettings->encrypted,
                     enable_option_colors: $existingSettings->enable_option_colors,
                     visibility: new VisibilityData(
-                        mode: Mode::SHOW_WHEN,
+                        mode: VisibilityMode::SHOW_WHEN,
                         conditions: $visibilityConditions
                     )
                 ),

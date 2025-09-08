@@ -14,7 +14,6 @@ use Filament\Actions\Imports\ImportColumn;
 use Relaticle\CustomFields\Data\ValidationRuleData;
 use Relaticle\CustomFields\Enums\FieldDataType;
 use Relaticle\CustomFields\Facades\Entities;
-use Relaticle\CustomFields\FieldTypeSystem\FieldManager;
 use Relaticle\CustomFields\Models\CustomField;
 use Throwable;
 
@@ -33,7 +32,7 @@ final class ImportColumnConfigurator
     public function configure(ImportColumn $column, CustomField $customField): ImportColumn
     {
         // First, check if field type implements custom import/export behavior
-        if ($this->configureViaFieldType($column, $customField)) {
+        if ($this->configureViaFieldType()) {
             return $this->finalize($column, $customField);
         }
 
@@ -53,23 +52,10 @@ final class ImportColumnConfigurator
     /**
      * Check if field type implements custom import/export interface and configure accordingly.
      */
-    private function configureViaFieldType(ImportColumn $column, CustomField $customField): bool
+    private function configureViaFieldType(): bool
     {
-        $fieldTypeManager = app(FieldManager::class);
-        $fieldTypeInstance = $fieldTypeManager->getFieldTypeInstance($customField->type);
-
-        // Let the field type configure itself
-        $fieldTypeInstance->configureImportColumn($column);
-
-        // Set example if provided
-        $example = $fieldTypeInstance->getImportExample();
-        if ($example !== null) {
-            $column->example($example);
-        }
-
-        // No additional transformation needed - field type handles everything in configureImportColumn
-
-        return true;
+        // Import configuration is not currently supported for field types
+        return false;
     }
 
     /**

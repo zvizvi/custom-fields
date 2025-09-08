@@ -9,7 +9,7 @@ use Relaticle\CustomFields\Facades\CustomFieldsType;
 /**
  * Clean condition operators with predictable behavior.
  */
-enum Operator: string
+enum VisibilityOperator: string
 {
     case EQUALS = 'equals';
     case NOT_EQUALS = 'not_equals';

@@ -19,7 +19,7 @@ beforeEach(function (): void {
     $this->userEntityType = User::class;
 });
 
-describe('CustomFieldsPage - Business Logic and Integration', function (): void {
+describe('CustomFieldsPage - Business VisibilityLogic and Integration', function (): void {
     it('assigns correct entity type when creating sections', function (): void {
         // Arrange
         $sectionData = [

@@ -13,7 +13,6 @@ final readonly class EmailComponent extends AbstractFormComponent
 {
     public function create(CustomField $customField): Field
     {
-        $settings = $this->getConfigurationSettings('email');
         $defaults = [
             'email' => true, // Client-side validation for UX
             'maxLength' => 255,
@@ -24,6 +23,6 @@ final readonly class EmailComponent extends AbstractFormComponent
 
         $component = TextInput::make($customField->getFieldName());
 
-        return $this->applySettingsToComponent($component, array_merge($defaults, $settings));
+        return $this->applySettingsToComponent($component, $defaults);
     }
 }

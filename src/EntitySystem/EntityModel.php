@@ -57,7 +57,7 @@ final class EntityModel
             'labelPlural' => $labelPlural ?? Str::plural($labelSingular ?? Str::headline(class_basename($modelClass))),
             'icon' => $icon,
             'primaryAttribute' => $primaryAttribute,
-            'searchAttributes' => $searchAttributes !== [] ? $searchAttributes : self::guessSearchAttributes(),
+            'searchAttributes' => $searchAttributes !== [] ? $searchAttributes : self::guessSearchAttributes($primaryAttribute),
             'resourceClass' => $resourceClass,
             'features' => array_map(fn ($feature) => $feature instanceof EntityFeature ? $feature->value : $feature, $features),
             'priority' => max(0, $priority),

@@ -7,9 +7,9 @@ namespace Relaticle\CustomFields\Services\Visibility;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Relaticle\CustomFields\Data\VisibilityConditionData;
-use Relaticle\CustomFields\Enums\Logic;
-use Relaticle\CustomFields\Enums\Mode;
-use Relaticle\CustomFields\Enums\Operator;
+use Relaticle\CustomFields\Enums\VisibilityLogic;
+use Relaticle\CustomFields\Enums\VisibilityMode;
+use Relaticle\CustomFields\Enums\VisibilityOperator;
 use Relaticle\CustomFields\Models\CustomField;
 
 /**
@@ -94,7 +94,7 @@ final readonly class FrontendVisibilityService
             return null;
         }
 
-        $operator = $logic === Logic::ALL ? ' && ' : ' || ';
+        $operator = $logic === VisibilityLogic::ALL ? ' && ' : ' || ';
 
         return $jsConditions->implode($operator);
     }
@@ -144,8 +144,8 @@ final readonly class FrontendVisibilityService
      */
     private function buildCondition(
         VisibilityConditionData $condition,
-        Mode $mode,
-        Collection $allFields
+        VisibilityMode          $mode,
+        Collection              $allFields
     ): ?string {
 
         $targetField = $allFields->firstWhere('code', $condition->field_code);
@@ -163,17 +163,17 @@ final readonly class FrontendVisibilityService
         }
 
         // Apply mode logic using core service
-        return $mode === Mode::SHOW_WHEN ? $expression : sprintf('!(%s)', $expression);
+        return $mode === VisibilityMode::SHOW_WHEN ? $expression : sprintf('!(%s)', $expression);
     }
 
     /**
      * Build operator expression using the same logic as backend evaluation.
      */
     private function buildOperatorExpression(
-        Operator $operator,
-        string $fieldValue,
-        mixed $value,
-        ?CustomField $targetField
+        VisibilityOperator $operator,
+        string             $fieldValue,
+        mixed              $value,
+        ?CustomField       $targetField
     ): ?string {
         // Validate operator compatibility using core logic
         if (
@@ -184,22 +184,22 @@ final readonly class FrontendVisibilityService
         }
 
         return match ($operator) {
-            Operator::EQUALS => $this->buildEqualsExpression(
+            VisibilityOperator::EQUALS => $this->buildEqualsExpression(
                 $fieldValue,
                 $value,
                 $targetField
             ),
-            Operator::NOT_EQUALS => $this->buildNotEqualsExpression(
+            VisibilityOperator::NOT_EQUALS => $this->buildNotEqualsExpression(
                 $fieldValue,
                 $value,
                 $targetField
             ),
-            Operator::CONTAINS => $this->buildContainsExpression(
+            VisibilityOperator::CONTAINS => $this->buildContainsExpression(
                 $fieldValue,
                 $value,
                 $targetField
             ),
-            Operator::NOT_CONTAINS => transform(
+            VisibilityOperator::NOT_CONTAINS => transform(
                 $this->buildContainsExpression(
                     $fieldValue,
                     $value,
@@ -207,21 +207,21 @@ final readonly class FrontendVisibilityService
                 ),
                 fn ($expr): string => sprintf('!(%s)', $expr)
             ),
-            Operator::GREATER_THAN => $this->buildNumericComparison(
+            VisibilityOperator::GREATER_THAN => $this->buildNumericComparison(
                 $fieldValue,
                 $value,
                 '>'
             ),
-            Operator::LESS_THAN => $this->buildNumericComparison(
+            VisibilityOperator::LESS_THAN => $this->buildNumericComparison(
                 $fieldValue,
                 $value,
                 '<'
             ),
-            Operator::IS_EMPTY => $this->buildEmptyExpression(
+            VisibilityOperator::IS_EMPTY => $this->buildEmptyExpression(
                 $fieldValue,
                 true
             ),
-            Operator::IS_NOT_EMPTY => $this->buildEmptyExpression(
+            VisibilityOperator::IS_NOT_EMPTY => $this->buildEmptyExpression(
                 $fieldValue,
                 false
             ),

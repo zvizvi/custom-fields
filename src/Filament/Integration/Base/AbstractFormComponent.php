@@ -10,7 +10,6 @@ use Illuminate\Support\Collection;
 use Relaticle\CustomFields\Contracts\FormComponentInterface;
 use Relaticle\CustomFields\Enums\CustomFieldsFeature;
 use Relaticle\CustomFields\FeatureSystem\FeatureManager;
-use Relaticle\CustomFields\FieldTypeSystem\FieldTypeConfigurator;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Services\ValidationService;
 use Relaticle\CustomFields\Services\Visibility\CoreVisibilityLogicService;
@@ -123,22 +122,6 @@ abstract readonly class AbstractFormComponent implements FormComponentInterface
         $jsExpression !== '0'
             ? $field->live()->visibleJs($jsExpression)
             : $field;
-    }
-
-    /**
-     * Get configuration settings for the current field type
-     */
-    protected function getConfigurationSettings(string $fieldType): array
-    {
-        $fieldTypeConfiguration = config('custom-fields.field_type_configuration');
-
-        if (! $fieldTypeConfiguration instanceof FieldTypeConfigurator) {
-            return [];
-        }
-
-        $configuredFieldType = $fieldTypeConfiguration->getFieldTypes()->get($fieldType);
-
-        return $configuredFieldType?->getSettings() ?? [];
     }
 
     /**

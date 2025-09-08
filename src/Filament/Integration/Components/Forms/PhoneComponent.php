@@ -13,7 +13,6 @@ final readonly class PhoneComponent extends AbstractFormComponent
 {
     public function create(CustomField $customField): Field
     {
-        $settings = $this->getConfigurationSettings('phone');
         $defaults = [
             'tel' => true, // Client-side hint for mobile keyboards
             'maxLength' => 20,
@@ -24,6 +23,6 @@ final readonly class PhoneComponent extends AbstractFormComponent
 
         $component = TextInput::make($customField->getFieldName());
 
-        return $this->applySettingsToComponent($component, array_merge($defaults, $settings));
+        return $this->applySettingsToComponent($component, $defaults);
     }
 }

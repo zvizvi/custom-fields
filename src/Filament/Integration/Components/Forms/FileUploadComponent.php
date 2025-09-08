@@ -13,14 +13,13 @@ final readonly class FileUploadComponent extends AbstractFormComponent
 {
     public function create(CustomField $customField): Field
     {
-        $settings = $this->getConfigurationSettings('file-upload');
         $defaults = $this->getSmartDefaults();
 
         $component = FileUpload::make($customField->getFieldName())
             ->placeholder('Choose a file or drag and drop');
 
         // Apply all settings dynamically using base class method
-        return $this->applySettingsToComponent($component, array_merge($defaults, $settings));
+        return $this->applySettingsToComponent($component, $defaults);
     }
 
     private function getSmartDefaults(): array
