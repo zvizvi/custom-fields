@@ -38,43 +38,43 @@ enum FieldDataType: string
     /**
      * Get compatible operators for this field category.
      *
-     * @return array<int, Operator>
+     * @return array<int, VisibilityOperator>
      */
     public function getCompatibleOperators(): array
     {
         return match ($this) {
             self::STRING, self::TEXT => [
-                Operator::EQUALS,
-                Operator::NOT_EQUALS,
-                Operator::CONTAINS,
-                Operator::NOT_CONTAINS,
-                Operator::IS_EMPTY,
-                Operator::IS_NOT_EMPTY,
+                VisibilityOperator::EQUALS,
+                VisibilityOperator::NOT_EQUALS,
+                VisibilityOperator::CONTAINS,
+                VisibilityOperator::NOT_CONTAINS,
+                VisibilityOperator::IS_EMPTY,
+                VisibilityOperator::IS_NOT_EMPTY,
             ],
             self::NUMERIC, self::FLOAT, self::DATE, self::DATE_TIME => [
-                Operator::EQUALS,
-                Operator::NOT_EQUALS,
-                Operator::GREATER_THAN,
-                Operator::LESS_THAN,
-                Operator::IS_EMPTY,
-                Operator::IS_NOT_EMPTY,
+                VisibilityOperator::EQUALS,
+                VisibilityOperator::NOT_EQUALS,
+                VisibilityOperator::GREATER_THAN,
+                VisibilityOperator::LESS_THAN,
+                VisibilityOperator::IS_EMPTY,
+                VisibilityOperator::IS_NOT_EMPTY,
             ],
             self::BOOLEAN => [
-                Operator::EQUALS,
-                Operator::IS_EMPTY,
-                Operator::IS_NOT_EMPTY,
+                VisibilityOperator::EQUALS,
+                VisibilityOperator::IS_EMPTY,
+                VisibilityOperator::IS_NOT_EMPTY,
             ],
             self::SINGLE_CHOICE => [
-                Operator::EQUALS,
-                Operator::NOT_EQUALS,
-                Operator::IS_EMPTY,
-                Operator::IS_NOT_EMPTY,
+                VisibilityOperator::EQUALS,
+                VisibilityOperator::NOT_EQUALS,
+                VisibilityOperator::IS_EMPTY,
+                VisibilityOperator::IS_NOT_EMPTY,
             ],
             self::MULTI_CHOICE => [
-                Operator::CONTAINS,
-                Operator::NOT_CONTAINS,
-                Operator::IS_EMPTY,
-                Operator::IS_NOT_EMPTY,
+                VisibilityOperator::CONTAINS,
+                VisibilityOperator::NOT_CONTAINS,
+                VisibilityOperator::IS_EMPTY,
+                VisibilityOperator::IS_NOT_EMPTY,
             ],
         };
     }
@@ -87,7 +87,7 @@ enum FieldDataType: string
     public function getCompatibleOperatorOptions(): array
     {
         return collect($this->getCompatibleOperators())
-            ->mapWithKeys(fn (Operator $operator) => [$operator->value => $operator->getLabel()])
+            ->mapWithKeys(fn (VisibilityOperator $operator) => [$operator->value => $operator->getLabel()])
             ->toArray();
     }
 }

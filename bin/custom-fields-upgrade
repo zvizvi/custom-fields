@@ -4,8 +4,9 @@
 /**
  * Custom Fields v1 to v2 Upgrade Script
  *
- * This standalone script upgrades your codebase from Custom Fields v1 to v2
- * without requiring Laravel to bootstrap (avoiding autoload issues).
+ * This standalone script upgrades your codebase from Custom Fields v1 to v2.
+ * Updates imports, component usage, and provides configuration guidance.
+ * Runs without requiring Laravel bootstrap (avoiding autoload conflicts).
  *
  * Usage: vendor/bin/custom-fields-upgrade [--path=/path/to/scan]
  */
@@ -38,6 +39,19 @@ $verbose = isset($options['verbose']);
 // Determine the path to scan
 $basePath = getcwd();
 $scanPath = $options['path'] ?? $basePath . '/app';
+
+// If a custom path is provided, derive the project root
+if (isset($options['path'])) {
+    // Try to find the project root by looking for composer.json or config directory
+    $checkPath = dirname($scanPath);
+    while ($checkPath !== '/' && $checkPath !== $basePath) {
+        if (file_exists($checkPath . '/composer.json') || file_exists($checkPath . '/config')) {
+            $basePath = $checkPath;
+            break;
+        }
+        $checkPath = dirname($checkPath);
+    }
+}
 
 if (! is_dir($scanPath)) {
     echo "❌ Error: Directory not found: $scanPath\n";
@@ -231,6 +245,9 @@ foreach ($iterator as $file) {
 
 echo 'Found ' . count($files) . " PHP files to scan\n\n";
 
+// Upgrade configuration file first
+$configUpgraded = upgradeConfigurationFile($basePath, $dryRun, $createBackup, $verbose);
+
 $filesUpdated = [];
 $errors = [];
 $backupFiles = [];
@@ -389,6 +406,148 @@ function processMultilinePatterns($content) {
     return [$content, $updates, $needsImport];
 }
 
+/**
+ * Upgrade configuration file from v1 to v2 format
+ */
+function upgradeConfigurationFile($basePath, $dryRun = false, $createBackup = false, $verbose = false) {
+    // Config should be in the project root, not relative to scan path
+    $configPath = $basePath . '/config/custom-fields.php';
+    
+    if (!file_exists($configPath)) {
+        if ($verbose) {
+            echo "ℹ️  No config file found at: $configPath\n";
+        }
+        return false;
+    }
+    
+    $content = file_get_contents($configPath);
+    $originalContent = $content;
+    
+    // Check if it's already v2 format
+    if (strpos($content, 'EntityConfigurator::') !== false || 
+        strpos($content, 'FeatureConfigurator::') !== false || 
+        strpos($content, 'FieldTypeConfigurator::') !== false) {
+        if ($verbose) {
+            echo "✅ Config file already appears to be v2 format\n";
+        }
+        return false;
+    }
+    
+    echo "🔧 Upgrading configuration file...\n";
+    
+    // Create v2 configuration template
+    $v2Config = '<?php
+
+declare(strict_types=1);
+
+use Relaticle\CustomFields\EntitySystem\EntityConfigurator;
+use Relaticle\CustomFields\Enums\CustomFieldsFeature;
+use Relaticle\CustomFields\FeatureSystem\FeatureConfigurator;
+use Relaticle\CustomFields\FieldTypeSystem\FieldTypeConfigurator;
+
+return [
+    /*
+    |--------------------------------------------------------------------------
+    | Entity Configuration
+    |--------------------------------------------------------------------------
+    */
+    \'entity_configuration\' => EntityConfigurator::configure()
+        ->discover(app_path(\'Models\'))
+        ->cache(false),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Advanced Field Type Configuration
+    |--------------------------------------------------------------------------
+    */
+    \'field_type_configuration\' => FieldTypeConfigurator::configure()
+        ->enabled([]) // Empty = all enabled
+        ->disabled([]) // Add field types to disable
+        ->discover(true)
+        ->cache(enabled: false, ttl: 3400),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Features Configuration
+    |--------------------------------------------------------------------------
+    */
+    \'features\' => FeatureConfigurator::configure()
+        ->enable(
+            CustomFieldsFeature::FIELD_ENCRYPTION,
+            CustomFieldsFeature::UI_TABLE_COLUMNS,
+            CustomFieldsFeature::UI_TOGGLEABLE_COLUMNS,
+            CustomFieldsFeature::UI_TABLE_FILTERS,
+            CustomFieldsFeature::SYSTEM_MANAGEMENT_INTERFACE
+        )
+        ->disable(
+            CustomFieldsFeature::SYSTEM_MULTI_TENANCY
+        ),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Management Interface Configuration
+    |--------------------------------------------------------------------------
+    */
+    \'management\' => [
+        \'slug\' => \'custom-fields\',
+        \'navigation_sort\' => -1,
+        \'navigation_group\' => true,
+        \'cluster\' => null,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Database Configuration
+    |--------------------------------------------------------------------------
+    */
+    \'database\' => [
+        \'migrations_path\' => database_path(\'custom-fields\'),
+        \'table_names\' => [
+            \'custom_field_sections\' => \'custom_field_sections\',
+            \'custom_fields\' => \'custom_fields\',
+            \'custom_field_values\' => \'custom_field_values\',
+            \'custom_field_options\' => \'custom_field_options\',
+        ],
+        \'column_names\' => [
+            \'tenant_foreign_key\' => \'tenant_id\',
+        ],
+    ],
+];
+';
+
+    if ($dryRun) {
+        echo "🔍 Would upgrade config file: config/custom-fields.php\n";
+        if ($verbose) {
+            echo "   - Convert v1 array format to v2 configurators\n";
+            echo "   - Enable features based on v1 settings\n";
+            echo "   - Add new v2 sections (entity_configuration, management, database)\n";
+        }
+        return true;
+    } else {
+        // Create backup if requested
+        if ($createBackup) {
+            $backupPath = createBackupFile($configPath);
+            if ($backupPath) {
+                echo "💾 Config backup created: " . str_replace($basePath . '/', '', $backupPath) . "\n";
+            }
+        }
+        
+        // Write v2 config
+        if (file_put_contents($configPath, $v2Config)) {
+            echo "✅ Config file upgraded to v2 format\n";
+            if ($verbose) {
+                echo "   - Converted to FeatureConfigurator, FieldTypeConfigurator, EntityConfigurator\n";
+                echo "   - Added management and database sections\n";
+                echo "   - Preserved encryption and table features\n";
+            }
+            return true;
+        } else {
+            echo "❌ Failed to write config file\n";
+            return false;
+        }
+    }
+}
+
 // Process each file
 foreach ($files as $filePath) {
     $processedFiles++;
@@ -510,12 +669,16 @@ if ($dryRun) {
 }
 echo "========================================\n\n";
 
-if (count($filesUpdated) > 0) {
+if (count($filesUpdated) > 0 || $configUpgraded) {
     if ($dryRun) {
-        echo "🔍 Files that would be updated: " . count($filesUpdated) . "\n\n";
+        echo "🔍 Changes that would be made:\n";
+        if ($configUpgraded) echo "   • Configuration file (config/custom-fields.php)\n";
+        echo "   • " . count($filesUpdated) . " PHP files\n\n";
         echo "Files that would be changed:\n";
     } else {
-        echo "✅ Files updated: " . count($filesUpdated) . "\n\n";
+        echo "✅ Upgrade completed:\n";
+        if ($configUpgraded) echo "   • Configuration file upgraded\n";
+        echo "   • " . count($filesUpdated) . " PHP files updated\n\n";
         echo "Updated files:\n";
     }
     
@@ -527,7 +690,11 @@ if (count($filesUpdated) > 0) {
         echo "\n";
     }
 } else {
-    echo "✅ No v1 components found. Your codebase appears to be already using v2!\n";
+    if ($configUpgraded) {
+        echo "✅ Configuration file upgraded. No PHP file changes needed!\n";
+    } else {
+        echo "✅ No v1 components found. Your codebase appears to be already using v2!\n";
+    }
 }
 
 // Show backup information
@@ -571,8 +738,8 @@ if ($dryRun) {
     echo "   php artisan filament:cache-components\n\n";
     
     echo "2. Review your configuration (config/custom-fields.php):\n";
-    echo "   - Field types are now managed via 'field_types' configuration\n";
-    echo "   - Custom field types use trait-based composition (see docs)\n\n";
+    echo "   - Field types are now managed via 'field_type_configuration' using FieldTypeConfigurator\n";
+    echo "   - Custom field types extend BaseFieldType and use FieldSchema (see docs)\n\n";
     
     echo "3. Review the updated files to ensure everything looks correct\n";
     echo "4. Run your test suite to verify functionality\n";

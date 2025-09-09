@@ -15,6 +15,6 @@ final class TextEntry extends AbstractInfolistEntry
     {
         return BaseTextEntry::make($customField->getFieldName())
             ->label($customField->name)
-            ->state(fn ($record) => $record->getCustomFieldValue($customField));
+            ->state(fn (mixed $record) => $record->getCustomFieldValue($customField));
     }
 }

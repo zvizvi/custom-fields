@@ -38,7 +38,7 @@ class CurrencyFieldType extends BaseFieldType
                 ValidationRule::GTE,
             ])
             ->importExample('99.99')
-            ->importTransformer(function ($state): ?float {
+            ->importTransformer(function (mixed $state): ?float {
                 if (blank($state)) {
                     return null;
                 }

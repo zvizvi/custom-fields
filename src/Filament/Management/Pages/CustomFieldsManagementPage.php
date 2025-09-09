@@ -11,6 +11,7 @@ use Filament\Pages\Page;
 use Filament\Panel;
 use Filament\Support\Enums\Size;
 use Filament\Support\Enums\Width;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
@@ -19,7 +20,9 @@ use Override;
 use Relaticle\CustomFields\CustomFields as CustomFieldsModel;
 use Relaticle\CustomFields\CustomFieldsPlugin;
 use Relaticle\CustomFields\Enums\CustomFieldSectionType;
+use Relaticle\CustomFields\Enums\CustomFieldsFeature;
 use Relaticle\CustomFields\Facades\Entities;
+use Relaticle\CustomFields\FeatureSystem\FeatureManager;
 use Relaticle\CustomFields\Filament\Management\Schemas\SectionForm;
 use Relaticle\CustomFields\Models\CustomFieldSection;
 use Relaticle\CustomFields\Support\Utils;
@@ -52,7 +55,7 @@ class CustomFieldsManagementPage extends Page
             ->withDeactivated()
             ->forEntityType($this->currentEntityType)
             ->with([
-                'fields' => function ($query): void {
+                'fields' => function (HasMany $query): void {
                     $query->forMorphEntity($this->currentEntityType)
                         ->orderBy('sort_order');
                 },
@@ -132,7 +135,7 @@ class CustomFieldsManagementPage extends Page
 
     private function storeSection(array $data): CustomFieldSection
     {
-        if (Utils::isTenantEnabled()) {
+        if (FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_MULTI_TENANCY)) {
             $data[config('custom-fields.database.column_names.tenant_foreign_key')] = Filament::getTenant()?->getKey();
         }
 
@@ -157,7 +160,7 @@ class CustomFieldsManagementPage extends Page
     #[Override]
     public static function shouldRegisterNavigation(): bool
     {
-        return Utils::isResourceNavigationRegistered();
+        return FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_MANAGEMENT_INTERFACE);
     }
 
     #[Override]

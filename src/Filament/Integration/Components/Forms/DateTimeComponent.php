@@ -8,16 +8,15 @@ use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Field;
 use Relaticle\CustomFields\Filament\Integration\Base\AbstractFormComponent;
 use Relaticle\CustomFields\Models\CustomField;
-use Relaticle\CustomFields\Support\FieldTypeUtils;
 
 final readonly class DateTimeComponent extends AbstractFormComponent
 {
     public function create(CustomField $customField): Field
     {
         return DateTimePicker::make($customField->getFieldName())
-            ->native(FieldTypeUtils::isDateTimePickerNative())
-            ->format(FieldTypeUtils::getDateTimeFormat())
-            ->displayFormat(FieldTypeUtils::getDateTimeFormat())
-            ->placeholder(FieldTypeUtils::getDateTimeFormat());
+            ->native(false)
+            ->format('Y-m-d H:i:s')
+            ->displayFormat('Y-m-d H:i:s')
+            ->placeholder('YYYY-MM-DD HH:MM:SS');
     }
 }

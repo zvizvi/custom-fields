@@ -23,13 +23,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Unique;
 use Relaticle\CustomFields\CustomFields;
+use Relaticle\CustomFields\Enums\CustomFieldsFeature;
 use Relaticle\CustomFields\Facades\CustomFieldsType;
 use Relaticle\CustomFields\Facades\Entities;
+use Relaticle\CustomFields\FeatureSystem\FeatureManager;
 use Relaticle\CustomFields\Filament\Management\Forms\Components\CustomFieldValidationComponent;
 use Relaticle\CustomFields\Filament\Management\Forms\Components\TypeField;
 use Relaticle\CustomFields\Filament\Management\Forms\Components\VisibilityComponent;
 use Relaticle\CustomFields\Models\CustomField;
-use Relaticle\CustomFields\Support\Utils;
 
 class FieldForm implements FormInterface
 {
@@ -52,7 +53,7 @@ class FieldForm implements FormInterface
                     ->visible(
                         fn (
                             Get $get
-                        ): bool => Utils::isSelectOptionColorsFeatureEnabled() &&
+                        ): bool => FeatureManager::isEnabled(CustomFieldsFeature::FIELD_OPTION_COLORS) &&
                             $get('../../settings.enable_option_colors')
                     ),
                 TextInput::make('name')->required()->columnSpan(9)->distinct(),
@@ -83,7 +84,7 @@ class FieldForm implements FormInterface
             ->mutateRelationshipDataBeforeCreateUsing(function (
                 array $data
             ): array {
-                if (Utils::isTenantEnabled()) {
+                if (FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_MULTI_TENANCY)) {
                     $data[config('custom-fields.database.column_names.tenant_foreign_key')] = Filament::getTenant()?->getKey();
                 }
 
@@ -131,8 +132,8 @@ class FieldForm implements FormInterface
                             ->live()
                             ->afterStateHydrated(function (
                                 Select $component,
-                                $state,
-                                $record
+                                mixed $state,
+                                ?CustomField $record
                             ): void {
                                 if (blank($state)) {
                                     $component->state(
@@ -170,7 +171,7 @@ class FieldForm implements FormInterface
                                 ) => $rule
                                     ->where('entity_type', $get('entity_type'))
                                     ->when(
-                                        Utils::isTenantEnabled(),
+                                        FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_MULTI_TENANCY),
                                         fn (Unique $rule) => $rule->where(
                                             config(
                                                 'custom-fields.database.column_names.tenant_foreign_key'
@@ -230,7 +231,7 @@ class FieldForm implements FormInterface
                                 ) => $rule
                                     ->where('entity_type', $get('entity_type'))
                                     ->when(
-                                        Utils::isTenantEnabled(),
+                                        FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_MULTI_TENANCY),
                                         fn (Unique $rule) => $rule->where(
                                             config(
                                                 'custom-fields.database.column_names.tenant_foreign_key'
@@ -304,8 +305,7 @@ class FieldForm implements FormInterface
                                         fn (Get $get): bool => $get(
                                             'settings.visible_in_list'
                                         ) &&
-                                            Utils::isTableColumnsToggleableEnabled() &&
-                                            Utils::isTableColumnsToggleableUserControlEnabled()
+                                            FeatureManager::isEnabled(CustomFieldsFeature::UI_TOGGLEABLE_COLUMNS)
                                     )
                                     ->afterStateHydrated(function (
                                         Toggle $component,
@@ -313,7 +313,7 @@ class FieldForm implements FormInterface
                                     ): void {
                                         if (is_null($record)) {
                                             $component->state(
-                                                Utils::isTableColumnsToggleableHiddenByDefault()
+                                                FeatureManager::isEnabled(CustomFieldsFeature::UI_TOGGLEABLE_COLUMNS_HIDDEN_DEFAULT)
                                             );
                                         }
                                     }),
@@ -340,7 +340,7 @@ class FieldForm implements FormInterface
                                     )
                                     ->afterStateHydrated(function (
                                         Toggle $component,
-                                        $state
+                                        mixed $state
                                     ): void {
                                         if (is_null($state)) {
                                             $component->state(false);
@@ -362,7 +362,7 @@ class FieldForm implements FormInterface
                                     ->visible(
                                         fn (
                                             Get $get
-                                        ): bool => Utils::isValuesEncryptionFeatureEnabled() &&
+                                        ): bool => FeatureManager::isEnabled(CustomFieldsFeature::FIELD_ENCRYPTION) &&
                                             in_array(
                                                 (string) $get('type'),
                                                 ['text', 'textarea', 'link', 'rich_editor', 'markdown_editor', 'color_picker']
@@ -386,7 +386,7 @@ class FieldForm implements FormInterface
                                     ->visible(
                                         fn (
                                             Get $get
-                                        ): bool => Utils::isSelectOptionColorsFeatureEnabled() &&
+                                        ): bool => FeatureManager::isEnabled(CustomFieldsFeature::FIELD_OPTION_COLORS) &&
                                             in_array((string) $get('type'), [
                                                 'select',
                                                 'multi_select',
@@ -421,8 +421,8 @@ class FieldForm implements FormInterface
                             ])
                             ->afterStateHydrated(function (
                                 Select $component,
-                                $state,
-                                $record,
+                                mixed $state,
+                                ?CustomField $record,
                                 Get $get
                             ): void {
                                 if (blank($state)) {
@@ -437,7 +437,7 @@ class FieldForm implements FormInterface
                                 Select $component,
                                 ?string $state,
                                 Set $set,
-                                $record
+                                ?CustomField $record
                             ): void {
                                 if ($state === 'options') {
                                     $set('lookup_type', null, true, true);
@@ -471,7 +471,7 @@ class FieldForm implements FormInterface
                     ]),
                     Tab::make('Visibility')
                         ->visible(
-                            fn (): bool => Utils::isConditionalVisibilityFeatureEnabled()
+                            fn (): bool => FeatureManager::isEnabled(CustomFieldsFeature::FIELD_CONDITIONAL_VISIBILITY)
                         )
                         ->schema([VisibilityComponent::make()]),
                     Tab::make(

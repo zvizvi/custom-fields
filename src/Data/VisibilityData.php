@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Data;
 
-use Relaticle\CustomFields\Enums\Logic;
-use Relaticle\CustomFields\Enums\Mode;
+use Relaticle\CustomFields\Enums\VisibilityLogic;
+use Relaticle\CustomFields\Enums\VisibilityMode;
 use Spatie\LaravelData\Attributes\DataCollectionOf;
 use Spatie\LaravelData\Attributes\MapName;
 use Spatie\LaravelData\Data;
@@ -19,8 +19,8 @@ class VisibilityData extends Data
      * @param  DataCollection<int, VisibilityConditionData>|null  $conditions
      */
     public function __construct(
-        public Mode $mode = Mode::ALWAYS_VISIBLE,
-        public Logic $logic = Logic::ALL,
+        public VisibilityMode $mode = VisibilityMode::ALWAYS_VISIBLE,
+        public VisibilityLogic $logic = VisibilityLogic::ALL,
         #[DataCollectionOf(VisibilityConditionData::class)]
         public ?DataCollection $conditions = null,
         public bool $alwaysSave = false,
@@ -37,7 +37,7 @@ class VisibilityData extends Data
     public function evaluate(array $fieldValues): bool
     {
         if (! $this->requiresConditions() || ! $this->conditions instanceof DataCollection) {
-            return $this->mode === Mode::ALWAYS_VISIBLE;
+            return $this->mode === VisibilityMode::ALWAYS_VISIBLE;
         }
 
         $results = [];

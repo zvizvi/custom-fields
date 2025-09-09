@@ -27,16 +27,16 @@ final class ExporterBuilder extends BaseBuilder
         $backendVisibilityService = app(BackendVisibilityService::class);
 
         // Get all fields for visibility evaluation
-        $allFields = $this->getFilteredSections()->flatMap(fn ($section) => $section->fields);
+        $allFields = $this->getFilteredSections()->flatMap(fn (mixed $section) => $section->fields);
 
         return $this->getFilteredSections()
-            ->flatMap(fn ($section) => $section->fields)
+            ->flatMap(fn (mixed $section) => $section->fields)
             ->filter(fn (CustomField $field): bool => $field->settings->visible_in_list ?? true)
             ->map(function (CustomField $field) use ($exportColumnFactory, $backendVisibilityService, $allFields) {
                 $column = $exportColumnFactory->create($field);
 
                 // Wrap the existing state with visibility check
-                return $column->state(function ($record) use ($field, $backendVisibilityService, $allFields) {
+                return $column->state(function (mixed $record) use ($field, $backendVisibilityService, $allFields) {
                     // Check visibility for this specific record
                     if (! $backendVisibilityService->isFieldVisible($record, $field, $allFields)) {
                         return null; // Don't export values for hidden fields

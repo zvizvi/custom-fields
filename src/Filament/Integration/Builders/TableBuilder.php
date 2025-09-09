@@ -8,17 +8,18 @@ declare(strict_types=1);
 namespace Relaticle\CustomFields\Filament\Integration\Builders;
 
 use Illuminate\Support\Collection;
+use Relaticle\CustomFields\Enums\CustomFieldsFeature;
+use Relaticle\CustomFields\FeatureSystem\FeatureManager;
 use Relaticle\CustomFields\Filament\Integration\Factories\FieldColumnFactory;
 use Relaticle\CustomFields\Filament\Integration\Factories\FieldFilterFactory;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Services\Visibility\BackendVisibilityService;
-use Relaticle\CustomFields\Support\Utils;
 
 final class TableBuilder extends BaseBuilder
 {
     public function columns(): Collection
     {
-        if (! Utils::isTableColumnsEnabled()) {
+        if (! FeatureManager::isEnabled(CustomFieldsFeature::UI_TABLE_COLUMNS)) {
             return collect();
         }
 
@@ -26,10 +27,10 @@ final class TableBuilder extends BaseBuilder
         $backendVisibilityService = app(BackendVisibilityService::class);
 
         // Get all fields for visibility evaluation
-        $allFields = $this->getFilteredSections()->flatMap(fn ($section) => $section->fields);
+        $allFields = $this->getFilteredSections()->flatMap(fn (mixed $section): Collection => $section->fields);
 
         return $this->getFilteredSections()
-            ->flatMap(fn ($section) => $section->fields)
+            ->flatMap(fn (mixed $section): Collection => $section->fields)
             ->filter(fn (CustomField $field): bool => $field->typeData->tableColumn !== null)
             ->map(function (CustomField $field) use ($fieldColumnFactory, $backendVisibilityService, $allFields) {
                 $column = $fieldColumnFactory->create($field);
@@ -39,7 +40,7 @@ final class TableBuilder extends BaseBuilder
                 }
 
                 // Wrap the existing state with visibility check
-                $column->formatStateUsing(function ($state, $record) use ($field, $backendVisibilityService, $allFields) {
+                $column->formatStateUsing(function (mixed $state, mixed $record) use ($field, $backendVisibilityService, $allFields): mixed {
                     if (! $backendVisibilityService->isFieldVisible($record, $field, $allFields)) {
                         return null; // Return null or empty value when field should be hidden
                     }
@@ -54,14 +55,14 @@ final class TableBuilder extends BaseBuilder
 
     public function filters(): Collection
     {
-        if (! Utils::isTableFiltersEnabled()) {
+        if (! FeatureManager::isEnabled(CustomFieldsFeature::UI_TABLE_FILTERS)) {
             return collect();
         }
 
         $fieldFilterFactory = app(FieldFilterFactory::class);
 
         return $this->getFilteredSections()
-            ->flatMap(fn ($section) => $section->fields)
+            ->flatMap(fn (mixed $section): Collection => $section->fields)
             ->filter(fn (CustomField $field): bool => $field->isFilterable() && $field->typeData->tableFilter !== null)
             ->map(fn (CustomField $field) => $fieldFilterFactory->create($field))
             ->filter()

@@ -6,10 +6,11 @@ namespace Relaticle\CustomFields\Filament\Integration\Concerns\Forms;
 
 use Filament\Forms\Components\Field;
 use Illuminate\Support\Collection;
+use Relaticle\CustomFields\Enums\CustomFieldsFeature;
+use Relaticle\CustomFields\FeatureSystem\FeatureManager;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Services\Visibility\CoreVisibilityLogicService;
 use Relaticle\CustomFields\Services\Visibility\FrontendVisibilityService;
-use Relaticle\CustomFields\Support\Utils;
 
 /**
  * ABOUTME: Trait providing visibility configuration for form fields.
@@ -29,7 +30,7 @@ trait ConfiguresVisibility
         FrontendVisibilityService $frontendVisibilityService,
         Collection $allFields
     ): Field {
-        if (! Utils::isConditionalVisibilityFeatureEnabled()) {
+        if (! FeatureManager::isEnabled(CustomFieldsFeature::FIELD_CONDITIONAL_VISIBILITY)) {
             return $field;
         }
 
@@ -72,7 +73,7 @@ trait ConfiguresVisibility
      */
     protected function configureLiveState(Field $field, array $dependentFieldCodes): Field
     {
-        if (Utils::isConditionalVisibilityFeatureEnabled() && filled($dependentFieldCodes)) {
+        if (FeatureManager::isEnabled(CustomFieldsFeature::FIELD_CONDITIONAL_VISIBILITY) && filled($dependentFieldCodes)) {
             return $field->live();
         }
 

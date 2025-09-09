@@ -3,6 +3,8 @@
 declare(strict_types=1);
 
 use Relaticle\CustomFields\EntitySystem\EntityConfigurator;
+use Relaticle\CustomFields\Enums\CustomFieldsFeature;
+use Relaticle\CustomFields\FeatureSystem\FeatureConfigurator;
 use Relaticle\CustomFields\FieldTypeSystem\FieldTypeConfigurator;
 
 return [
@@ -17,16 +19,7 @@ return [
     */
     'entity_configuration' => EntityConfigurator::configure()
         ->discover(app_path('Models'))
-        ->cache(true)
-        ->models([
-            // Example entity configurations
-            // EntityModel::for(\App\Models\Post::class)
-            //     ->label('Blog Post', 'Blog Posts')
-            //     ->icon('heroicon-o-document-text')
-            //     ->searchIn(['title', 'content'])
-            //     ->features([EntityFeature::CUSTOM_FIELDS, EntityFeature::LOOKUP_SOURCE])
-            //     ->priority(10),
-        ]),
+        ->cache(false),
 
     /*
     |--------------------------------------------------------------------------
@@ -40,90 +33,48 @@ return [
     'field_type_configuration' => FieldTypeConfigurator::configure()
         // Control which field types are available globally
         ->enabled([]) // Empty = all enabled, or specify: ['text', 'email', 'select']
-        ->disabled(['rich-editor', 'file-upload']) // Disable specific field types
+        ->disabled(['file-upload']) // Disable specific field types
         ->discover(true)
-        ->cache(enabled: true, ttl: 3600)
-        ->fieldTypes([
-            // Example: Configure file upload field type with Filament-compatible settings
-            //            Relaticle\CustomFields\FieldTypeSystem\FieldSettings::for('file-upload')
-            //                ->label('File Upload')
-            //                ->icon('heroicon-o-paper-clip')
-            //                ->priority(17)
-            //                ->defaultValidationRules([ValidationRule::FILE])
-            //                ->availableValidationRules([
-            //                    Relaticle\CustomFields\Enums\ValidationRule::REQUIRED,
-            //                    Relaticle\CustomFields\Enums\ValidationRule::MAX,
-            //                ])
-            //                ->settings([
-            //                    // Direct Filament FileUpload method calls - any method can be used
-            //                    'disk' => 'public',
-            //                    'directory' => 'uploads/custom-fields',
-            //                    'maxSize' => 10240, // 10MB
-            //                    'acceptedFileTypes' => [
-            //                        'application/pdf',
-            //                        // 'image/png',
-            //                    ],
-            //                    'multiple' => false,
-            //                    'maxFiles' => 1,
-            //                    'preserveFilenames' => false, // Security: don't preserve original names
-            //                ]),
-        ]),
+        ->cache(enabled: false, ttl: 3400),
 
     /*
     |--------------------------------------------------------------------------
     | Features Configuration
     |--------------------------------------------------------------------------
     |
-    | Enable or disable package features. All features are enabled by default.
+    | Configure package features using the type-safe enum-based configurator.
+    | This consolidates all feature settings into a single, organized system.
     |
     */
-    'features' => [
-        'conditional_visibility' => true,
-        'encryption' => true,
-        'select_option_colors' => true,
-    ],
+    'features' => FeatureConfigurator::configure()
+        ->enable(
+            CustomFieldsFeature::FIELD_CONDITIONAL_VISIBILITY,
+            CustomFieldsFeature::FIELD_ENCRYPTION,
+            CustomFieldsFeature::FIELD_OPTION_COLORS,
+            CustomFieldsFeature::UI_TABLE_COLUMNS,
+            CustomFieldsFeature::UI_TOGGLEABLE_COLUMNS,
+            CustomFieldsFeature::UI_TABLE_FILTERS,
+            CustomFieldsFeature::SYSTEM_MANAGEMENT_INTERFACE
+        )
+        ->disable(
+            CustomFieldsFeature::SYSTEM_MULTI_TENANCY
+        ),
 
     /*
     |--------------------------------------------------------------------------
-    | Resource Configuration
-    |--------------------------------------------------------------------------
-    |
-    | Customize the behavior of entity resources in Filament.
-    |
-    */
-    'resource' => [
-        'table' => [
-            'columns' => true,
-            'columns_toggleable' => true,
-            'filters' => true,
-        ],
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Management Interface
+    | Management Interface Configuration
     |--------------------------------------------------------------------------
     |
     | Configure the Custom Fields management interface in Filament.
+    | Only applies when SYSTEM_MANAGEMENT_INTERFACE feature is enabled.
     |
     */
     'management' => [
-        'enabled' => true,
         'slug' => 'custom-fields',
         'navigation_sort' => -1,
         'navigation_group' => true,
         'cluster' => null,
     ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Multi-Tenancy
-    |--------------------------------------------------------------------------
-    |
-    | Enable multi-tenancy support with automatic tenant isolation.
-    |
-    */
-    'tenant_aware' => false,
 
     /*
     |--------------------------------------------------------------------------

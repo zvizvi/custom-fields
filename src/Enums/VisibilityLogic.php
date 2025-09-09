@@ -7,9 +7,9 @@ namespace Relaticle\CustomFields\Enums;
 use Filament\Support\Contracts\HasLabel;
 
 /**
- * Logic for combining multiple conditions.
+ * VisibilityLogic for combining multiple conditions.
  */
-enum Logic: string implements HasLabel
+enum VisibilityLogic: string implements HasLabel
 {
     case ALL = 'all';
     case ANY = 'any';

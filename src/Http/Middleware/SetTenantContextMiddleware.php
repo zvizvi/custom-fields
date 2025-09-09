@@ -6,8 +6,9 @@ namespace Relaticle\CustomFields\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Relaticle\CustomFields\Enums\CustomFieldsFeature;
+use Relaticle\CustomFields\FeatureSystem\FeatureManager;
 use Relaticle\CustomFields\Services\TenantContextService;
-use Relaticle\CustomFields\Support\Utils;
 use Symfony\Component\HttpFoundation\Response;
 
 class SetTenantContextMiddleware
@@ -17,7 +18,7 @@ class SetTenantContextMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (Utils::isTenantEnabled()) {
+        if (FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_MULTI_TENANCY)) {
             TenantContextService::setFromFilamentTenant();
         }
 

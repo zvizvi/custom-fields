@@ -20,7 +20,7 @@ class EntityServiceProvider extends ServiceProvider
     {
         // Register EntityManager as singleton
         $this->app->singleton(EntityManagerInterface::class, EntityManager::class);
-        $this->app->singleton(EntityManager::class, function ($app): EntityManager {
+        $this->app->singleton(EntityManager::class, function (mixed $app): EntityManager {
             $config = $this->getEntityConfig();
 
             return new EntityManager(
@@ -88,7 +88,7 @@ class EntityServiceProvider extends ServiceProvider
 
                     // Convert features to collection of enums
                     if (isset($config['features']) && is_array($config['features'])) {
-                        $config['features'] = collect($config['features'])->map(function ($feature) {
+                        $config['features'] = collect($config['features'])->map(function (mixed $feature): EntityFeature {
                             if (is_string($feature)) {
                                 return EntityFeature::from($feature);
                             }
@@ -118,7 +118,7 @@ class EntityServiceProvider extends ServiceProvider
         }
 
         $manager->resolving(function (array $entities) use ($excludedModels): array {
-            return array_filter($entities, function ($entity) use ($excludedModels): bool {
+            return array_filter($entities, function (mixed $entity) use ($excludedModels): bool {
                 return ! in_array($entity->getModelClass(), $excludedModels, true);
             });
         });
@@ -132,7 +132,15 @@ class EntityServiceProvider extends ServiceProvider
         $entityConfiguration = config('custom-fields.entity_configuration');
 
         if ($entityConfiguration instanceof EntityConfigurationInterface) {
-            return $entityConfiguration->build();
+            return [
+                'auto_discover_entities' => $entityConfiguration->getAutoDiscover(),
+                'entity_discovery_paths' => $entityConfiguration->getDiscoveryPaths(),
+                'entity_discovery_namespaces' => $entityConfiguration->getDiscoveryNamespaces(),
+                'excluded_models' => $entityConfiguration->getExcludedModels(),
+                'cache_entities' => $entityConfiguration->getCacheEnabled(),
+                'cache_ttl' => $entityConfiguration->getCacheTtl(),
+                'entities' => $entityConfiguration->getEntities(),
+            ];
         }
 
         // Return sensible defaults if no configuration is provided

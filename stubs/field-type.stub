@@ -9,8 +9,8 @@ use Closure;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Tables\Columns\TextColumn;
 use Relaticle\CustomFields\Enums\ValidationRule;
-use Relaticle\CustomFields\FieldSystem\BaseFieldType;
-use Relaticle\CustomFields\FieldSystem\FieldTypeConfigurator;
+use Relaticle\CustomFields\FieldTypeSystem\BaseFieldType;
+use Relaticle\CustomFields\FieldTypeSystem\FieldTypeConfigurator;
 use Relaticle\CustomFields\Models\CustomField;
 
 /**

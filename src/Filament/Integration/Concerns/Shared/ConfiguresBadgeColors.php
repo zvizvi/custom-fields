@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace Relaticle\CustomFields\Filament\Integration\Concerns\Shared;
 
 use Filament\Support\Colors\Color;
+use Relaticle\CustomFields\Enums\CustomFieldsFeature;
+use Relaticle\CustomFields\FeatureSystem\FeatureManager;
 use Relaticle\CustomFields\Models\CustomField;
-use Relaticle\CustomFields\Support\Utils;
 
 trait ConfiguresBadgeColors
 {
@@ -26,7 +27,7 @@ trait ConfiguresBadgeColors
 
     private function shouldApplyBadgeColors(CustomField $customField): bool
     {
-        return Utils::isSelectOptionColorsFeatureEnabled()
+        return FeatureManager::isEnabled(CustomFieldsFeature::FIELD_OPTION_COLORS)
             && $customField->settings->enable_option_colors
             && ! $customField->lookup_type;
     }

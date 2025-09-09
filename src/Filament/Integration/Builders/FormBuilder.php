@@ -41,7 +41,7 @@ class FormBuilder extends BaseBuilder
         $fieldComponentFactory = app(FieldComponentFactory::class);
         $sectionComponentFactory = app(SectionComponentFactory::class);
 
-        $allFields = $this->getFilteredSections()->flatMap(fn ($section) => $section->fields);
+        $allFields = $this->getFilteredSections()->flatMap(fn (mixed $section) => $section->fields);
         $dependentFieldCodes = $this->getDependentFieldCodes($allFields);
 
         return $this->getFilteredSections()

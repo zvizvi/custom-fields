@@ -7,10 +7,11 @@ namespace Relaticle\CustomFields\Services\Visibility;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Relaticle\CustomFields\Data\VisibilityConditionData;
-use Relaticle\CustomFields\Enums\Logic;
-use Relaticle\CustomFields\Enums\Mode;
-use Relaticle\CustomFields\Enums\Operator;
+use Relaticle\CustomFields\Enums\VisibilityLogic;
+use Relaticle\CustomFields\Enums\VisibilityMode;
+use Relaticle\CustomFields\Enums\VisibilityOperator;
 use Relaticle\CustomFields\Models\CustomField;
+use Relaticle\CustomFields\Models\CustomFieldOption;
 
 /**
  * Frontend Visibility Service
@@ -50,7 +51,7 @@ final readonly class FrontendVisibilityService
             $this->buildFieldConditions($field, $allFields),
         ])
             ->filter()
-            ->map(fn ($condition): string => sprintf('(%s)', $condition));
+            ->map(fn (string $condition): string => sprintf('(%s)', $condition));
 
         return $conditions->isNotEmpty() ? $conditions->implode(' && ') : null;
     }
@@ -75,13 +76,13 @@ final readonly class FrontendVisibilityService
 
         $jsConditions = collect($conditions)
             ->filter(
-                fn ($condition) => $allFields->contains(
+                fn (VisibilityConditionData $condition): bool => $allFields->contains(
                     'code',
                     $condition->field_code
                 )
             )
             ->map(
-                fn ($condition): ?string => $this->buildCondition(
+                fn (VisibilityConditionData $condition): ?string => $this->buildCondition(
                     $condition,
                     $mode,
                     $allFields
@@ -94,7 +95,7 @@ final readonly class FrontendVisibilityService
             return null;
         }
 
-        $operator = $logic === Logic::ALL ? ' && ' : ' || ';
+        $operator = $logic === VisibilityLogic::ALL ? ' && ' : ' || ';
 
         return $jsConditions->implode($operator);
     }
@@ -115,17 +116,15 @@ final readonly class FrontendVisibilityService
         }
 
         $parentConditions = collect($dependentFields)
-            ->map(fn ($code) => $allFields->firstWhere('code', $code))
+            ->map(fn (string $code): ?CustomField => $allFields->firstWhere('code', $code))
             ->filter()
             ->filter(
-                fn (
-                    $parentField
-                ): bool => $this->coreLogic->hasVisibilityConditions(
+                fn (CustomField $parentField): bool => $this->coreLogic->hasVisibilityConditions(
                     $parentField
                 )
             )
             ->map(
-                fn ($parentField): ?string => $this->buildFieldConditions(
+                fn (CustomField $parentField): ?string => $this->buildFieldConditions(
                     $parentField,
                     $allFields
                 )
@@ -144,7 +143,7 @@ final readonly class FrontendVisibilityService
      */
     private function buildCondition(
         VisibilityConditionData $condition,
-        Mode $mode,
+        VisibilityMode $mode,
         Collection $allFields
     ): ?string {
 
@@ -163,14 +162,14 @@ final readonly class FrontendVisibilityService
         }
 
         // Apply mode logic using core service
-        return $mode === Mode::SHOW_WHEN ? $expression : sprintf('!(%s)', $expression);
+        return $mode === VisibilityMode::SHOW_WHEN ? $expression : sprintf('!(%s)', $expression);
     }
 
     /**
      * Build operator expression using the same logic as backend evaluation.
      */
     private function buildOperatorExpression(
-        Operator $operator,
+        VisibilityOperator $operator,
         string $fieldValue,
         mixed $value,
         ?CustomField $targetField
@@ -184,44 +183,44 @@ final readonly class FrontendVisibilityService
         }
 
         return match ($operator) {
-            Operator::EQUALS => $this->buildEqualsExpression(
+            VisibilityOperator::EQUALS => $this->buildEqualsExpression(
                 $fieldValue,
                 $value,
                 $targetField
             ),
-            Operator::NOT_EQUALS => $this->buildNotEqualsExpression(
+            VisibilityOperator::NOT_EQUALS => $this->buildNotEqualsExpression(
                 $fieldValue,
                 $value,
                 $targetField
             ),
-            Operator::CONTAINS => $this->buildContainsExpression(
+            VisibilityOperator::CONTAINS => $this->buildContainsExpression(
                 $fieldValue,
                 $value,
                 $targetField
             ),
-            Operator::NOT_CONTAINS => transform(
+            VisibilityOperator::NOT_CONTAINS => transform(
                 $this->buildContainsExpression(
                     $fieldValue,
                     $value,
                     $targetField
                 ),
-                fn ($expr): string => sprintf('!(%s)', $expr)
+                fn (?string $expr): string => sprintf('!(%s)', $expr)
             ),
-            Operator::GREATER_THAN => $this->buildNumericComparison(
+            VisibilityOperator::GREATER_THAN => $this->buildNumericComparison(
                 $fieldValue,
                 $value,
                 '>'
             ),
-            Operator::LESS_THAN => $this->buildNumericComparison(
+            VisibilityOperator::LESS_THAN => $this->buildNumericComparison(
                 $fieldValue,
                 $value,
                 '<'
             ),
-            Operator::IS_EMPTY => $this->buildEmptyExpression(
+            VisibilityOperator::IS_EMPTY => $this->buildEmptyExpression(
                 $fieldValue,
                 true
             ),
-            Operator::IS_NOT_EMPTY => $this->buildEmptyExpression(
+            VisibilityOperator::IS_NOT_EMPTY => $this->buildEmptyExpression(
                 $fieldValue,
                 false
             ),
@@ -433,7 +432,7 @@ final readonly class FrontendVisibilityService
         return $targetField->isMultiChoiceField()
             ? collect($value)
                 ->map(
-                    fn ($v): mixed => $this->convertOptionValue($v, $targetField)
+                    fn (mixed $v): mixed => $this->convertOptionValue($v, $targetField)
                 )
                 ->all()
             : $this->convertOptionValue(head($value), $targetField);
@@ -468,7 +467,7 @@ final readonly class FrontendVisibilityService
         return rescue(function () use ($value, $targetField) {
             if (is_string($value) && $targetField->options->isNotEmpty()) {
                 return $targetField->options->first(
-                    fn ($opt): bool => Str::lower(trim((string) $opt->name)) ===
+                    fn (CustomFieldOption $opt): bool => Str::lower(trim((string) $opt->name)) ===
                         Str::lower(trim($value))
                 )->id ?? $value;
             }
@@ -544,9 +543,9 @@ final readonly class FrontendVisibilityService
                 ? number_format((float) $value, 10, '.', '')
                 : (string) ((int) $value),
             is_array($value) => collect($value)
-                ->map(fn ($item): string => $this->formatJsValue($item))
+                ->map(fn (mixed $item): string => $this->formatJsValue($item))
                 ->pipe(
-                    fn ($collection): string => '['.
+                    fn (Collection $collection): string => '['.
                         $collection->implode(', ').
                         ']'
                 ),

@@ -148,7 +148,7 @@ final class CustomFieldValidationComponent extends Component
                         fn (
                             Get $get,
                             Set $set,
-                            $state,
+                            mixed $state,
                             Component $component
                         ) => $this->hydrateParameterValue(
                             $get,
@@ -160,7 +160,7 @@ final class CustomFieldValidationComponent extends Component
                     ->dehydrateStateUsing(
                         fn (
                             Get $get,
-                            $state,
+                            mixed $state,
                             Component $component
                         ): ?string => $this->dehydrateParameterValue(
                             $get,

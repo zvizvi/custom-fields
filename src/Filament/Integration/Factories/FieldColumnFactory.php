@@ -7,8 +7,9 @@ namespace Relaticle\CustomFields\Filament\Integration\Factories;
 use Closure;
 use Filament\Tables\Columns\Column;
 use InvalidArgumentException;
+use Relaticle\CustomFields\Enums\CustomFieldsFeature;
+use Relaticle\CustomFields\FeatureSystem\FeatureManager;
 use Relaticle\CustomFields\Models\CustomField;
-use Relaticle\CustomFields\Support\Utils;
 
 final class FieldColumnFactory
 {
@@ -31,7 +32,7 @@ final class FieldColumnFactory
 
         return $column
             ->toggleable(
-                condition: Utils::isTableColumnsToggleableEnabled(),
+                condition: FeatureManager::isEnabled(CustomFieldsFeature::UI_TOGGLEABLE_COLUMNS),
                 isToggledHiddenByDefault: $customField->settings->list_toggleable_hidden
             )
             ->columnSpan($customField->width->getSpanValue());

@@ -16,9 +16,9 @@ use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Enums\FieldDataType;
-use Relaticle\CustomFields\Enums\Logic;
-use Relaticle\CustomFields\Enums\Mode;
-use Relaticle\CustomFields\Enums\Operator;
+use Relaticle\CustomFields\Enums\VisibilityLogic;
+use Relaticle\CustomFields\Enums\VisibilityMode;
+use Relaticle\CustomFields\Enums\VisibilityOperator;
 use Relaticle\CustomFields\Facades\CustomFieldsType;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Services\Visibility\BackendVisibilityService;
@@ -47,21 +47,21 @@ final class VisibilityComponent extends Component
         return Fieldset::make('Conditional Visibility')->schema([
             Select::make('settings.visibility.mode')
                 ->label('Visibility')
-                ->options(Mode::class)
-                ->default(Mode::ALWAYS_VISIBLE)
+                ->options(VisibilityMode::class)
+                ->default(VisibilityMode::ALWAYS_VISIBLE)
                 ->required()
                 ->afterStateHydrated(function (
                     Select $component,
-                    $state
+                    mixed $state
                 ): void {
-                    $component->state($state ?? Mode::ALWAYS_VISIBLE);
+                    $component->state($state ?? VisibilityMode::ALWAYS_VISIBLE);
                 })
                 ->live(),
 
             Select::make('settings.visibility.logic')
-                ->label('Condition Logic')
-                ->options(Logic::class)
-                ->default(Logic::ALL)
+                ->label('Condition VisibilityLogic')
+                ->options(VisibilityLogic::class)
+                ->default(VisibilityLogic::ALL)
                 ->required()
                 ->visible(fn (Get $get): bool => $this->modeRequiresConditions($get)),
 
@@ -95,7 +95,7 @@ final class VisibilityComponent extends Component
                 ->columnSpan(4),
 
             Select::make('operator')
-                ->label('Operator')
+                ->label('VisibilityOperator')
                 ->options(fn (Get $get): array => $this->getCompatibleOperators($get))
                 ->required()
                 ->live()
@@ -125,7 +125,7 @@ final class VisibilityComponent extends Component
                 ->visible(fn (Get $get): bool => $this->shouldShowSingleSelect($get))
                 ->placeholder(fn (Get $get): string => $this->getPlaceholder($get))
                 ->afterStateHydrated(fn (Select $component, Get $get): Select => $component->state($get('value')))
-                ->afterStateUpdated(fn ($state, Set $set): mixed => $set('value', $state))
+                ->afterStateUpdated(fn (mixed $state, Set $set): mixed => $set('value', $state))
                 ->columnSpan(5),
 
             // Multiple select for multi-choice fields
@@ -156,7 +156,7 @@ final class VisibilityComponent extends Component
                 ->placeholder(fn (Get $get): string => $this->getPlaceholder($get))
                 ->visible(fn (Get $get): bool => $this->shouldShowTextInput($get))
                 ->afterStateHydrated(fn (TextInput $component, Get $get): TextInput => $component->state($get('value') ?? ''))
-                ->afterStateUpdated(fn ($state, Set $set): mixed => $set('value', $state))
+                ->afterStateUpdated(fn (mixed $state, Set $set): mixed => $set('value', $state))
                 ->columnSpan(5),
         ];
     }
@@ -276,7 +276,7 @@ final class VisibilityComponent extends Component
     {
         $mode = $get('settings.visibility.mode');
 
-        return $mode instanceof Mode && $mode->requiresConditions();
+        return $mode instanceof VisibilityMode && $mode->requiresConditions();
     }
 
     private function operatorRequiresValue(Get $get): bool
@@ -287,7 +287,7 @@ final class VisibilityComponent extends Component
         }
 
         return rescue(
-            fn () => Operator::from($operator)->requiresValue(),
+            fn () => VisibilityOperator::from($operator)->requiresValue(),
             true
         );
     }
@@ -307,7 +307,7 @@ final class VisibilityComponent extends Component
         return rescue(function () use ($entityType, $currentFieldCode) {
             return CustomFields::customFieldModel()::query()
                 ->forMorphEntity($entityType)
-                ->when($currentFieldCode, fn ($query) => $query->where('code', '!=', $currentFieldCode))
+                ->when($currentFieldCode, fn (mixed $query) => $query->where('code', '!=', $currentFieldCode))
                 ->orderBy('name')
                 ->pluck('name', 'code')
                 ->toArray();
@@ -323,7 +323,7 @@ final class VisibilityComponent extends Component
 
         return $fieldData
             ? $fieldData->dataType->getCompatibleOperatorOptions()
-            : Operator::options();
+            : VisibilityOperator::options();
     }
 
     private function getFieldTypeData(Get $get): ?object
@@ -384,8 +384,8 @@ final class VisibilityComponent extends Component
     private function isContainsOperator(?string $operator): bool
     {
         return in_array($operator, [
-            Operator::CONTAINS->value,
-            Operator::NOT_CONTAINS->value,
+            VisibilityOperator::CONTAINS->value,
+            VisibilityOperator::NOT_CONTAINS->value,
         ], true);
     }
 }

@@ -11,7 +11,9 @@ use Illuminate\Support\Collection;
 use InvalidArgumentException;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
+use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldSection;
+use Relaticle\CustomFields\QueryBuilders\CustomFieldQueryBuilder;
 
 abstract class BaseBuilder
 {
@@ -81,7 +83,7 @@ abstract class BaseBuilder
         static $sectionsCache = [];
 
         $cacheKey = get_class($this).':'.$this->model::class.':'.
-            md5(serialize($this->only).serialize($this->except));
+            hash('xxh128', serialize($this->only).serialize($this->except));
 
         if (isset($sectionsCache[$cacheKey])) {
             return $sectionsCache[$cacheKey];
@@ -89,12 +91,12 @@ abstract class BaseBuilder
 
         /** @var Collection<int, CustomFieldSection> $sections */
         $sections = $this->sections
-            ->with(['fields' => function ($query): void {
-                $query
-                    ->when($this instanceof TableBuilder, fn ($q) => $q->visibleInList())
-                    ->when($this instanceof InfolistBuilder, fn ($q) => $q->visibleInView())
-                    ->when($this->only !== [], fn ($q) => $q->whereIn('code', $this->only))
-                    ->when($this->except !== [], fn ($q) => $q->whereNotIn('code', $this->except))
+            ->with(['fields' => function (mixed $query): mixed {
+                return $query
+                    ->when($this instanceof TableBuilder, fn (CustomFieldQueryBuilder $q, bool $condition): CustomFieldQueryBuilder => $q->visibleInList())
+                    ->when($this instanceof InfolistBuilder, fn (CustomFieldQueryBuilder $q, bool $condition): CustomFieldQueryBuilder => $q->visibleInView())
+                    ->when($this->only !== [], fn (CustomFieldQueryBuilder $q, bool $condition): CustomFieldQueryBuilder => $q->whereIn('code', $this->only))
+                    ->when($this->except !== [], fn (CustomFieldQueryBuilder $q, bool $condition): CustomFieldQueryBuilder => $q->whereNotIn('code', $this->except))
                     ->with('options')
                     ->orderBy('sort_order');
             }])
@@ -102,7 +104,7 @@ abstract class BaseBuilder
 
         $filteredSections = $sections
             ->map(function (CustomFieldSection $section): CustomFieldSection {
-                $section->setRelation('fields', $section->fields->filter(fn ($field): bool => $field->typeData !== null));
+                $section->setRelation('fields', $section->fields->filter(fn (CustomField $field): bool => $field->typeData !== null));
 
                 return $section;
             })

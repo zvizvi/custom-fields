@@ -11,12 +11,11 @@ use Carbon\Carbon;
 use Exception;
 use Filament\Actions\Imports\Exceptions\RowImportFailedException;
 use Filament\Actions\Imports\ImportColumn;
-use Relaticle\CustomFields\Contracts\FieldImportExportInterface;
 use Relaticle\CustomFields\Data\ValidationRuleData;
 use Relaticle\CustomFields\Enums\FieldDataType;
 use Relaticle\CustomFields\Facades\Entities;
-use Relaticle\CustomFields\FieldTypeSystem\FieldManager;
 use Relaticle\CustomFields\Models\CustomField;
+use Relaticle\CustomFields\Models\CustomFieldOption;
 use Throwable;
 
 /**
@@ -34,7 +33,7 @@ final class ImportColumnConfigurator
     public function configure(ImportColumn $column, CustomField $customField): ImportColumn
     {
         // First, check if field type implements custom import/export behavior
-        if ($this->configureViaFieldType($column, $customField)) {
+        if ($this->configureViaFieldType()) {
             return $this->finalize($column, $customField);
         }
 
@@ -54,27 +53,10 @@ final class ImportColumnConfigurator
     /**
      * Check if field type implements custom import/export interface and configure accordingly.
      */
-    private function configureViaFieldType(ImportColumn $column, CustomField $customField): bool
+    private function configureViaFieldType(): bool
     {
-        $fieldTypeManager = app(FieldManager::class);
-        $fieldTypeInstance = $fieldTypeManager->getFieldTypeInstance($customField->type);
-
-        if (! $fieldTypeInstance instanceof FieldImportExportInterface) {
-            return false;
-        }
-
-        // Let the field type configure itself
-        $fieldTypeInstance->configureImportColumn($column);
-
-        // Set example if provided
-        $example = $fieldTypeInstance->getImportExample();
-        if ($example !== null) {
-            $column->example($example);
-        }
-
-        // No additional transformation needed - field type handles everything in configureImportColumn
-
-        return true;
+        // Import configuration is not currently supported for field types
+        return false;
     }
 
     /**
@@ -108,7 +90,7 @@ final class ImportColumnConfigurator
      */
     private function configureLookup(ImportColumn $column, CustomField $customField, bool $multiple): void
     {
-        $column->castStateUsing(function ($state) use ($customField, $multiple): array|null|int {
+        $column->castStateUsing(function (mixed $state) use ($customField, $multiple): array|null|int {
             if (blank($state)) {
                 return $multiple ? [] : null;
             }
@@ -201,7 +183,7 @@ final class ImportColumnConfigurator
      */
     private function configureChoices(ImportColumn $column, CustomField $customField, bool $multiple): void
     {
-        $column->castStateUsing(function ($state) use ($customField, $multiple): array|null|int {
+        $column->castStateUsing(function (mixed $state) use ($customField, $multiple): array|null|int {
             if (blank($state)) {
                 return $multiple ? [] : null;
             }
@@ -234,7 +216,7 @@ final class ImportColumnConfigurator
         // Try case-insensitive match
         if (! $choice) {
             $choice = $customField->options->first(
-                fn ($opt): bool => strtolower((string) $opt->name) === strtolower($value)
+                fn (CustomFieldOption $opt): bool => strtolower((string) $opt->name) === strtolower($value)
             );
         }
 
@@ -286,7 +268,7 @@ final class ImportColumnConfigurator
      */
     private function configureDate(ImportColumn $column): void
     {
-        $column->castStateUsing(function ($state): ?string {
+        $column->castStateUsing(function (mixed $state): ?string {
             if (blank($state)) {
                 return null;
             }
@@ -310,7 +292,7 @@ final class ImportColumnConfigurator
      */
     private function configureDateTime(ImportColumn $column): void
     {
-        $column->castStateUsing(function ($state): ?string {
+        $column->castStateUsing(function (mixed $state): ?string {
             if (blank($state)) {
                 return null;
             }
@@ -401,7 +383,7 @@ final class ImportColumnConfigurator
         // Apply validation rules
         $this->applyValidationRules($column, $customField);
 
-        $column->fillRecordUsing(function ($state, $record) use ($customField): void {
+        $column->fillRecordUsing(function (mixed $state, mixed $record) use ($customField): void {
             ImportDataStorage::set($record, $customField->code, $state);
         });
 

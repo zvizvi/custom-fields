@@ -36,8 +36,8 @@ final class TagsInputFieldType extends BaseFieldType
             ])
             ->withArbitraryValues()
             ->importExample('tag1, tag2, tag3')
-            ->importTransformer(function ($value) {
-                return array_map('trim', explode(',', $value));
+            ->importTransformer(function (mixed $value): array {
+                return array_map('trim', explode(',', (string) $value));
             });
     }
 }

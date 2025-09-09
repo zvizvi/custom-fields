@@ -19,10 +19,11 @@ use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
 use Livewire\Component;
 use Relaticle\CustomFields\CustomFields;
+use Relaticle\CustomFields\Enums\CustomFieldsFeature;
+use Relaticle\CustomFields\FeatureSystem\FeatureManager;
 use Relaticle\CustomFields\Filament\Management\Schemas\FieldForm;
 use Relaticle\CustomFields\Filament\Management\Schemas\SectionForm;
 use Relaticle\CustomFields\Models\CustomFieldSection;
-use Relaticle\CustomFields\Support\Utils;
 
 final class ManageCustomFieldSection extends Component implements HasActions, HasForms
 {
@@ -40,7 +41,7 @@ final class ManageCustomFieldSection extends Component implements HasActions, Ha
     }
 
     #[On('field-width-updated')]
-    public function fieldWidthUpdated(int|string $fieldId, $width): void
+    public function fieldWidthUpdated(int|string $fieldId, int $width): void
     {
         // Update the width
         $model = CustomFields::newCustomFieldModel();
@@ -165,7 +166,7 @@ final class ManageCustomFieldSection extends Component implements HasActions, Ha
                 'entity_type' => $this->entityType,
             ])
             ->mutateDataUsing(function (array $data): array {
-                if (Utils::isTenantEnabled()) {
+                if (FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_MULTI_TENANCY)) {
                     $data[config('custom-fields.database.column_names.tenant_foreign_key')] = Filament::getTenant()?->getKey();
                 }
 
@@ -179,7 +180,7 @@ final class ManageCustomFieldSection extends Component implements HasActions, Ha
                 $options = collect($data['options'] ?? [])
                     ->filter()
                     ->map(function (array $option): array {
-                        if (Utils::isTenantEnabled()) {
+                        if (FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_MULTI_TENANCY)) {
                             $option[config('custom-fields.database.column_names.tenant_foreign_key')] = Filament::getTenant()?->getKey();
                         }
 

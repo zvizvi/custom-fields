@@ -16,7 +16,7 @@ final class ImporterBuilder extends BaseBuilder
     public function columns(): Collection
     {
         return $this->getFilteredSections()
-            ->flatMap(fn ($section) => $section->fields)
+            ->flatMap(fn (mixed $section) => $section->fields)
             ->map(fn (CustomField $field): ImportColumn => $this->createColumn($field))
             ->values();
     }
@@ -48,7 +48,7 @@ final class ImporterBuilder extends BaseBuilder
     {
         return array_filter(
             $data,
-            fn ($key): bool => ! str_starts_with($key, 'custom_fields_'),
+            fn (string $key): bool => ! str_starts_with($key, 'custom_fields_'),
             ARRAY_FILTER_USE_KEY
         );
     }

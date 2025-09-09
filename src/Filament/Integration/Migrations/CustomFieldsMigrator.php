@@ -9,13 +9,14 @@ use Illuminate\Support\Facades\DB;
 use Relaticle\CustomFields\Contracts\CustomsFieldsMigrators;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Data\CustomFieldData;
+use Relaticle\CustomFields\Enums\CustomFieldsFeature;
 use Relaticle\CustomFields\Exceptions\CustomFieldAlreadyExistsException;
 use Relaticle\CustomFields\Exceptions\CustomFieldDoesNotExistException;
 use Relaticle\CustomFields\Exceptions\FieldTypeNotOptionableException;
 use Relaticle\CustomFields\Facades\CustomFieldsType;
 use Relaticle\CustomFields\Facades\Entities;
+use Relaticle\CustomFields\FeatureSystem\FeatureManager;
 use Relaticle\CustomFields\Models\CustomField;
-use Relaticle\CustomFields\Support\Utils;
 use Throwable;
 
 class CustomFieldsMigrator implements CustomsFieldsMigrators
@@ -119,15 +120,11 @@ class CustomFieldsMigrator implements CustomsFieldsMigrators
                 'code' => $this->customFieldData->section->code,
             ];
 
-            if (Utils::isTenantEnabled()) {
+            if (FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_MULTI_TENANCY)) {
                 $data[config('custom-fields.database.column_names.tenant_foreign_key')] =
                     $this->tenantId;
-                $sectionData[
-                    config('custom-fields.database.column_names.tenant_foreign_key')
-                ] = $this->tenantId;
-                $sectionAttributes[
-                    config('custom-fields.database.column_names.tenant_foreign_key')
-                ] = $this->tenantId;
+                $sectionData[config('custom-fields.database.column_names.tenant_foreign_key')] = $this->tenantId;
+                $sectionAttributes[config('custom-fields.database.column_names.tenant_foreign_key')] = $this->tenantId;
             }
 
             $section = CustomFields::newSectionModel()->updateOrCreate(
@@ -182,10 +179,8 @@ class CustomFieldsMigrator implements CustomsFieldsMigrators
 
             $updateData = $this->customFieldData->toArray();
 
-            if (Utils::isTenantEnabled()) {
-                $updateData[
-                    config('custom-fields.database.column_names.tenant_foreign_key')
-                ] = $this->tenantId;
+            if (FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_MULTI_TENANCY)) {
+                $updateData[config('custom-fields.database.column_names.tenant_foreign_key')] = $this->tenantId;
             }
 
             $this->customField->update($updateData);
@@ -268,18 +263,16 @@ class CustomFieldsMigrator implements CustomsFieldsMigrators
     ): void {
         $customField->options()->createMany(
             collect($options)
-                ->map(function ($value, $key) {
+                ->map(function (mixed $value, mixed $key) {
                     $data = [
                         'name' => $value,
                         'sort_order' => $key,
                     ];
 
-                    if (Utils::isTenantEnabled()) {
-                        $data[
-                            config(
-                                'custom-fields.database.column_names.tenant_foreign_key'
-                            )
-                        ] = $this->tenantId;
+                    if (FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_MULTI_TENANCY)) {
+                        $data[config(
+                            'custom-fields.database.column_names.tenant_foreign_key'
+                        )] = $this->tenantId;
                     }
 
                     return $data;
@@ -298,8 +291,8 @@ class CustomFieldsMigrator implements CustomsFieldsMigrators
             ->forMorphEntity($model)
             ->where('code', $code)
             ->when(
-                Utils::isTenantEnabled() && $tenantId,
-                fn ($query) => $query->where(
+                FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_MULTI_TENANCY) && $tenantId,
+                fn (mixed $query) => $query->where(
                     config('custom-fields.database.column_names.tenant_foreign_key'),
                     $tenantId
                 )

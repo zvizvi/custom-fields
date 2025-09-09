@@ -16,7 +16,6 @@ use Filament\Support\SupportServiceProvider;
 use Filament\Tables\TablesServiceProvider;
 use Filament\Widgets\WidgetsServiceProvider;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Livewire\LivewireServiceProvider;
 use Orchestra\Testbench\Concerns\WithWorkbench;
 use Orchestra\Testbench\TestCase as BaseTestCase;
@@ -25,7 +24,9 @@ use Postare\BladeMdi\BladeMdiServiceProvider;
 use Relaticle\CustomFields\CustomFieldsServiceProvider;
 use Relaticle\CustomFields\EntitySystem\EntityConfigurator;
 use Relaticle\CustomFields\EntitySystem\EntityModel;
+use Relaticle\CustomFields\Enums\CustomFieldsFeature;
 use Relaticle\CustomFields\Enums\EntityFeature;
+use Relaticle\CustomFields\FeatureSystem\FeatureConfigurator;
 use Relaticle\CustomFields\Tests\database\factories\UserFactory;
 use Relaticle\CustomFields\Tests\Fixtures\Models\Post;
 use Relaticle\CustomFields\Tests\Fixtures\Models\User;
@@ -35,7 +36,6 @@ use Spatie\LaravelData\LaravelDataServiceProvider;
 
 class TestCase extends BaseTestCase
 {
-    use LazilyRefreshDatabase;
     use WithWorkbench;
 
     #[Override]
@@ -111,15 +111,28 @@ class TestCase extends BaseTestCase
         config()->set('custom-fields.database.table_names.custom_field_values', 'custom_field_values');
         config()->set('custom-fields.database.table_names.custom_field_options', 'custom_field_options');
 
+        // Enable all necessary features for testing
+        config()->set('custom-fields.features', FeatureConfigurator::configure()
+            ->enable(
+                CustomFieldsFeature::FIELD_CONDITIONAL_VISIBILITY,
+                CustomFieldsFeature::UI_TABLE_COLUMNS,
+                CustomFieldsFeature::UI_TOGGLEABLE_COLUMNS,
+                CustomFieldsFeature::UI_TABLE_FILTERS,
+                CustomFieldsFeature::SYSTEM_MANAGEMENT_INTERFACE
+            )
+        );
+
         // Entity configuration for tests using the new builder
         config()->set('custom-fields.entity_configuration',
             EntityConfigurator::configure()
                 ->autoDiscover(false)
                 ->models([
-                    EntityModel::for(Post::class)
-                        ->label('Post')
-                        ->searchIn(['title', 'content'])
-                        ->features([EntityFeature::CUSTOM_FIELDS, EntityFeature::LOOKUP_SOURCE]),
+                    EntityModel::configure(
+                        modelClass: Post::class,
+                        labelSingular: 'Post',
+                        searchAttributes: ['title', 'content'],
+                        features: [EntityFeature::CUSTOM_FIELDS, EntityFeature::LOOKUP_SOURCE]
+                    ),
                 ])
         );
 

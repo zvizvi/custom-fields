@@ -9,7 +9,7 @@ use Filament\Support\Contracts\HasLabel;
 /**
  * Simple visibility modes for conditional fields.
  */
-enum Mode: string implements HasLabel
+enum VisibilityMode: string implements HasLabel
 {
     case ALWAYS_VISIBLE = 'always_visible';
     case SHOW_WHEN = 'show_when';

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Relaticle\CustomFields\Filament\Integration\Factories;
 
 use Closure;
+use Filament\Tables\Filters\BaseFilter;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use InvalidArgumentException;
 use Relaticle\CustomFields\Models\CustomField;
@@ -14,7 +15,7 @@ final class FieldFilterFactory
     /**
      * @throws BindingResolutionException
      */
-    public function create(CustomField $customField)
+    public function create(CustomField $customField): BaseFilter
     {
         $tableFilterDefinition = $customField->typeData->tableFilter;
 

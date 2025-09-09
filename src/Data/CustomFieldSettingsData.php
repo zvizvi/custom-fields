@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Data;
 
-use Relaticle\CustomFields\Support\Utils;
+use Relaticle\CustomFields\Enums\CustomFieldsFeature;
+use Relaticle\CustomFields\FeatureSystem\FeatureManager;
 use Spatie\LaravelData\Attributes\MapName;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Mappers\SnakeCaseMapper;
@@ -23,7 +24,7 @@ class CustomFieldSettingsData extends Data
         public array $additional = [],
     ) {
         if ($this->list_toggleable_hidden === null) {
-            $this->list_toggleable_hidden = Utils::isTableColumnsToggleableHiddenByDefault();
+            $this->list_toggleable_hidden = FeatureManager::isEnabled(CustomFieldsFeature::UI_TOGGLEABLE_COLUMNS_HIDDEN_DEFAULT);
         }
     }
 }

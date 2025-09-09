@@ -9,11 +9,12 @@ use Filament\Actions\Action;
 use Filament\Contracts\Plugin;
 use Filament\Panel;
 use Filament\Support\Concerns\EvaluatesClosures;
+use Relaticle\CustomFields\Enums\CustomFieldsFeature;
 use Relaticle\CustomFields\Facades\CustomFieldsType;
+use Relaticle\CustomFields\FeatureSystem\FeatureManager;
 use Relaticle\CustomFields\Filament\Management\Pages\CustomFieldsManagementPage;
 use Relaticle\CustomFields\Http\Middleware\SetTenantContextMiddleware;
 use Relaticle\CustomFields\Services\TenantContextService;
-use Relaticle\CustomFields\Support\Utils;
 
 class CustomFieldsPlugin implements Plugin
 {
@@ -37,7 +38,7 @@ class CustomFieldsPlugin implements Plugin
 
     public function boot(Panel $panel): void
     {
-        if (Utils::isTenantEnabled()) {
+        if (FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_MULTI_TENANCY)) {
             Action::configureUsing(
                 fn (Action $action): Action => $action->before(
                     function (Action $action): Action {

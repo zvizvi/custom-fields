@@ -185,7 +185,7 @@ final readonly class BackendVisibilityService
         if (is_array($value)) {
             return collect($value)
                 ->map(
-                    fn ($id) => is_numeric($id)
+                    fn (mixed $id) => is_numeric($id)
                         ? $options->get($id)->name ?? $id
                         : $id
                 )

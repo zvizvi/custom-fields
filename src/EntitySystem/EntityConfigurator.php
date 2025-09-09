@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\EntitySystem;
 
-use Closure;
 use InvalidArgumentException;
 use Relaticle\CustomFields\Contracts\EntityConfigurationInterface;
 
@@ -81,12 +80,12 @@ final class EntityConfigurator implements EntityConfigurationInterface
         $this->autoDiscover = false;
         $this->excludedModels = [];
 
-        // Convert model classes to EntityModel instances if needed
+        // Convert model classes to entity configuration arrays if needed
         $entityModels = [];
         foreach ($models as $model) {
             if (is_string($model) && class_exists($model)) {
                 $entityModels[] = EntityModel::for($model);
-            } elseif ($model instanceof EntityModel) {
+            } elseif (is_array($model)) {
                 $entityModels[] = $model;
             }
         }
@@ -116,76 +115,112 @@ final class EntityConfigurator implements EntityConfigurationInterface
     }
 
     /**
-     * Register specific entity models with custom configuration
+     * Configure specific entity models with custom settings
      */
     public function models(array $entityModels): self
     {
         foreach ($entityModels as $entityModel) {
-            if (! $entityModel instanceof EntityModel) {
-                throw new InvalidArgumentException('All models must be instances of EntityModel');
+            if (! is_array($entityModel)) {
+                throw new InvalidArgumentException('All models must be configuration arrays');
             }
-        }
 
-        $this->entityModels = $entityModels;
+            // Validate required keys
+            $required = ['modelClass', 'alias'];
+            foreach ($required as $key) {
+                if (! isset($entityModel[$key])) {
+                    throw new InvalidArgumentException('Entity configuration missing required key: '.$key);
+                }
+            }
+
+            // Merge configurations instead of replacing
+            $this->entityModels[] = $entityModel;
+        }
 
         return $this;
     }
 
     /**
-     * Register entities using a closure for deferred execution
-     */
-    public function modelsUsing(Closure $callback): self
-    {
-        $models = $callback();
-
-        if (! is_array($models)) {
-            throw new InvalidArgumentException('Callback must return an array of EntityModel instances');
-        }
-
-        return $this->models($models);
-    }
-
-    /**
-     * Build the final configuration array compatible with the system
-     */
-    public function build(): array
-    {
-        return [
-            'auto_discover_entities' => $this->autoDiscover,
-            'entity_discovery_paths' => $this->discoveryPaths,
-            'entity_discovery_namespaces' => $this->discoveryNamespaces,
-            'excluded_models' => $this->excludedModels,
-            'cache_entities' => $this->cacheEnabled,
-            'cache_ttl' => $this->cacheTtl,
-            'entities' => $this->buildEntitiesArray(),
-        ];
-    }
-
-    /**
-     * Build the entities array from configured EntityModel instances
+     * Build the entities array from configured entity arrays
      */
     private function buildEntitiesArray(): array
     {
         $entities = [];
 
         foreach ($this->entityModels as $entityModel) {
-            $config = $entityModel->build();
-            $entities[$config->getAlias()] = [
-                'modelClass' => $config->getModelClass(),
-                'alias' => $config->getAlias(),
-                'labelSingular' => $config->getLabelSingular(),
-                'labelPlural' => $config->getLabelPlural(),
-                'icon' => $config->getIcon(),
-                'primaryAttribute' => $config->getPrimaryAttribute(),
-                'searchAttributes' => $config->getSearchAttributes(),
-                'resourceClass' => $config->getResourceClass(),
-                'features' => $config->getFeatures(),
-                'priority' => $config->getPriority(),
-                'metadata' => $config->getMetadata(),
-            ];
+            $entities[$entityModel['alias']] = $entityModel;
         }
 
         return $entities;
+    }
+
+    /**
+     * Get auto discover setting
+     */
+    public function getAutoDiscover(): bool
+    {
+        return $this->autoDiscover;
+    }
+
+    /**
+     * Get discovery paths
+     */
+    public function getDiscoveryPaths(): array
+    {
+        return $this->discoveryPaths;
+    }
+
+    /**
+     * Get discovery namespaces
+     */
+    public function getDiscoveryNamespaces(): array
+    {
+        return $this->discoveryNamespaces;
+    }
+
+    /**
+     * Get excluded models
+     */
+    public function getExcludedModels(): array
+    {
+        return $this->excludedModels;
+    }
+
+    /**
+     * Get cache enabled setting
+     */
+    public function getCacheEnabled(): bool
+    {
+        return $this->cacheEnabled;
+    }
+
+    /**
+     * Get cache TTL
+     */
+    public function getCacheTtl(): int
+    {
+        return $this->cacheTtl;
+    }
+
+    /**
+     * Get entities array
+     */
+    public function getEntities(): array
+    {
+        return $this->buildEntitiesArray();
+    }
+
+    /**
+     * Restore the configurator from var_export
+     */
+    public static function __set_state(array $properties): self
+    {
+        $instance = new self;
+
+        foreach ($properties as $property => $value) {
+            $instance->$property = $value;
+        }
+
+        return $instance;
     }
 
     /**

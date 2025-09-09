@@ -12,7 +12,6 @@ use Relaticle\CustomFields\Filament\Integration\Concerns\Tables\ConfiguresColumn
 use Relaticle\CustomFields\Filament\Integration\Concerns\Tables\ConfiguresSearchable;
 use Relaticle\CustomFields\Filament\Integration\Concerns\Tables\ConfiguresSortable;
 use Relaticle\CustomFields\Models\CustomField;
-use Relaticle\CustomFields\Support\FieldTypeUtils;
 
 class DateTimeColumn extends AbstractTableColumn
 {
@@ -30,7 +29,7 @@ class DateTimeColumn extends AbstractTableColumn
         $this->configureSortable($column, $customField);
         $this->configureSearchable($column, $customField);
 
-        $column->getStateUsing(function ($record) use ($customField) {
+        $column->getStateUsing(function (mixed $record) use ($customField) {
             $value = $record->getCustomFieldValue($customField);
 
             if ($this->locale instanceof Closure) {
@@ -38,11 +37,11 @@ class DateTimeColumn extends AbstractTableColumn
             }
 
             if ($value && $customField->type === 'date_time') {
-                return $value->format(FieldTypeUtils::getDateTimeFormat());
+                return $value->format('Y-m-d H:i:s');
             }
 
             if ($value && $customField->type === 'date') {
-                return $value->format(FieldTypeUtils::getDateFormat());
+                return $value->format('Y-m-d');
             }
 
             return $value;

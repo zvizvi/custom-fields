@@ -5,15 +5,12 @@ declare(strict_types=1);
 namespace Relaticle\CustomFields\FieldTypeSystem;
 
 use Closure;
-use Illuminate\Support\Collection;
-use InvalidArgumentException;
-use Relaticle\CustomFields\Contracts\FieldTypeConfigurationInterface;
 
 /**
  * System-wide configuration for the entire field type system
  * Provides clean, discoverable API for field type configuration and management
  */
-final class FieldTypeConfigurator implements FieldTypeConfigurationInterface
+final class FieldTypeConfigurator
 {
     private bool $autoDiscover = true;
 
@@ -24,8 +21,6 @@ final class FieldTypeConfigurator implements FieldTypeConfigurationInterface
     private string $cacheStore = 'default';
 
     private array $cacheTags = ['field-types', 'configuration'];
-
-    private array $fieldTypes = [];
 
     private array $enabledFieldTypes = [];
 
@@ -74,22 +69,6 @@ final class FieldTypeConfigurator implements FieldTypeConfigurationInterface
     }
 
     /**
-     * Configure field types
-     */
-    public function fieldTypes(array $fieldTypes): self
-    {
-        foreach ($fieldTypes as $fieldType) {
-            if (! $fieldType instanceof FieldSettings) {
-                throw new InvalidArgumentException('Field type must be an instance of FieldSettings');
-            }
-        }
-
-        $this->fieldTypes = $fieldTypes;
-
-        return $this;
-    }
-
-    /**
      * Add conditional configuration
      */
     public function when(bool $condition, Closure $callback): self
@@ -122,16 +101,6 @@ final class FieldTypeConfigurator implements FieldTypeConfigurationInterface
     }
 
     /**
-     * Get the field types collection (respects enabled/disabled settings)
-     */
-    public function getFieldTypes(): Collection
-    {
-        return collect($this->fieldTypes)
-            ->filter(fn (FieldSettings $fieldType): bool => $this->isFieldTypeAllowed($fieldType->getKey()))
-            ->keyBy(fn (FieldSettings $fieldType): string => $fieldType->getKey());
-    }
-
-    /**
      * Check if a field type is allowed based on enabled/disabled configuration
      */
     public function isFieldTypeAllowed(string $fieldTypeKey): bool
@@ -151,42 +120,16 @@ final class FieldTypeConfigurator implements FieldTypeConfigurationInterface
     }
 
     /**
-     * Check if caching is enabled
+     * Restore the configurator from var_export
      */
-    public function isCacheEnabled(): bool
+    public static function __set_state(array $properties): self
     {
-        return $this->cacheEnabled;
-    }
+        $instance = new self;
 
-    /**
-     * Get cache TTL
-     */
-    public function getCacheTtl(): int
-    {
-        return $this->cacheTtl;
-    }
+        foreach ($properties as $property => $value) {
+            $instance->$property = $value;
+        }
 
-    /**
-     * Get cache store
-     */
-    public function getCacheStore(): string
-    {
-        return $this->cacheStore;
-    }
-
-    /**
-     * Get cache tags
-     */
-    public function getCacheTags(): array
-    {
-        return $this->cacheTags;
-    }
-
-    /**
-     * Check if auto-discovery is enabled
-     */
-    public function isAutoDiscoveryEnabled(): bool
-    {
-        return $this->autoDiscover;
+        return $instance;
     }
 }

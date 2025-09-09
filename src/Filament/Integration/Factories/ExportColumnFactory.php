@@ -22,7 +22,7 @@ final readonly class ExportColumnFactory
     {
         return ExportColumn::make($customField->getFieldName())
             ->label($customField->name)
-            ->state(function ($record) use ($customField) {
+            ->state(function (mixed $record) use ($customField) {
                 return $this->valueResolver->resolve(
                     record: $record,
                     customField: $customField,

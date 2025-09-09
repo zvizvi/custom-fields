@@ -17,6 +17,8 @@ use Relaticle\CustomFields\Console\Commands\MakeCustomFieldsMigrationCommand;
 use Relaticle\CustomFields\Console\Commands\MakeFieldTypeCommand;
 use Relaticle\CustomFields\Contracts\CustomsFieldsMigrators;
 use Relaticle\CustomFields\Contracts\ValueResolvers;
+use Relaticle\CustomFields\Enums\CustomFieldsFeature;
+use Relaticle\CustomFields\FeatureSystem\FeatureManager;
 use Relaticle\CustomFields\Filament\Integration\Migrations\CustomFieldsMigrator;
 use Relaticle\CustomFields\Livewire\ManageCustomField;
 use Relaticle\CustomFields\Livewire\ManageCustomFieldSection;
@@ -30,7 +32,6 @@ use Relaticle\CustomFields\Providers\ValidationServiceProvider;
 use Relaticle\CustomFields\Services\TenantContextService;
 use Relaticle\CustomFields\Services\ValueResolver\ValueResolver;
 use Relaticle\CustomFields\Services\Visibility\BackendVisibilityService;
-use Relaticle\CustomFields\Support\Utils;
 use Spatie\LaravelPackageTools\Commands\InstallCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
@@ -54,7 +55,7 @@ final class CustomFieldsServiceProvider extends PackageServiceProvider
         $this->app->singleton(TenantContextService::class);
         $this->app->singleton(BackendVisibilityService::class);
 
-        if (Utils::isTenantEnabled()) {
+        if (FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_MULTI_TENANCY)) {
             foreach (Filament::getPanels() as $panel) {
                 $tenantModel = $panel->getTenantModel();
                 if ($tenantModel !== null) {

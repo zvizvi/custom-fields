@@ -11,11 +11,12 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Crypt;
 use Relaticle\CustomFields\CustomFields;
+use Relaticle\CustomFields\Enums\CustomFieldsFeature;
+use Relaticle\CustomFields\FeatureSystem\FeatureManager;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldValue;
 use Relaticle\CustomFields\QueryBuilders\CustomFieldQueryBuilder;
-use Relaticle\CustomFields\Support\Utils;
 
 /**
  * @see HasCustomFields
@@ -118,7 +119,7 @@ trait UsesCustomFields
     {
         $data = ['custom_field_id' => $customField->getKey()];
 
-        if (Utils::isTenantEnabled()) {
+        if (FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_MULTI_TENANCY)) {
             $data[config('custom-fields.database.column_names.tenant_foreign_key')] = $this->resolveTenantId($tenant, $customField);
         }
 

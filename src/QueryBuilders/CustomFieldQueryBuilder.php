@@ -23,10 +23,9 @@ class CustomFieldQueryBuilder extends Builder
     /** @return CustomFieldQueryBuilder<TModelClass> */
     public function forEntity(string $model): self
     {
-        return $this->where(
-            'entity_type',
-            (Entities::getEntity($model)?->getAlias()) ?? $model
-        );
+        $entityType = (Entities::getEntity($model)?->getAlias()) ?? $model;
+
+        return $this->where('entity_type', $entityType);
     }
 
     /** @return CustomFieldQueryBuilder<TModelClass> */
@@ -47,7 +46,7 @@ class CustomFieldQueryBuilder extends Builder
     /** @return CustomFieldQueryBuilder<TModelClass> */
     public function nonEncrypted(): self
     {
-        return $this->where(function ($query): void {
+        return $this->where(function (Builder $query): void {
             $query->whereNull('settings')->orWhereJsonDoesntContain('settings->encrypted', true);
         });
     }
@@ -55,7 +54,7 @@ class CustomFieldQueryBuilder extends Builder
     /** @return CustomFieldQueryBuilder<TModelClass> */
     public function visibleInList(): self
     {
-        return $this->where(function ($query): void {
+        return $this->where(function (Builder $query): void {
             $query->whereNull('settings')->orWhereJsonDoesntContain('settings->visible_in_list', false);
         });
     }
@@ -63,7 +62,7 @@ class CustomFieldQueryBuilder extends Builder
     /** @return CustomFieldQueryBuilder<TModelClass> */
     public function visibleInView(): self
     {
-        return $this->where(function ($query): void {
+        return $this->where(function (Builder $query): void {
             $query->whereNull('settings')->orWhereJsonDoesntContain('settings->visible_in_view', false);
         });
     }
