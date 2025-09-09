@@ -17,7 +17,7 @@ use Relaticle\CustomFields\QueryBuilders\CustomFieldQueryBuilder;
 
 abstract class BaseBuilder
 {
-    protected Model & HasCustomFields $model;
+    protected Model&HasCustomFields $model;
 
     protected Builder $sections;
 
@@ -33,7 +33,7 @@ abstract class BaseBuilder
         return $this->forModel($model);
     }
 
-    public function forModel(Model | string $model): static
+    public function forModel(Model|string $model): static
     {
         if (is_string($model)) {
             $model = app($model);
@@ -82,8 +82,8 @@ abstract class BaseBuilder
         // Use a static cache within the request to prevent duplicate queries
         static $sectionsCache = [];
 
-        $cacheKey = get_class($this) . ':' . $this->model::class . ':' .
-            md5(serialize($this->only) . serialize($this->except));
+        $cacheKey = get_class($this).':'.$this->model::class.':'.
+            hash('xxh128', serialize($this->only).serialize($this->except));
 
         if (isset($sectionsCache[$cacheKey])) {
             return $sectionsCache[$cacheKey];

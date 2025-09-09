@@ -123,12 +123,8 @@ class CustomFieldsMigrator implements CustomsFieldsMigrators
             if (FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_MULTI_TENANCY)) {
                 $data[config('custom-fields.database.column_names.tenant_foreign_key')] =
                     $this->tenantId;
-                $sectionData[
-                    config('custom-fields.database.column_names.tenant_foreign_key')
-                ] = $this->tenantId;
-                $sectionAttributes[
-                    config('custom-fields.database.column_names.tenant_foreign_key')
-                ] = $this->tenantId;
+                $sectionData[config('custom-fields.database.column_names.tenant_foreign_key')] = $this->tenantId;
+                $sectionAttributes[config('custom-fields.database.column_names.tenant_foreign_key')] = $this->tenantId;
             }
 
             $section = CustomFields::newSectionModel()->updateOrCreate(
@@ -184,9 +180,7 @@ class CustomFieldsMigrator implements CustomsFieldsMigrators
             $updateData = $this->customFieldData->toArray();
 
             if (FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_MULTI_TENANCY)) {
-                $updateData[
-                    config('custom-fields.database.column_names.tenant_foreign_key')
-                ] = $this->tenantId;
+                $updateData[config('custom-fields.database.column_names.tenant_foreign_key')] = $this->tenantId;
             }
 
             $this->customField->update($updateData);
@@ -276,11 +270,9 @@ class CustomFieldsMigrator implements CustomsFieldsMigrators
                     ];
 
                     if (FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_MULTI_TENANCY)) {
-                        $data[
-                            config(
-                                'custom-fields.database.column_names.tenant_foreign_key'
-                            )
-                        ] = $this->tenantId;
+                        $data[config(
+                            'custom-fields.database.column_names.tenant_foreign_key'
+                        )] = $this->tenantId;
                     }
 
                     return $data;
@@ -310,11 +302,6 @@ class CustomFieldsMigrator implements CustomsFieldsMigrators
 
     protected function isCustomFieldTypeOptionable(): bool
     {
-        try {
-            return CustomFieldsType::getFieldType($this->customFieldData->type)->dataType->isChoiceField();
-
-        } catch (Throwable) {
-            dd($this->customFieldData, $this->customFieldData->type);
-        }
+        return CustomFieldsType::getFieldType($this->customFieldData->type)->dataType->isChoiceField();
     }
 }
