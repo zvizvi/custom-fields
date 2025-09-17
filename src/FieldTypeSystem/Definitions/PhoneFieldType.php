@@ -19,7 +19,7 @@ class PhoneFieldType extends BaseFieldType
 {
     public function configure(): FieldSchema
     {
-        return FieldSchema::text()
+        return FieldSchema::string()
             ->key('phone')
             ->label('Phone Number')
             ->icon('heroicon-o-phone')

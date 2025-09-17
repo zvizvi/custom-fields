@@ -19,7 +19,7 @@ class EmailFieldType extends BaseFieldType
 {
     public function configure(): FieldSchema
     {
-        return FieldSchema::text()
+        return FieldSchema::string()
             ->key('email')
             ->label('Email')
             ->icon('heroicon-o-envelope')
