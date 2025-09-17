@@ -78,7 +78,24 @@ final class ImportColumnConfigurator
     {
         $column->array(',');
 
-        if ($customField->lookup_type) {
+        // If field accepts arbitrary values (like tags-input), don't validate against options
+        if ($customField->typeData->acceptsArbitraryValues) {
+            $column->castStateUsing(function (mixed $state): array {
+                if (blank($state)) {
+                    return [];
+                }
+
+                // Convert string to array if needed
+                if (is_string($state)) {
+                    return array_map('trim', explode(',', $state));
+                }
+
+                return is_array($state) ? $state : [$state];
+            });
+
+            $column->example('tag1, tag2, tag3');
+            $column->helperText('Separate multiple values with commas');
+        } elseif ($customField->lookup_type) {
             $this->configureLookup($column, $customField, true);
         } else {
             $this->configureChoices($column, $customField, true);
