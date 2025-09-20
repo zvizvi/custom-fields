@@ -100,14 +100,14 @@ trait ConfiguresColorOptions
                 if ($color) {
                     return [
                         $option->id => str(
-                            '<div class="flex items-center gap-2">
+                            '<span style="display: flex; align-items: center; gap: 0.3rem;">
                             <span style=" width: 0.7rem;
   height: 0.7rem;
   border-radius: 50%;
   display: inline-block;
-  margin-right: 0.1rem; background-color:{BACKGROUND_COLOR}"></span>
+  background-color:{BACKGROUND_COLOR}"></span>
                             <span>{LABEL}</span>
-                            </div>'
+                            </span>'
                         )
                             ->replace(['{BACKGROUND_COLOR}', '{LABEL}'], [e($color), e($text)])
                             ->toString(),
