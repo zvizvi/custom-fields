@@ -34,7 +34,7 @@ class CustomFieldOption extends Model
 
     protected $guarded = [];
 
-    protected static function boot()
+    protected static function boot(): void
     {
         parent::boot();
 
@@ -54,7 +54,7 @@ class CustomFieldOption extends Model
             }
 
             // Check if encryption is enabled
-            if ($option->customField?->settings?->encrypted ?? false) {
+            if ($option->customField->settings->encrypted) {
                 $option->attributes['name'] = Crypt::encryptString($rawName);
             }
         });
