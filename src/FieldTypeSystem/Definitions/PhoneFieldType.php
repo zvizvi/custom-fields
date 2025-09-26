@@ -27,6 +27,7 @@ class PhoneFieldType extends BaseFieldType
             ->tableColumn(TextColumn::class)
             ->infolistEntry(TextEntry::class)
             ->priority(16)
+            ->encryptable()
             ->searchable()
             ->sortable()
             ->availableValidationRules([

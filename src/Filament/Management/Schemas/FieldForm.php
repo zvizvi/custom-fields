@@ -323,10 +323,7 @@ class FieldForm implements FormInterface
                                     ->visible(
                                         fn (
                                             Get $get
-                                        ): bool => in_array(
-                                            (string) $get('type'),
-                                            ['text', 'textarea', 'rich_editor', 'markdown_editor', 'tags_input', 'date', 'date_time']
-                                        )
+                                        ): bool => CustomFieldsType::getFieldType($get('type'))->searchable
                                     )
                                     ->disabled(
                                         fn (Get $get): bool => $get(
@@ -354,6 +351,7 @@ class FieldForm implements FormInterface
                                             ?CustomField $record
                                         ): bool => (bool) $record?->exists
                                     )
+                                    ->dehydrated()
                                     ->label(
                                         __(
                                             'custom-fields::custom-fields.field.form.encrypted'
@@ -363,10 +361,7 @@ class FieldForm implements FormInterface
                                         fn (
                                             Get $get
                                         ): bool => FeatureManager::isEnabled(CustomFieldsFeature::FIELD_ENCRYPTION) &&
-                                            in_array(
-                                                (string) $get('type'),
-                                                ['text', 'textarea', 'link', 'rich_editor', 'markdown_editor', 'color_picker']
-                                            )
+                                            CustomFieldsType::getFieldType($get('type'))->encryptable
                                     )
                                     ->default(false),
                                 // Appearance settings

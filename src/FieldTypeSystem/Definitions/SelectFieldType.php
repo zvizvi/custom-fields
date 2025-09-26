@@ -24,6 +24,7 @@ class SelectFieldType extends BaseFieldType
             ->tableColumn(SingleChoiceColumn::class)
             ->tableFilter(SelectFilter::class)
             ->infolistEntry(SingleChoiceEntry::class)
+            ->encryptable()
             ->priority(50)
             ->availableValidationRules([
                 ValidationRule::REQUIRED,

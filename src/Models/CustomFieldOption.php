@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace Relaticle\CustomFields\Models;
 
 use Illuminate\Database\Eloquent\Attributes\ScopedBy;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Crypt;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Data\CustomFieldOptionSettingsData;
 use Relaticle\CustomFields\Database\Factories\CustomFieldOptionFactory;
@@ -32,6 +34,32 @@ class CustomFieldOption extends Model
 
     protected $guarded = [];
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        // Handle encryption when saving
+        static::saving(function (self $option): void {
+            // Only process if we have a name and custom_field_id
+            if (! isset($option->attributes['name']) || ! $option->custom_field_id) {
+                return;
+            }
+
+            // Get the raw name value from attributes
+            $rawName = $option->attributes['name'];
+
+            // Load the custom field if not loaded
+            if (! $option->relationLoaded('customField')) {
+                $option->load('customField');
+            }
+
+            // Check if encryption is enabled
+            if ($option->customField?->settings?->encrypted ?? false) {
+                $option->attributes['name'] = Crypt::encryptString($rawName);
+            }
+        });
+    }
+
     protected $casts = [
         'settings' => CustomFieldOptionSettingsData::class.':default',
     ];
@@ -48,6 +76,33 @@ class CustomFieldOption extends Model
         'sort_order',
         'custom_field_id',
     ];
+
+    /**
+     * Handle decryption of option name based on parent field settings
+     */
+    protected function name(): Attribute
+    {
+        return Attribute::make(
+            get: function (?string $value) {
+                if ($value === null || $value === '' || $value === '0') {
+                    return $value;
+                }
+
+                // Load parent field if not already loaded
+                if (! $this->relationLoaded('customField') && $this->custom_field_id) {
+                    $this->load('customField');
+                }
+
+                // If encryption is not enabled, return as-is
+                if (! $this->customField?->settings?->encrypted) {
+                    return $value;
+                }
+
+                // Value is not encrypted, return as-is
+                return Crypt::decryptString($value);
+            }
+        );
+    }
 
     /**
      * @param  array<string, mixed>  $attributes

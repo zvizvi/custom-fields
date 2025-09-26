@@ -26,6 +26,7 @@ class TextFieldType extends BaseFieldType
             ->formComponent(TextInputComponent::class)
             ->tableColumn(TextColumn::class)
             ->infolistEntry(TextEntry::class)
+            ->encryptable()
             ->priority(10)
             ->availableValidationRules([
                 ValidationRule::REQUIRED,
