@@ -35,9 +35,6 @@ final class TagsInputFieldType extends BaseFieldType
                 ValidationRule::DISTINCT,
             ])
             ->withArbitraryValues()
-            ->importExample('tag1, tag2, tag3')
-            ->importTransformer(function (mixed $value): array {
-                return array_map('trim', explode(',', (string) $value));
-            });
+            ->importExample('tag1, tag2, tag3');
     }
 }

@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Filament\Integration\Factories;
 
+use Exception;
 use Filament\Actions\Imports\ImportColumn;
 use Relaticle\CustomFields\Filament\Integration\Support\Imports\ImportColumnConfigurator;
 use Relaticle\CustomFields\Models\CustomField;
@@ -36,6 +37,8 @@ final class ImportColumnFactory
      *
      * @param  CustomField  $customField  The custom field to create an import column for
      * @return ImportColumn The fully configured import column
+     *
+     * @throws Exception
      */
     public function create(CustomField $customField): ImportColumn
     {
