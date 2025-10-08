@@ -6,13 +6,15 @@ namespace Relaticle\CustomFields\Filament\Integration\Builders;
 
 use Filament\Infolists\Components\Entry;
 use Filament\Schemas\Components\Component;
-use Filament\Schemas\Components\Grid;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Relaticle\CustomFields\Filament\Integration\Factories\FieldInfolistsFactory;
 use Relaticle\CustomFields\Filament\Integration\Factories\SectionInfolistsFactory;
+use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldSection;
 use Relaticle\CustomFields\Services\Visibility\BackendVisibilityService;
+use Throwable;
 
 final class InfolistBuilder extends BaseBuilder
 {
@@ -24,14 +26,30 @@ final class InfolistBuilder extends BaseBuilder
 
     public function build(): Component
     {
-        return Grid::make(1)->schema($this->values()->toArray());
+        try {
+            $model = $this->model;
+        } catch (Throwable) {
+            $model = null;
+        }
+
+        return InfolistContainer::make()
+            ->forModel($model)
+            ->hiddenLabels($this->hiddenLabels)
+            ->visibleWhenFilled($this->visibleWhenFilled)
+            ->withoutSections($this->withoutSections)
+            ->only($this->only)
+            ->except($this->except);
     }
 
     /**
      * @return Collection<int, mixed>
      */
-    public function values(): Collection
+    public function values(null | (Model & HasCustomFields) $model = null): Collection
     {
+        if ($model !== null) {
+            $this->forModel($model);
+        }
+
         $fieldInfolistsFactory = app(FieldInfolistsFactory::class);
         $sectionInfolistsFactory = app(SectionInfolistsFactory::class);
         $backendVisibilityService = app(BackendVisibilityService::class);
