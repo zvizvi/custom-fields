@@ -16,7 +16,10 @@ class FormBuilder extends BaseBuilder
 {
     public function build(): Grid
     {
-        return Grid::make(1)->schema($this->values()->toArray());
+        return FormContainer::make()
+            ->forModel($this->explicitModel ?? null)
+            ->only($this->only)
+            ->except($this->except);
     }
 
     private function getDependentFieldCodes(Collection $fields): array
