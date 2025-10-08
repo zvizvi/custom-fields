@@ -14,7 +14,6 @@ use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldSection;
 use Relaticle\CustomFields\Services\Visibility\BackendVisibilityService;
-use Throwable;
 
 final class InfolistBuilder extends BaseBuilder
 {
@@ -26,14 +25,8 @@ final class InfolistBuilder extends BaseBuilder
 
     public function build(): Component
     {
-        try {
-            $model = $this->model;
-        } catch (Throwable) {
-            $model = null;
-        }
-
         return InfolistContainer::make()
-            ->forModel($model)
+            ->forModel($this->explicitModel ?? null)
             ->hiddenLabels($this->hiddenLabels)
             ->visibleWhenFilled($this->visibleWhenFilled)
             ->withoutSections($this->withoutSections)
@@ -44,7 +37,7 @@ final class InfolistBuilder extends BaseBuilder
     /**
      * @return Collection<int, mixed>
      */
-    public function values(null | (Model & HasCustomFields) $model = null): Collection
+    public function values(null|(Model&HasCustomFields) $model = null): Collection
     {
         if ($model !== null) {
             $this->forModel($model);

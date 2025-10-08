@@ -2,23 +2,16 @@
 
 namespace Relaticle\CustomFields\Filament\Integration\Builders;
 
-use Filament\Forms\Components\Field;
 use Filament\Schemas\Components\Grid;
 use Illuminate\Database\Eloquent\Model;
 
-final class InfolistContainer extends Grid
+final class FormContainer extends Grid
 {
     private Model|string|null $explicitModel = null;
 
     private array $except = [];
 
     private array $only = [];
-
-    private bool $hiddenLabels = false;
-
-    private bool $visibleWhenFilled = false;
-
-    private bool $withoutSections = false;
 
     public static function make(array|int|null $columns = 1): static
     {
@@ -51,30 +44,6 @@ final class InfolistContainer extends Grid
         return $this;
     }
 
-    public function hiddenLabels(bool $hiddenLabels = true): static
-    {
-        $this->hiddenLabels = $hiddenLabels;
-
-        return $this;
-    }
-
-    public function visibleWhenFilled(bool $visibleWhenFilled = true): static
-    {
-        $this->visibleWhenFilled = $visibleWhenFilled;
-
-        return $this;
-    }
-
-    public function withoutSections(bool $withoutSections = true): static
-    {
-        $this->withoutSections = $withoutSections;
-
-        return $this;
-    }
-
-    /**
-     * @return array<int, Field>
-     */
     private function generateSchema(): array
     {
         // Inline priority: explicit ?? record ?? model class
@@ -84,14 +53,13 @@ final class InfolistContainer extends Grid
             return []; // Graceful fallback
         }
 
-        $builder = app(InfolistBuilder::class)
+        $builder = app(FormBuilder::class);
+
+        return $builder
             ->forModel($model)
             ->only($this->only)
             ->except($this->except)
-            ->hiddenLabels($this->hiddenLabels)
-            ->visibleWhenFilled($this->visibleWhenFilled)
-            ->withoutSections($this->withoutSections);
-
-        return $builder->values()->toArray();
+            ->values()
+            ->toArray();
     }
 }

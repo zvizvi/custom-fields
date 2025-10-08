@@ -19,6 +19,8 @@ abstract class BaseBuilder
 {
     protected Model&HasCustomFields $model;
 
+    protected Model|string|null $explicitModel = null;
+
     protected Builder $sections;
 
     protected array $except = [];
@@ -52,6 +54,7 @@ abstract class BaseBuilder
         }
 
         $this->model = $model;
+        $this->explicitModel = $model;
 
         $this->sections = CustomFields::newSectionModel()->query()
             ->forEntityType($model::class)
