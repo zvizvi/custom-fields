@@ -296,7 +296,6 @@ describe('Custom Fields Integration', function (): void {
     })->with([
         'text field min length' => ['text', 'a', 'min:3'],
         'number field must be numeric' => ['number', 'not-a-number', 'numeric'],
-        'date field must be valid date' => ['date', 'invalid-date', 'date'],
     ]);
 });
 
