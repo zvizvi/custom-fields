@@ -154,20 +154,23 @@ final class CustomFields
     }
 
     /**
-     * Register a custom tenant resolver.
+     * Register a custom tenant resolver callback.
+     *
+     * This allows developers to provide their own tenant resolution logic
+     * when they extend the CustomField models with custom tenant handling.
+     *
+     * The resolver will be called whenever the package needs to determine
+     * the current tenant context (validation, queries, scopes, etc.).
+     *
+     * Example:
+     * ```
+     * CustomFields::resolveTenantUsing(fn() => auth()->user()?->company_id);
+     * ```
      *
      * @param  Closure(): (int|string|null)  $callback
      */
     public static function resolveTenantUsing(Closure $callback): void
     {
         TenantContextService::setTenantResolver($callback);
-    }
-
-    /**
-     * Clear the custom tenant resolver.
-     */
-    public static function clearTenantResolver(): void
-    {
-        TenantContextService::clearTenantResolver();
     }
 }
