@@ -4,6 +4,7 @@ namespace Relaticle\CustomFields\Filament\Integration\Builders;
 
 use Filament\Schemas\Components\Grid;
 use Illuminate\Database\Eloquent\Model;
+use Throwable;
 
 final class FormContainer extends Grid
 {
@@ -47,7 +48,22 @@ final class FormContainer extends Grid
     private function generateSchema(): array
     {
         // Inline priority: explicit ?? record ?? model class
-        $model = $this->explicitModel ?? $this->getRecord() ?? $this->getModel();
+        $record = null;
+        $modelClass = null;
+
+        try {
+            $record = $this->getRecord();
+        } catch (Throwable $throwable) {
+            // Record not available yet
+        }
+
+        try {
+            $modelClass = $this->getModel();
+        } catch (Throwable $throwable) {
+            // Model class not available yet
+        }
+
+        $model = $this->explicitModel ?? $record ?? $modelClass;
 
         if ($model === null) {
             return []; // Graceful fallback

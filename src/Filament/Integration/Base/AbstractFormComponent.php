@@ -61,8 +61,9 @@ abstract readonly class AbstractFormComponent implements FormComponentInterface
                 )
             )
             ->dehydrated(
-                fn (mixed $state): bool => FeatureManager::isEnabled(CustomFieldsFeature::FIELD_CONDITIONAL_VISIBILITY) &&
-                    ($this->coreVisibilityLogic->shouldAlwaysSave($customField) || filled($state))
+                fn (mixed $state): bool => ! FeatureManager::isEnabled(CustomFieldsFeature::FIELD_CONDITIONAL_VISIBILITY) ||
+                    $this->coreVisibilityLogic->shouldAlwaysSave($customField) ||
+                    filled($state)
             )
             ->required($this->validationService->isRequired($customField))
             ->rules($this->validationService->getValidationRules($customField))

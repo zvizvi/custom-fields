@@ -36,19 +36,65 @@ trait UsesCustomFields
     }
 
     /**
-     * @var array<int, array<string, mixed>>
+     * @var array<string, array<string, mixed>>
      */
     protected static array $tempCustomFields = [];
+
+    /**
+     * Generate a unique key for storing temporary custom fields data.
+     */
+    protected function getTempCustomFieldsKey(): string
+    {
+        // Use class name + key for existing models, or object ID for new models
+        if ($this->exists) {
+            return static::class.':'.$this->getKey();
+        }
+
+        return static::class.':new:'.spl_object_id($this);
+    }
 
     protected static function bootUsesCustomFields(): void
     {
         static::saving(function (Model $model): void {
             $model->handleCustomFields();
         });
+    }
 
-        static::saved(function (Model $model): void {
-            $model->saveCustomFieldsFromTemp();
-        });
+    /**
+     * Override save to handle custom fields after saving.
+     */
+    public function save(array $options = []): bool
+    {
+        $result = parent::save($options);
+
+        if ($result) {
+            $this->saveCustomFieldsFromTemp();
+        }
+
+        return $result;
+    }
+
+    /**
+     * Mutator to intercept custom_fields attribute and store it temporarily.
+     *
+     * @param  array<string, mixed>|null  $value
+     */
+    public function setCustomFieldsAttribute(?array $value): void
+    {
+        // Handle null value (when custom_fields is not provided)
+        if ($value === null) {
+            return;
+        }
+
+        // Store in temporary storage instead of attributes
+        $key = $this->getTempCustomFieldsKey();
+        self::$tempCustomFields[$key] = $value;
+
+        // Mark the model as dirty by updating the updated_at timestamp
+        // This ensures the model will be saved even if no other attributes changed
+        if ($this->usesTimestamps() && ! $this->isDirty('updated_at')) {
+            $this->updated_at = $this->freshTimestamp();
+        }
     }
 
     /**
@@ -56,9 +102,10 @@ trait UsesCustomFields
      */
     protected function handleCustomFields(): void
     {
-        if (isset($this->custom_fields) && is_array($this->custom_fields)) {
-            self::$tempCustomFields[spl_object_id($this)] = $this->custom_fields;
-            unset($this->custom_fields);
+        if (isset($this->attributes['custom_fields']) && is_array($this->attributes['custom_fields'])) {
+            $key = $this->getTempCustomFieldsKey();
+            self::$tempCustomFields[$key] = $this->attributes['custom_fields'];
+            unset($this->attributes['custom_fields']);
         }
     }
 
@@ -67,11 +114,11 @@ trait UsesCustomFields
      */
     protected function saveCustomFieldsFromTemp(): void
     {
-        $objectId = spl_object_id($this);
+        $key = $this->getTempCustomFieldsKey();
 
-        if (isset(self::$tempCustomFields[$objectId]) && method_exists($this, 'saveCustomFields')) {
-            $this->saveCustomFields(self::$tempCustomFields[$objectId]);
-            unset(self::$tempCustomFields[$objectId]);
+        if (isset(self::$tempCustomFields[$key]) && method_exists($this, 'saveCustomFields')) {
+            $this->saveCustomFields(self::$tempCustomFields[$key]);
+            unset(self::$tempCustomFields[$key]);
         }
     }
 
