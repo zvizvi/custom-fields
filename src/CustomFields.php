@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields;
 
+use Closure;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldOption;
 use Relaticle\CustomFields\Models\CustomFieldSection;
 use Relaticle\CustomFields\Models\CustomFieldValue;
+use Relaticle\CustomFields\Services\TenantContextService;
 
 final class CustomFields
 {
@@ -149,5 +151,23 @@ final class CustomFields
         static::$sectionModel = $model;
 
         return new self;
+    }
+
+    /**
+     * Register a custom tenant resolver.
+     *
+     * @param  Closure(): (int|string|null)  $callback
+     */
+    public static function resolveTenantUsing(Closure $callback): void
+    {
+        TenantContextService::setTenantResolver($callback);
+    }
+
+    /**
+     * Clear the custom tenant resolver.
+     */
+    public static function clearTenantResolver(): void
+    {
+        TenantContextService::clearTenantResolver();
     }
 }
