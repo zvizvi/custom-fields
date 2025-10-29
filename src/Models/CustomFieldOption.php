@@ -84,7 +84,7 @@ class CustomFieldOption extends Model
     {
         return Attribute::make(
             get: function (?string $value) {
-                if ($value === null || $value === '' || $value === '0') {
+                if (in_array($value, [null, '', '0'], true)) {
                     return $value;
                 }
 

@@ -156,7 +156,7 @@ final readonly class FrontendVisibilityService
             $targetField
         );
 
-        if ($expression === null || $expression === '' || $expression === '0') {
+        if (in_array($expression, [null, '', '0'], true)) {
             return null;
         }
 
