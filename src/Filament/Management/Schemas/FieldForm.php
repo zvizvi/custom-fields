@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Relaticle\CustomFields\Filament\Management\Schemas;
 
 use Exception;
+use Relaticle\CustomFields\Services\TenantContextService;
 use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
@@ -84,7 +85,7 @@ class FieldForm implements FormInterface
                 array $data
             ): array {
                 if (FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_MULTI_TENANCY)) {
-                    $data[config('custom-fields.database.column_names.tenant_foreign_key')] = Filament::getTenant()?->getKey();
+                    $data[config('custom-fields.database.column_names.tenant_foreign_key')] = TenantContextService::getCurrentTenantId();
                 }
 
                 return $data;
@@ -175,7 +176,7 @@ class FieldForm implements FormInterface
                                             config(
                                                 'custom-fields.database.column_names.tenant_foreign_key'
                                             ),
-                                            Filament::getTenant()?->getKey()
+                                            TenantContextService::getCurrentTenantId()
                                         )
                                     )
                             )
@@ -235,7 +236,7 @@ class FieldForm implements FormInterface
                                             config(
                                                 'custom-fields.database.column_names.tenant_foreign_key'
                                             ),
-                                            Filament::getTenant()?->getKey()
+                                            TenantContextService::getCurrentTenantId()
                                         )
                                     )
                             )

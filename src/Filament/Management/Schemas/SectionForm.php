@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Filament\Management\Schemas;
 
-use Filament\Facades\Filament;
+use Relaticle\CustomFields\Services\TenantContextService;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -55,7 +55,7 @@ class SectionForm implements FormInterface, SectionFormInterface
                                     config(
                                         'custom-fields.database.column_names.tenant_foreign_key'
                                     ),
-                                    Filament::getTenant()?->getKey()
+                                    TenantContextService::getCurrentTenantId()
                                 )
                             )
                             ->where('entity_type', self::$entityType)
@@ -97,7 +97,7 @@ class SectionForm implements FormInterface, SectionFormInterface
                                     config(
                                         'custom-fields.database.column_names.tenant_foreign_key'
                                     ),
-                                    Filament::getTenant()?->getKey()
+                                    TenantContextService::getCurrentTenantId()
                                 )
                             )
                             ->where('entity_type', self::$entityType)

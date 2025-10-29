@@ -8,7 +8,7 @@ use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
-use Filament\Facades\Filament;
+use Relaticle\CustomFields\Services\TenantContextService;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Support\Enums\Size;
@@ -167,7 +167,7 @@ final class ManageCustomFieldSection extends Component implements HasActions, Ha
             ])
             ->mutateDataUsing(function (array $data): array {
                 if (FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_MULTI_TENANCY)) {
-                    $data[config('custom-fields.database.column_names.tenant_foreign_key')] = Filament::getTenant()?->getKey();
+                    $data[config('custom-fields.database.column_names.tenant_foreign_key')] = TenantContextService::getCurrentTenantId();
                 }
 
                 return [
@@ -181,7 +181,7 @@ final class ManageCustomFieldSection extends Component implements HasActions, Ha
                     ->filter()
                     ->map(function (array $option): array {
                         if (FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_MULTI_TENANCY)) {
-                            $option[config('custom-fields.database.column_names.tenant_foreign_key')] = Filament::getTenant()?->getKey();
+                            $option[config('custom-fields.database.column_names.tenant_foreign_key')] = TenantContextService::getCurrentTenantId();
                         }
 
                         return $option;
