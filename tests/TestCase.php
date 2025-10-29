@@ -43,6 +43,12 @@ class TestCase extends BaseTestCase
     {
         parent::setUp();
 
+        // Clear booted models to ensure event listeners are properly registered
+        // This fixes an issue where models booted during test environment setup
+        // don't have their Eloquent events properly wired to the event dispatcher
+        Post::clearBootedModels();
+        User::clearBootedModels();
+
         Factory::guessFactoryNamesUsing(
             fn (string $modelName): string => match ($modelName) {
                 User::class => UserFactory::class,
