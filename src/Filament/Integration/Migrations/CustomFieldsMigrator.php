@@ -263,7 +263,7 @@ class CustomFieldsMigrator implements CustomsFieldsMigrators
     ): void {
         $customField->options()->createMany(
             collect($options)
-                ->map(function (mixed $value, mixed $key) {
+                ->map(function (mixed $value, mixed $key): array {
                     $data = [
                         'name' => $value,
                         'sort_order' => $key,

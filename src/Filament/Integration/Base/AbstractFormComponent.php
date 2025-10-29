@@ -118,11 +118,9 @@ abstract readonly class AbstractFormComponent implements FormComponentInterface
             $allFields
         );
 
-        return $jsExpression !== null &&
-        $jsExpression !== '' &&
-        $jsExpression !== '0'
-            ? $field->live()->visibleJs($jsExpression)
-            : $field;
+        return in_array($jsExpression, [null, '', '0'], true)
+            ? $field
+            : $field->live()->visibleJs($jsExpression);
     }
 
     /**

@@ -67,7 +67,7 @@ class CustomFieldsManagementPage extends Page
     #[Computed]
     public function currentEntityLabel(): string
     {
-        if ($this->currentEntityType === null || $this->currentEntityType === '' || $this->currentEntityType === '0') {
+        if (in_array($this->currentEntityType, [null, '', '0'], true)) {
             return '';
         }
 
@@ -79,7 +79,7 @@ class CustomFieldsManagementPage extends Page
     #[Computed]
     public function currentEntityIcon(): string
     {
-        if ($this->currentEntityType === null || $this->currentEntityType === '' || $this->currentEntityType === '0') {
+        if (in_array($this->currentEntityType, [null, '', '0'], true)) {
             return 'heroicon-o-document';
         }
 

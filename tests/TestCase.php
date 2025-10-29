@@ -149,7 +149,7 @@ class TestCase extends BaseTestCase
 
         // Fix Spatie Laravel Data configuration for testing
         config()->set('data.throw_when_max_depth_reached', false);
-        config()->set('data.max_transformation_depth', null);
+        config()->set('data.max_transformation_depth');
         config()->set('data.validation_strategy', 'only_requests');
     }
 
