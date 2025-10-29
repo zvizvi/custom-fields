@@ -6,7 +6,6 @@ namespace Relaticle\CustomFields\Filament\Management\Pages;
 
 use BackedEnum;
 use Filament\Actions\Action;
-use Relaticle\CustomFields\Services\TenantContextService;
 use Filament\Pages\Page;
 use Filament\Panel;
 use Filament\Support\Enums\Size;
@@ -25,6 +24,7 @@ use Relaticle\CustomFields\Facades\Entities;
 use Relaticle\CustomFields\FeatureSystem\FeatureManager;
 use Relaticle\CustomFields\Filament\Management\Schemas\SectionForm;
 use Relaticle\CustomFields\Models\CustomFieldSection;
+use Relaticle\CustomFields\Services\TenantContextService;
 use Relaticle\CustomFields\Support\Utils;
 
 class CustomFieldsManagementPage extends Page
